@@ -13,6 +13,9 @@ import androidx.compose.ui.unit.dp
  * sem depender da biblioteca estendida de ícones.
  */
 object HunterIcons {
+    val Home by lazy { icon("home", "M3 11l9-8 9 8", "M5 10v11h5v-7h4v7h5V10") }
+    val Appearance by lazy { icon("appearance", "M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18", "M12 3v18") }
+    val Location by lazy { icon("location", "M12 22s7-7 7-13A7 7 0 0 0 5 9c0 6 7 13 7 13z", "M12 6a3 3 0 1 0 0 6a3 3 0 1 0 0-6") }
     private fun icon(name: String, vararg paths: String): ImageVector =
         ImageVector.Builder(name, 24.dp, 24.dp, 24f, 24f).apply {
             paths.forEach { d ->

@@ -22,7 +22,7 @@ object HunterColors {
 
     val TextPrimary = Color(0xFFEDE8E0)
     val TextSecondary = Color(0xFFA5ABB2)
-    val TextMuted = Color(0xFF6F767E)
+    val TextMuted = Color(0xFF89919B)
 
     val Amber = Color(0xFFE2A240)
     val AmberSoft = Color(0xFFF3CF92)
@@ -79,6 +79,9 @@ private val scheme = darkColorScheme(
 private val base = TextStyle(fontFamily = FontFamily.SansSerif)
 
 private val typography = Typography(
+    displayLarge = base.copy(fontSize = 76.sp, lineHeight = 84.sp, fontWeight = FontWeight.SemiBold, letterSpacing = (-3).sp, fontFeatureSettings = "tnum"),
+    headlineLarge = base.copy(fontSize = 32.sp, lineHeight = 38.sp, fontWeight = FontWeight.SemiBold, letterSpacing = (-0.8).sp),
+    headlineMedium = base.copy(fontSize = 28.sp, lineHeight = 34.sp, fontWeight = FontWeight.SemiBold),
     headlineSmall = base.copy(fontSize = 22.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.2.sp),
     titleLarge = base.copy(fontSize = 20.sp, fontWeight = FontWeight.SemiBold),
     titleMedium = base.copy(fontSize = 16.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.1.sp),
