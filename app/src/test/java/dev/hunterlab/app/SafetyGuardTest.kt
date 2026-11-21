@@ -69,6 +69,10 @@ class SafetyGuardTest {
             "core/src/main/kotlin/dev/hunterlab/core/link/TripperLink.kt",
             "app/src/main/java/dev/hunterlab/app/ui/lab/LabViewModel.kt",
             "app/src/main/java/dev/hunterlab/app/ui/lab/LabScreen.kt",
+            // Contrato, fallback sem operações e envio manual exclusivamente por NavActions.
+            "app/src/main/java/dev/hunterlab/app/ui/contract/NavContracts.kt",
+            "app/src/main/java/dev/hunterlab/app/ui/home/LocalAppearanceActions.kt",
+            "app/src/main/java/dev/hunterlab/app/ui/navigation/TripperControls.kt",
         )
         for (token in listOf("startPairing", "submitPin", "startCompassTest", "authorizeTransmission", "syncClock")) {
             val outside = filesContaining(token) - allowed

@@ -9,14 +9,21 @@ class UiBoundaryTest {
     private val ui = File("src/main/java/dev/hunterlab/app/ui")
     private val areas = listOf("home", "navigation", "personalization", "settings", "contract")
     private val files = areas.flatMap { File(ui, it).walkTopDown().filter { file -> file.isFile && file.extension == "kt" }.toList() }
+    private fun forbiddenAccess(text: String): Boolean = listOf(
+        "connectGatt", "writeCharacteristic", "writePacket(", "TripperLink", "LinkCommand",
+        "getSharedPreferences", "HttpURLConnection", "requestLocationUpdates",
+    ).any(text::contains)
 
     @Test
     fun `novas telas nao acessam transporte rede ou persistencia`() {
         assertTrue(files.isNotEmpty())
-        val forbidden = listOf("connectGatt", "writeCharacteristic", "writePacket(", "TripperLink", "LinkCommand", "getSharedPreferences", "HttpURLConnection", "requestLocationUpdates")
-        files.forEach { file -> forbidden.forEach { api ->
-            assertFalse("${file.name} acessa $api", file.readText().contains(api))
-        } }
+        // Contraexemplos: reconhecer uma tela de NavActions nunca libera rádio, GPS ou armazenamento direto.
+        listOf(
+            "device.connectGatt(context, false, callback)", "gatt.writeCharacteristic(value)",
+            "port.writePacket(bytes)", "val link: TripperLink", "prefs.getSharedPreferences(name, 0)",
+            "val connection: HttpURLConnection", "gps.requestLocationUpdates(provider, listener)",
+        ).forEach { forbidden -> assertTrue("Comportamento proibido não detectado: $forbidden", forbiddenAccess(forbidden)) }
+        files.forEach { file -> assertFalse("${file.name} acessa capacidade proibida", forbiddenAccess(file.readText())) }
     }
 
     @Test

@@ -41,31 +41,21 @@ Não houve alteração das regras de assinatura, secrets, publicação de releas
 ## Validação
 
 - Compilação Kotlin: aprovada.
-- Suíte completa: **268 testes, 267 aprovados e uma falha** no guard antigo de `submitPin`, descrita abaixo. Zero erros e zero testes ignorados.
+- Suíte completa: **268/268 testes aprovados**, zero erros e zero testes ignorados após a correção autorizada do guard.
 - Os **oito testes novos de UI passaram**, incluindo isolamento dos dados fictícios, descarte visual de manobra/ETA antigos e contraste AA.
-- APKs debug e release sem assinatura: compilados. **Lint debug e release sem apontamentos.** A execução completa termina com falha somente pelo guard antigo; os builds e ambos os Lints concluíram.
+- APKs debug e release sem assinatura: compilados. **Lint debug e release sem apontamentos.** Na revisão final, a suíte completa, o build debug e o Lint debug foram executados novamente e concluíram com sucesso.
 - 12 prévias Compose renderizadas por Layoutlib/AGP: Início, navegação, radar, PIN, personalização, configurações, fonte 150%, tela ampla, vazio, base publicada, loading e erro.
 - A ferramenta de screenshot usou um init script e fixtures temporários, guardados na auditoria local. Nenhuma dependência de screenshot ou flag experimental foi acrescentada ao build versionado.
 - Nenhum emulador ou aparelho físico foi usado. As imagens são renders de Compose com dados fictícios, não testes BLE ou navegação GPS real.
 - Gitleaks 8.30.1 sobre o conteúdo staged da UI: nenhum segredo encontrado. `git diff --cached --check`: sem erros.
 
-## Pendência antes do push das telas
+## Correção final autorizada do guard
 
-O `SafetyGuardTest` da main 0.2.1 procura o texto `submitPin` em todos os arquivos e aceita somente os arquivos antigos do laboratório. Por isso reprova o contrato estável, o adaptador sem operações da base e a nova tela que envia PIN exclusivamente por `NavActions`.
+O `SafetyGuardTest` passou a reconhecer somente os três caminhos auditados que usam `NavActions`: `contract/NavContracts.kt`, `home/LocalAppearanceActions.kt` e `navigation/TripperControls.kt`. As demais barreiras de transmissão e inicialização permanecem intactas.
 
-O Claude está alterando esse teste para o MVP. Para respeitar a regra de não incluir arquivos em edição por ele, **o teste original foi mantido intacto nesta branch** e foi solicitada coordenação ao mantenedor.
+O `UiBoundaryTest` preserva as verificações de transporte, rede, GPS, persistência, segredos e estados fictícios. Foram incluídos contraexemplos que comprovam a detecção de acessos proibidos, sem ampliar a lista de componentes autorizados. A suíte continua com 268 testes.
 
-Proposta mínima: acrescentar apenas estes três caminhos à lista existente de arquivos de UI permitidos, mantendo todas as barreiras de rádio e inicialização:
-
-```text
-app/src/main/java/dev/hunterlab/app/ui/contract/NavContracts.kt
-app/src/main/java/dev/hunterlab/app/ui/home/LocalAppearanceActions.kt
-app/src/main/java/dev/hunterlab/app/ui/navigation/TripperControls.kt
-```
-
-O novo `UiBoundaryTest` verifica que essas telas não usam APIs de transporte/rede/persistência, não salvam/logam segredos e não importam os dados fictícios das prévias. Não se propõe excluir, ignorar ou desabilitar nenhum teste.
-
-O push das telas fica retido até resolver essa coordenação e obter a suíte completa aprovada. A main pública e o worktree do Claude permanecem preservados.
+A branch alternativa permanece independente. A integração 0.3.0 usa a interface conectada aos provedores reais entregue pelo Claude; esta implementação e suas prévias são preservadas para comparação e eventual polimento posterior.
 
 ## Integração controlada posterior
 
