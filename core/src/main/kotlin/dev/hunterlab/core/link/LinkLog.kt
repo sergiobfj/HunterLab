@@ -16,7 +16,7 @@ data class LinkLogEntry(val id: Long, val sessionId: Long, val sessionElapsedMs:
  * Histórico técnico, só em memória (nunca gravado em arquivo pelo app). Regras de redação:
  * PIN nunca aparece; endereço é mascarado; bytes recebidos só com captura detalhada ligada.
  */
-internal class LinkLog(private val capacity: Int = 250) {
+internal class LinkLog(private val capacity: Int = 400) {
     private val entries = ArrayDeque<LinkLogEntry>()
     private var nextId = 1L
 

@@ -2,7 +2,7 @@
 
 Aplicativo Android experimental e independente para explorar o **Tripper Pod original da Royal Enfield Hunter 350 2027**. Kotlin, Jetpack Compose e Bluetooth LE, com foco em uma experiência simples de navegação e no entendimento do protocolo.
 
-**Base validada informada: 0.2.1.** Projeto não oficial, sem afiliação ou endosso da Royal Enfield, Eicher Motors, Waze ou Google. Faça testes com a moto parada e em local seguro.
+**MVP atual: 0.3.0 · Base validada fisicamente informada: 0.2.1.** Projeto não oficial, sem afiliação ou endosso da Royal Enfield, Eicher Motors, Waze ou Google. Faça testes com a moto parada e em local seguro.
 
 ## Compatibilidade conhecida
 
@@ -27,12 +27,15 @@ O código também inclui busca BLE, inspeção GATT, laboratório com comandos c
 
 A transmissão existente exige autorização por sessão e ações manuais no Laboratório BLE. A autenticação depende de confirmação no display; uma escrita aceita pelo Android não confirma autenticação.
 
-## Em desenvolvimento
+## Em desenvolvimento — 0.3.0 (implementada, ainda não validada na moto)
 
-- Navegação real, provedores de rota e localização e alertas de radar.
-- Interface organizada em Início, Navegação, Personalização e Configurações.
-- Diagnósticos avançados acessíveis em Configurações, preservando o Laboratório BLE.
-- Integração contínua e distribuição com assinatura estável.
+- Navegação real: destino por busca, coordenadas ou link `geo:`; rotas GraphHopper com a chave do próprio usuário;
+  GPS com desvio e recálculo; telas de navegação no Tripper só em sessão de navegação autenticada.
+- Radares fixos do OpenStreetMap (Overpass) com cache local e aviso de cobertura limitada.
+- Interface em Início, Navegação, Personalização e Configurações; Laboratório BLE em Configurações → Avançado.
+- Novas permissões: internet (só rotas e radares), localização durante a navegação, notificações e serviço em
+  primeiro plano. Detalhes em [MVP_ARCHITECTURE](docs/MVP_ARCHITECTURE.md); validação em
+  [PHYSICAL_TEST_PLAN](docs/PHYSICAL_TEST_PLAN.md).
 
 Consulte o [roadmap](docs/ROADMAP.md). Não há capturas de tela públicas verificadas nesta entrega.
 
@@ -49,7 +52,7 @@ A interface consome os contratos do core; alterações visuais devem preservar a
 
 ## Compilação e testes
 
-Use o Gradle Wrapper incluído. A configuração encontrada na auditoria usa Gradle **9.9.2**, Android Gradle Plugin **9.5.2**, JDK **17 ou superior** (ambiente local: Temurin 25), Android SDK Platform **37.2** e Build-Tools **36.0.0**. As versões declaradas estão em `gradle/libs.versions.toml`.
+Use o Gradle Wrapper incluído. A configuração encontrada na auditoria usa Gradle **9.9.2**, Android Gradle Plugin **9.5.2**, JDK **25** (ambiente local e CI: Temurin 25), Android SDK Platform **37.2** e Build-Tools **36.0.0**. As versões declaradas estão em `gradle/libs.versions.toml`.
 
 Instale o SDK e configure `ANDROID_HOME` ou crie `local.properties` com `sdk.dir` apontando para sua instalação. Esse arquivo é privado e não deve ser commitado.
 
@@ -71,6 +74,12 @@ A distribuição de release depende de uma chave estável aprovada pelo mantened
 
 ## Segurança e limitações
 
+- **0.3.0 é um MVP sem validação física.** Apenas a base 0.2.1 tem os testes de Tripper relatados acima.
+- As rotas usam **perfil de carro** da GraphHopper; não são otimizadas ou validadas para motocicletas e podem exigir conferir restrições legais de circulação.
+- Radares fixos dependem de contribuição e cobertura OSM. A ausência de alerta não indica ausência de fiscalização.
+- Origem/destino seguem por HTTPS para GraphHopper; tiles da região da rota para Overpass; buscas de endereço usam o Geocoder do aparelho. A chave do usuário, até cinco destinos recentes e o cache ficam no armazenamento privado. A chave não tem criptografia adicional; root ou depuração autorizada podem expô-la. Backup e transferência de dados do app são explicitamente excluídos.
+- Serviço foreground, GPS com tela bloqueada e consumo de bateria ainda exigem testes no Samsung. Sem serviço foreground, a navegação e o link são encerrados.
+
 - Não opere o celular pilotando. O protocolo é parcial e experimental.
 - Conexão, autorização e autenticação são estados distintos. Não há reconexão automática no laboratório atual.
 - PINs, chaves, tokens, dados de localização, endereços BLE completos e relatórios brutos não devem aparecer em commits ou issues públicas.
@@ -87,6 +96,8 @@ Consulte a [auditoria de publicação](docs/AUDITORIA_PUBLICACAO.md) e os [teste
 - [Investigação histórica da conexão/status 147](docs/DIAGNOSTICO_CONEXAO.md)
 - [Testes físicos](docs/TESTES_FISICOS.md)
 - [Roadmap](docs/ROADMAP.md)
+- [Arquitetura do MVP de navegação](docs/MVP_ARCHITECTURE.md) · [Provedores de rota](docs/NAVIGATION_PROVIDERS.md) · [Dados de radar](docs/RADAR_DATA.md)
+- [Plano de validação física](docs/PHYSICAL_TEST_PLAN.md) · [Processo de release](docs/RELEASE_PROCESS.md) · [Changelog](CHANGELOG.md)
 
 ## Licenciamento e créditos
 

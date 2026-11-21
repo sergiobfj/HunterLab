@@ -4,12 +4,14 @@ import dev.hunterlab.protocol.ClockFormat
 import dev.hunterlab.protocol.CompassDirection
 import dev.hunterlab.protocol.DayPeriod
 import dev.hunterlab.protocol.DecodedPacket
+import dev.hunterlab.protocol.NavigationFrame
 import dev.hunterlab.protocol.PacketDecoder
 import dev.hunterlab.protocol.TripperCommands
+import dev.hunterlab.protocol.TripperIcons
 import dev.hunterlab.protocol.TripperPacket
 import java.time.LocalTime
 
-/** Únicos tipos de comando que podem chegar ao rádio na 0.2.0. */
+/** Únicos tipos de comando que podem chegar ao rádio (telas de navegação desde a 0.3.0, só em sessões de navegação). */
 enum class CommandKind(val label: String, val handshake: Boolean) {
     SHOW_PIN("HANDSHAKE_SHOW_PIN", true),
     RESUME("HANDSHAKE_RESUME", true),
@@ -17,6 +19,8 @@ enum class CommandKind(val label: String, val handshake: Boolean) {
     SET_TIME("SET_TIME", false),
     PING("PING_FW", false),
     COMPASS("Bússola", false),
+    NAVIGATION("Tela de navegação", false),
+    RECALCULATING("Tela recalculando", false),
 }
 
 enum class DedupePolicy {
@@ -64,6 +68,12 @@ class LinkCommand internal constructor(
         fun compass(direction: CompassDirection, period: DayPeriod) =
             documented(CommandKind.COMPASS, TripperCommands.compass(direction, period), DedupePolicy.REPLACE, key = "screen")
 
+        fun navigation(frame: NavigationFrame) =
+            documented(CommandKind.NAVIGATION, TripperCommands.navigation(frame), DedupePolicy.REPLACE, key = "screen")
+
+        fun recalculating(period: DayPeriod) =
+            documented(CommandKind.RECALCULATING, TripperCommands.recalculating(period), DedupePolicy.REPLACE, key = "screen")
+
         private fun documented(kind: CommandKind, packet: TripperPacket, policy: DedupePolicy, key: String? = kind.name) =
             LinkCommand(kind, packet, "${kind.label} · ${packet.toHex()}", key, policy)
     }
@@ -85,11 +95,14 @@ object CommandWhitelist {
             is DecodedPacket.Pin -> kind == CommandKind.PIN && d.code.length in 1..TripperCommands.PIN_MAX_LENGTH
             is DecodedPacket.SetTime -> kind == CommandKind.SET_TIME
             is DecodedPacket.Compass -> kind == CommandKind.COMPASS && d.direction != null
+            // Tela de navegação documentada; "rota iniciada" (0x45, só provável) continua fora.
+            is DecodedPacket.Navigation -> kind == CommandKind.NAVIGATION && d.icon != TripperIcons.ROUTE_STARTED && d.distance != null
+            is DecodedPacket.Screen -> kind == CommandKind.RECALCULATING && d.icon == TripperIcons.RECALCULATING
             else -> false
         }
     }
 
-    /** Algum tipo permitido reconhece este pacote? (Navegação, ligação, tela ociosa e bytes livres: não.) */
+    /** Algum tipo permitido reconhece este pacote? (Rota iniciada, ligação, tela ociosa e bytes livres: não.) */
     fun isTransmittable(packet: TripperPacket): Boolean = CommandKind.entries.any { matches(it, packet) }
 
     internal fun matches(command: LinkCommand): Boolean = matches(command.kind, command.packet)

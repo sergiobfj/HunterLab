@@ -1,0 +1,87 @@
+{
+  "hints": {
+    "visited_nodes.sum": 87,
+    "visited_nodes.average": 87.0
+  },
+  "info": {
+    "copyrights": [
+      "GraphHopper",
+      "OpenStreetMap contributors"
+    ],
+    "took": 4,
+    "road_data_timestamp": "2026-11-15T21:00:00Z"
+  },
+  "paths": [
+    {
+      "distance": 822.333,
+      "weight": 105.06009,
+      "time": 98187,
+      "transfers": 0,
+      "points_encoded": true,
+      "points_encoded_multiplier": 100000.0,
+      "bbox": [
+        -46.60196,
+        -23.5,
+        -46.5998,
+        -23.4946
+      ],
+      "points": "~ylnC~pl{GaM?I[YKYJIZmP??fK",
+      "instructions": [
+        {
+          "distance": 250.189,
+          "heading": 0.0,
+          "sign": 0,
+          "interval": [
+            0,
+            1
+          ],
+          "text": "Continue na Avenida do Contorno",
+          "time": 25019,
+          "street_name": "Avenida do Contorno"
+        },
+        {
+          "distance": 372.27,
+          "sign": 6,
+          "exit_number": 2,
+          "exited": true,
+          "turn_angle": -0.02,
+          "interval": [
+            1,
+            6
+          ],
+          "text": "Na rotatória, pegue a 2ª saída para a Rua Norte",
+          "time": 53181,
+          "street_name": "Rua Norte"
+        },
+        {
+          "distance": 199.874,
+          "sign": -2,
+          "interval": [
+            6,
+            7
+          ],
+          "text": "Vire à esquerda na Rua Oeste",
+          "time": 19987,
+          "street_name": "Rua Oeste"
+        },
+        {
+          "distance": 0.0,
+          "sign": 4,
+          "last_heading": 270.0,
+          "interval": [
+            7,
+            7
+          ],
+          "text": "Chegada ao destino",
+          "time": 0,
+          "street_name": ""
+        }
+      ],
+      "legs": [],
+      "details": {},
+      "ascend": 3.2,
+      "descend": 1.8,
+      "snapped_waypoints": "~ylnC~pl{Gw`@fK"
+    }
+  ]
+}

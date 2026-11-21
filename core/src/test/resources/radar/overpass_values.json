@@ -1,0 +1,16 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API (fixture ficticia)",
+  "elements": [
+    {"type": "node", "id": 3001, "lat": -10.6001, "lon": -48.4001, "tags": {"highway": "speed_camera", "maxspeed": "40 mph", "direction": "90"}},
+    {"type": "node", "id": 3002, "lat": -10.6002, "lon": -48.4002, "tags": {"highway": "speed_camera", "maxspeed": "BR:urban", "direction": "NE"}},
+    {"type": "node", "id": 3003, "lat": -10.6003, "lon": -48.4003, "tags": {"highway": "speed_camera", "maxspeed": "60 km/h", "direction": "forward"}},
+    {"type": "node", "id": 3004, "lat": -10.6004, "lon": -48.4004, "tags": {"highway": "speed_camera", "maxspeed": "none", "direction": "WSW"}},
+    {"type": "node", "id": 3005, "lat": -10.6005, "lon": -48.4005, "tags": {"highway": "speed_camera", "maxspeed": "60;40", "direction": "backward"}},
+    {"type": "node", "id": 3006, "lat": -10.6006, "lon": -48.4006, "tags": {"highway": "speed_camera", "maxspeed": "70", "direction": "-90"}},
+    {"type": "node", "id": 3007, "lat": -10.6007, "lon": -48.4007, "tags": {"highway": "speed_camera", "direction": "abc"}},
+    {"type": "node", "id": 3008, "tags": {"highway": "speed_camera", "maxspeed": "60"}},
+    {"type": "node", "id": 3009, "lat": -10.6009, "lon": -48.4009, "tags": {"amenity": "bench"}},
+    {"type": "node", "id": 3010, "lat": -10.6010, "lon": -48.4010, "tags": {"highway": "speed_camera", "maxspeed": "45.6", "direction": "nnw"}}
+  ]
+}

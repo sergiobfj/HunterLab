@@ -186,6 +186,8 @@ class LinkRig(timing: LinkTiming = LinkTiming()) {
                 is DecodedPacket.Pin -> "PIN"
                 is DecodedPacket.SetTime -> "SET_TIME"
                 is DecodedPacket.Compass -> "COMPASS"
+                is DecodedPacket.Navigation -> "NAVIGATION"
+                is DecodedPacket.Screen -> "SCREEN"
                 else -> "OUTRO"
             }
         }

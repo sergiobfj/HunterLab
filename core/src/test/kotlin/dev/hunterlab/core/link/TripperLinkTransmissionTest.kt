@@ -249,14 +249,15 @@ class TripperLinkTransmissionTest {
             TripperCommands.handshakeShowPin(), TripperCommands.handshakeResume(), TripperCommands.pingFirmware(),
             TripperCommands.pin("1234"), TripperCommands.setTime(9, 5, dev.hunterlab.protocol.ClockFormat.H24),
             TripperCommands.compass(CompassDirection.SE, DayPeriod.NIGHT),
+            // 0.3.0: telas de navegação documentadas (só em sessões de navegação — ver TripperLinkNavigationStreamTest).
+            NavigationFrame(0x14, 167, 1, bottomLine = BottomLine.TotalDistance(2542)).toPacket(),
+            TripperCommands.recalculating(DayPeriod.DAY),
         )
         allowed.forEach { assertTrue(CommandWhitelist.isTransmittable(it), it.toHex()) }
         val blocked = listOf(
-            NavigationFrame(0x14, 167, 1, bottomLine = BottomLine.TotalDistance(2542)).toPacket(),
             TripperCommands.callIcon(),
             TripperCommands.idleScreen(DayPeriod.DAY),
             TripperCommands.routeStarted(),
-            TripperCommands.recalculating(DayPeriod.DAY),
             TripperPacket.fromPayload(ByteArray(18) { 0x7E }),
             TripperPacket.fromPayload(ByteArray(18).also { it[0] = 0x10; it[1] = 0x11; it[2] = 0x41; it[14] = 0x33 }), // direção inválida
         )

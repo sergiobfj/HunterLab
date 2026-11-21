@@ -1,0 +1,9 @@
+{
+  "message": "The requested profile 'carro' does not exist.\nAvailable profiles: [car, bike, foot]",
+  "hints": [
+    {
+      "message": "The requested profile 'carro' does not exist.\nAvailable profiles: [car, bike, foot]",
+      "details": "java.lang.IllegalArgumentException"
+    }
+  ]
+}

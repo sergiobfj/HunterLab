@@ -1,0 +1,106 @@
+{
+  "hints": {
+    "visited_nodes.sum": 87,
+    "visited_nodes.average": 87.0
+  },
+  "info": {
+    "copyrights": [
+      "GraphHopper",
+      "OpenStreetMap contributors"
+    ],
+    "took": 4,
+    "road_data_timestamp": "2026-11-15T21:00:00Z"
+  },
+  "paths": [
+    {
+      "distance": 1298.768,
+      "weight": 139.84686,
+      "time": 130698,
+      "transfers": 0,
+      "points_encoded": true,
+      "points_encoded_multiplier": 100000.0,
+      "bbox": [
+        -46.6,
+        -23.50581,
+        -46.59412,
+        -23.5
+      ],
+      "points": "~ylnC~pl{G?eH?iNvE?bI?vHcEtHcE{AxJ",
+      "instructions": [
+        {
+          "distance": 149.9,
+          "heading": 90.0,
+          "sign": 0,
+          "interval": [
+            0,
+            1
+          ],
+          "text": "Continue na Rua das Acácias",
+          "time": 14990,
+          "street_name": "Rua das Acácias"
+        },
+        {
+          "distance": 249.833,
+          "sign": 0,
+          "interval": [
+            1,
+            2
+          ],
+          "text": "Continue na Avenida Central",
+          "time": 20819,
+          "street_name": "Avenida Central"
+        },
+        {
+          "distance": 300.227,
+          "sign": 2,
+          "interval": [
+            2,
+            4
+          ],
+          "text": "Vire à direita na Rua dos Ipês",
+          "time": 30023,
+          "street_name": "Rua dos Ipês"
+        },
+        {
+          "distance": 399.416,
+          "sign": -1,
+          "interval": [
+            4,
+            6
+          ],
+          "text": "Vire levemente à esquerda na Rua Projetada 3",
+          "time": 39942,
+          "street_name": "Rua Projetada 3"
+        },
+        {
+          "distance": 199.392,
+          "sign": 3,
+          "interval": [
+            6,
+            7
+          ],
+          "text": "Vire acentuadamente à direita na Alameda das Palmeiras",
+          "time": 24924,
+          "street_name": "Alameda das Palmeiras"
+        },
+        {
+          "distance": 0.0,
+          "sign": 4,
+          "last_heading": 284.86,
+          "interval": [
+            7,
+            7
+          ],
+          "text": "Chegada ao destino",
+          "time": 0,
+          "street_name": ""
+        }
+      ],
+      "legs": [],
+      "details": {},
+      "ascend": 3.2,
+      "descend": 1.8,
+      "snapped_waypoints": "~ylnC~pl{Gl`@}W"
+    }
+  ]
+}

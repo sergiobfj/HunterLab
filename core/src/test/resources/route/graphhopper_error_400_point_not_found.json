@@ -1,0 +1,10 @@
+{
+  "message": "Cannot find point 1: -23.61000,-46.71000",
+  "hints": [
+    {
+      "message": "Cannot find point 1: -23.61000,-46.71000",
+      "details": "com.graphhopper.util.exceptions.PointNotFoundException",
+      "point_index": 1
+    }
+  ]
+}

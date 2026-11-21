@@ -14,6 +14,11 @@ interface LinkScheduler {
 }
 
 /** Quando abrir o servidor GATT local. O padrão (antes da conexão) é o da referência; os demais existem para diagnóstico. */
+enum class SessionPurpose(val label: String) {
+    LAB("Laboratório BLE"),
+    NAVIGATION("Navegação"),
+}
+
 enum class ServerMode(val label: String) {
     BEFORE_CONNECT("Antes da conexão (padrão)"),
     AFTER_CONNECT("Depois da conexão, antes da descoberta"),
@@ -28,6 +33,8 @@ data class ConnectOptions(
     val requireFreshAdvertisement: Boolean = true,
     val advertisementWaitMs: Long = 12_000,
     val serverMode: ServerMode = ServerMode.BEFORE_CONNECT,
+    /** Dono da sessão: o laboratório (limite de 5 min, interrompe ao sair da tela) ou a navegação (serviço em primeiro plano). */
+    val purpose: SessionPurpose = SessionPurpose.LAB,
 ) {
     init {
         require(advertisementWaitMs in 1_000..25_000) { "Espera por anúncio deve ficar entre 1 e 25 s" }
@@ -99,4 +106,24 @@ class InMemoryPairingRegistry : PairingRegistry {
     override fun forget(address: String) {
         records.remove(address.uppercase())
     }
+}
+
+/** O que a navegação pode fazer com o Tripper agora. */
+enum class StreamAvailability {
+    /** Sem sessão de navegação autenticada. */
+    UNAVAILABLE,
+
+    /** Autenticado numa sessão de navegação: pode iniciar a transmissão de telas. */
+    READY,
+
+    /** Telas de navegação sendo transmitidas (reenvio periódico). */
+    STREAMING,
+}
+
+/** Porta usada pelo controlador de tela da navegação. Só telas documentadas; nunca bytes livres. */
+interface ScreenStreamPort {
+    val streamAvailability: StreamAvailability
+    fun startScreenStream(screen: dev.hunterlab.protocol.TripperScreen): CommandResult
+    fun updateScreen(screen: dev.hunterlab.protocol.TripperScreen): CommandResult
+    fun stopScreenStream(reason: String): CommandResult
 }

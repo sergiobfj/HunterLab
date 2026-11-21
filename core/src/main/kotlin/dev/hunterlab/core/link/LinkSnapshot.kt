@@ -63,6 +63,16 @@ data class LinkDiagnostics(
     val inboundCaptureDetailed: Boolean = false,
     /** Verdadeiro se a captura detalhada foi ligada em algum momento desde que o app abriu. */
     val inboundCaptureEverUsed: Boolean = false,
+    /** Contadores da última sessão, já encerrada (o relatório continua mostrando o que aconteceu). */
+    val fromEndedSession: Boolean = false,
+)
+
+/** Transmissão contínua de telas de navegação (só sessões de navegação). */
+data class ScreenStreamInfo(
+    val screenLabel: String,
+    val elapsedMs: Long,
+    val framesQueued: Int,
+    val framesDelivered: Int,
 )
 
 /** Resumo de uma tentativa de conexão, para comparar variantes no mesmo aparelho. Tempos a partir do toque em Conectar. */
@@ -102,6 +112,8 @@ data class LinkSnapshot(
     val log: List<LinkLogEntry> = emptyList(),
     val connectOptions: ConnectOptions? = null,
     val attempts: List<ConnectAttemptSummary> = emptyList(),
+    val purpose: SessionPurpose? = null,
+    val screenStream: ScreenStreamInfo? = null,
 ) {
     val active: Boolean get() = state != LinkState.DISCONNECTED
 }

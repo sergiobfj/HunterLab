@@ -1,29 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-feature
         android:name="android.hardware.bluetooth_le"
         android:required="true" />
 
     <!-- Android 12+ (minSdk 31). "neverForLocation": o app não deriva localização do scan,
-         por isso não pede ACCESS_FINE_LOCATION. Alguns beacons podem ser filtrados do scan. -->
+         a permissão de localização abaixo é exclusiva do GPS. Alguns beacons podem ser filtrados do scan. -->
     <uses-permission
         android:name="android.permission.BLUETOOTH_SCAN"
         android:usesPermissionFlags="neverForLocation" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 
-    <!-- Sem permissão INTERNET: o app não tem acesso à rede (sem servidores, sem telemetria). -->
+    <!-- 0.3.0 — Navegação. INTERNET só para rotas (GraphHopper) e radares (OpenStreetMap/Overpass): os hosts
+         permitidos ficam em net/HttpsClient (verificado pelo SafetyGuardTest). Sem telemetria, sem servidor próprio. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Localização só durante a navegação iniciada pelo usuário, no serviço em primeiro plano (sem segundo plano). -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Mantém o reenvio de telas (a cada ~2 s) com a tela apagada; liberado ao encerrar a navegação. -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <uses-feature
+        android:name="android.hardware.location.gps"
+        android:required="false" />
 
     <application
         android:name=".HunterLabApplication"
         android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.HunterLab"
-        tools:ignore="DataExtractionRules">
+        android:theme="@style/Theme.HunterLab">
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -32,6 +46,17 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- Destino compartilhado por outro app como link geo:lat,lon -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="geo" />
+            </intent-filter>
         </activity>
+        <service
+            android:name=".nav.NavigationService"
+            android:exported="false"
+            android:foregroundServiceType="location|connectedDevice" />
     </application>
 </manifest>
