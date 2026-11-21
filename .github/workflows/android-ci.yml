@@ -2,7 +2,7 @@ name: Android CI
 
 on:
   push:
-    branches: [main, 'feat/ui-*']
+    branches: [main, 'feat/ui-*', 'feat/mvp-*']
     paths-ignore: ['**/*.md']
   pull_request:
     paths-ignore: ['**/*.md']
