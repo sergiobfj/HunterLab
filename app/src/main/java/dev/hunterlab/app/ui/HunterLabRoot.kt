@@ -1,135 +1,141 @@
 package dev.hunterlab.app.ui
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import dev.hunterlab.app.BuildConfigInfo
 import dev.hunterlab.app.ble.BleController
-import dev.hunterlab.app.ui.components.Pill
+import dev.hunterlab.app.ui.components.SessionSafetyActions
+import dev.hunterlab.app.ui.contract.NavBindings
 import dev.hunterlab.app.ui.devices.DevicesScreen
 import dev.hunterlab.app.ui.devices.DevicesViewModel
+import dev.hunterlab.app.ui.home.HomeScreen
 import dev.hunterlab.app.ui.lab.LabActiveStrip
 import dev.hunterlab.app.ui.lab.LabViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dev.hunterlab.app.ui.navigation.NavigationScreen
+import dev.hunterlab.app.ui.navigation.hasActiveNavigation
+import dev.hunterlab.app.ui.personalization.PersonalizationScreen
 import dev.hunterlab.app.ui.playground.PlaygroundScreen
 import dev.hunterlab.app.ui.playground.PlaygroundViewModel
+import dev.hunterlab.app.ui.settings.AdvancedDestination
+import dev.hunterlab.app.ui.settings.SettingsScreen
 import dev.hunterlab.app.ui.simulation.NavigationSimScreen
 import dev.hunterlab.app.ui.simulation.RadarSimScreen
 import dev.hunterlab.app.ui.simulation.SimulationViewModel
 import dev.hunterlab.app.ui.theme.HunterColors
 import dev.hunterlab.app.ui.theme.HunterIcons
 
-enum class Destination(val label: String, val title: String, val subtitle: String) {
-    DEVICES("Dispositivos", "Dispositivos", "Busca e inspeção BLE — somente leitura"),
-    NAVIGATION("Navegação", "Simulador de navegação", "Manobras, distâncias e período"),
-    RADAR("Radares", "Simulador de radares", "Eventos fictícios e prioridade"),
-    PLAYGROUND("Playground", "Playground visual", "Catálogo de símbolos e experimentos");
+private enum class DailyDestination(val label: String) {
+    HOME("Início"), NAVIGATION("Navegação"), PERSONALIZATION("Personalização"), SETTINGS("Configurações");
 
     val icon: ImageVector
         get() = when (this) {
-            DEVICES -> HunterIcons.Bluetooth
+            HOME -> HunterIcons.Home
             NAVIGATION -> HunterIcons.Navigation
-            RADAR -> HunterIcons.Radar
-            PLAYGROUND -> HunterIcons.Playground
+            PERSONALIZATION -> HunterIcons.Personalization
+            SETTINGS -> HunterIcons.Settings
         }
 }
 
+/** Apenas esta composição faz a ponte com os ViewModels das ferramentas existentes. */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun HunterLabRoot(ble: BleController) {
-    var destination by rememberSaveable { mutableStateOf(Destination.DEVICES) }
+fun HunterLabRoot(ble: BleController, nav: NavBindings) {
+    var destination by rememberSaveable { mutableStateOf(DailyDestination.HOME) }
+    var advanced by rememberSaveable { mutableStateOf<AdvancedDestination?>(null) }
+    val homeState by nav.home.collectAsStateWithLifecycle()
+    val navState by nav.nav.collectAsStateWithLifecycle()
+    val settingsState by nav.settings.collectAsStateWithLifecycle()
     val devices: DevicesViewModel = viewModel { DevicesViewModel(ble) }
     val simulation: SimulationViewModel = viewModel()
     val playground: PlaygroundViewModel = viewModel()
     val lab: LabViewModel = viewModel { LabViewModel(ble) }
     val labState by lab.link.collectAsStateWithLifecycle()
+    val active = homeState.navigationActive || navState.hasActiveNavigation()
+    val canInterrupt = navState.tripper.canInterrupt || homeState.tripper.canInterrupt
+    val keyboardVisible = WindowInsets.isImeVisible
 
+    BackHandler(enabled = advanced != null || destination != DailyDestination.HOME) {
+        if (advanced != null) advanced = null else destination = DailyDestination.HOME
+    }
     Scaffold(
+        modifier = Modifier.imePadding(),
         containerColor = HunterColors.Background,
         topBar = {
-            Column {
-                TopBar(destination)
+            Column(Modifier.statusBarsPadding()) {
+                Row(
+                    Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    if (advanced != null) {
+                        IconButton(onClick = { advanced = null }) { Icon(HunterIcons.Back, "Voltar para Configurações") }
+                        Text(advanced!!.title, style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
+                    } else {
+                        Text(
+                            "HUNTER LAB", style = MaterialTheme.typography.labelLarge.copy(letterSpacing = 3.sp, fontWeight = FontWeight.Bold),
+                            color = HunterColors.TextSecondary,
+                        )
+                    }
+                }
                 LabActiveStrip(labState, onInterrupt = lab::interrupt)
             }
         },
         bottomBar = {
-            NavigationBar(containerColor = HunterColors.Surface, tonalElevation = 0.dp) {
-                Destination.entries.forEach { d ->
-                    NavigationBarItem(
-                        selected = d == destination,
-                        onClick = { destination = d },
-                        icon = { Icon(d.icon, contentDescription = null) },
-                        label = { Text(d.label) },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = HunterColors.Amber,
-                            selectedTextColor = HunterColors.AmberSoft,
-                            indicatorColor = HunterColors.AmberContainer,
-                            unselectedIconColor = HunterColors.TextMuted,
-                            unselectedTextColor = HunterColors.TextMuted,
-                        ),
-                    )
+            Column {
+                SessionSafetyActions(active, canInterrupt, nav.actions)
+                if (!keyboardVisible) NavigationBar(containerColor = HunterColors.Surface, tonalElevation = 0.dp) {
+                    DailyDestination.entries.forEach { item ->
+                        NavigationBarItem(
+                            selected = item == destination,
+                            onClick = { destination = item; advanced = null },
+                            icon = { Icon(item.icon, contentDescription = null) },
+                            label = { Text(item.label, style = MaterialTheme.typography.labelSmall) },
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = HunterColors.TextPrimary,
+                                selectedTextColor = HunterColors.TextPrimary,
+                                indicatorColor = HunterColors.SurfaceHighest,
+                                unselectedIconColor = HunterColors.TextSecondary,
+                                unselectedTextColor = HunterColors.TextSecondary,
+                            ),
+                        )
+                    }
                 }
             }
         },
     ) { padding ->
-        Column(Modifier.fillMaxSize().background(HunterColors.Background)) {
+        val advancedDestination = advanced
+        if (advancedDestination != null) {
+            // Mesmas telas, ViewModels e convenção de contentPadding da raiz original.
+            when (advancedDestination) {
+                AdvancedDestination.DEVICES -> DevicesScreen(devices, lab, padding)
+                AdvancedDestination.NAVIGATION_SIM -> NavigationSimScreen(simulation, padding)
+                AdvancedDestination.RADAR_SIM -> RadarSimScreen(simulation, padding)
+                AdvancedDestination.PLAYGROUND -> PlaygroundScreen(playground, padding)
+            }
+        } else {
+            val content = Modifier.fillMaxSize().padding(padding)
             when (destination) {
-                Destination.DEVICES -> DevicesScreen(devices, lab, padding)
-                Destination.NAVIGATION -> NavigationSimScreen(simulation, padding)
-                Destination.RADAR -> RadarSimScreen(simulation, padding)
-                Destination.PLAYGROUND -> PlaygroundScreen(playground, padding)
+                DailyDestination.HOME -> HomeScreen(
+                    homeState, nav.actions,
+                    onNavigation = { destination = DailyDestination.NAVIGATION },
+                    onSettings = { destination = DailyDestination.SETTINGS }, modifier = content,
+                )
+                DailyDestination.NAVIGATION -> NavigationScreen(
+                    navState, nav.actions, onHome = { destination = DailyDestination.HOME }, modifier = content,
+                    navigationActive = active, showSafetyActions = false,
+                )
+                DailyDestination.PERSONALIZATION -> PersonalizationScreen(settingsState, nav.actions, content, navState.tripperPreview)
+                DailyDestination.SETTINGS -> SettingsScreen(settingsState, nav.actions, onAdvanced = { advanced = it }, modifier = content)
             }
         }
-    }
-}
-
-@Composable
-private fun TopBar(destination: Destination) {
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .background(HunterColors.Background)
-            .statusBarsPadding()
-            .padding(start = 20.dp, end = 16.dp, top = 10.dp, bottom = 8.dp),
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                "HUNTER LAB",
-                style = MaterialTheme.typography.labelLarge.copy(letterSpacing = 3.sp, fontWeight = FontWeight.Bold),
-                color = HunterColors.Amber,
-            )
-            Spacer(Modifier.width(10.dp))
-            Pill("v${BuildConfigInfo.VERSION}", HunterColors.TextSecondary)
-            Spacer(Modifier.weight(1f))
-            Text("Hunter 350 · Tripper Pod", style = MaterialTheme.typography.labelSmall, color = HunterColors.TextMuted)
-        }
-        Spacer(Modifier.height(6.dp))
-        Text(destination.title, style = MaterialTheme.typography.headlineSmall, color = HunterColors.TextPrimary)
-        Text(destination.subtitle, style = MaterialTheme.typography.bodySmall, color = HunterColors.TextSecondary)
     }
 }

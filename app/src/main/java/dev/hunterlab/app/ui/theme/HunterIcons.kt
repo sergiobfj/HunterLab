@@ -27,6 +27,8 @@ object HunterIcons {
             }
         }.build()
 
+    val Home by lazy { icon("home", "M3 11l9-8 9 8", "M5 10v11h5v-7h4v7h5V10") }
+    val Personalization by lazy { icon("personalization", "M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18", "M7 9h10", "M7 15h10", "M10 7v4", "M14 13v4") }
     val Bluetooth by lazy { icon("bluetooth", "M7 7l10 10-5 5V2l5 5L7 17") }
     val Navigation by lazy { icon("navigation", "M6 20v-7a4 4 0 0 1 4-4h9", "M15 5l4 4-4 4") }
     val Radar by lazy {

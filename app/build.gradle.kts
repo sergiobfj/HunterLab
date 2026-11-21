@@ -18,8 +18,8 @@ android {
         // Android 12+: permissões BLUETOOTH_SCAN/CONNECT sem pedir localização.
         minSdk = 31
         targetSdk = 37
-        versionCode = 3
-        versionName = "0.2.1"
+        versionCode = 5
+        versionName = "0.3.0"
     }
 
     buildTypes {
