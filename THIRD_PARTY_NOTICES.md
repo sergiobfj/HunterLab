@@ -26,6 +26,7 @@ Licenças conferidas nos POMs do cache Gradle local das versões declaradas. O i
 |---|---|---|
 | Kotlin e plugin Compose | 2.4.21 | Apache-2.0 |
 | kotlinx.coroutines | 1.11.0 | Apache-2.0 |
+| kotlinx.serialization JSON (novo na 0.3.0) | 1.9.0 | Apache-2.0 (POM local conferido) |
 | AndroidX Core KTX | 1.19.1 | Apache-2.0 |
 | AndroidX Activity Compose | 1.13.0 | Apache-2.0 |
 | AndroidX Lifecycle | 2.11.1 | Apache-2.0 |
@@ -42,3 +43,9 @@ Antes de uma release pública, gerar o inventário das dependências transitivas
 ## Marcas
 
 Royal Enfield, Hunter 350, Meteor 350, Tripper, Waze e demais marcas pertencem aos respectivos titulares. As referências descrevem compatibilidade e origem técnica; não indicam afiliação ou endosso.
+
+## Provedores e dados da 0.3.0
+
+O cliente GraphHopper e o parser Overpass são Kotlin do projeto, usando a porta HTTP própria. Nenhum SDK GraphHopper, banco de radares, binário proprietário ou código vendorizado foi acrescentado. O acesso à API depende da chave e das condições do serviço do usuário; não transfere ao app uma licença dos dados retornados.
+
+As rotas e os radares mantêm a atribuição ao OpenStreetMap. Os radares baixados permanecem no cache privado do aparelho; os dados OSM são ODbL, sem aplicar essa licença ao código Kotlin. Consulte [direitos do OpenStreetMap](https://www.openstreetmap.org/copyright) e [política de radares](docs/RADAR_DATA.md). Não foram identificadas novas dependências de produção com licença incompatível nesta revisão; a escolha da licença própria continua pendente.

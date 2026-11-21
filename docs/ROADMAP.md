@@ -8,41 +8,36 @@ personalização, (4) experimentos com os símbolos existentes.
 - [x] Biblioteca de protocolo, core puro, app com quatro abas, BLE somente leitura.
 - [x] Testes físicos somente leitura na Hunter 350 2027: `RE_DISP`, perfil GATT igual ao documentado, app oficial intacto.
 
-## 0.2.0 — Etapa 02A: infraestrutura da primeira transmissão (esta versão) ✅ código · ⏳ teste físico
+## 0.2.0 / 0.2.1 — Laboratório BLE ✅ código · ✅ teste físico
 
-- [x] `TripperLink` no core: máquina de estados, autorização por sessão, handshake documentado, PIN manual,
-      confirmação humana, retomada condicionada, fila serializada, keepalive, teste de bússola, interrupção, limpeza.
-- [x] Adaptador Android: cliente GATT (só `01FF0101-…`) e servidor GATT local, sem anúncio, sem CCCD.
-- [x] Laboratório BLE na aba Dispositivos, com Interromper sempre visível; detalhes GATT recolhidos.
-- [x] Guardas automatizadas: sem escrita fora do adaptador, sem transmissão na inicialização, sem persistência.
-- [ ] **T07–T11** na Hunter (roteiro em `PRIMEIRO_HANDSHAKE.md`) — depende de autorização sua.
+- [x] `TripperLink` (estados, autorização por sessão, handshake manual, PIN, keepalive, bússola, interrupção).
+- [x] 0.2.1: conexão só com anúncio recente (corrigiu o status 147 nas sessões observadas).
+- [x] **Na Hunter:** PIN aceito visualmente e bússola exibida em duas sessões; relógio voltou sozinho; app oficial ok.
 
-## 0.2.1 — Diagnóstico do status 147 (esta versão) ⏳ validação no celular
+## 0.2.2 — Consolidação ✅
 
-- [x] Conexão do laboratório só com anúncio recente e conectável, usando o dispositivo do próprio anúncio (como a
-      referência). Opção para reproduzir a 0.2.0 no diagnóstico.
-- [x] Variantes de diagnóstico do servidor local (antes/depois da conexão/desligado), sem mudar o padrão.
-- [x] Linhas `diag:` idênticas na inspeção e no laboratório; resumo por tentativa no relatório.
-- [ ] **Reteste D1–D6** sem transmissão (`DIAGNOSTICO_CONEXAO.md`). O 147 só será dado como resolvido depois dele.
+- [x] Relatório mantém os contadores da última sessão após a desconexão (antes mostrava 0 escritas/0 respostas).
+- [x] Histórico não é inundado por envios periódicos (contados, não listados um a um; capacidade 400).
+- [x] Resultados físicos registrados (`TESTES_FISICOS.md`); CI e processo de release preparados (`RELEASE_PROCESS.md`).
 
-## 0.2.x — Ajustes pós-teste físico
+## 0.3.0 — Navegação real (MVP) ⏳ validação física
 
-- [ ] Registrar o formato das respostas do Pod (com captura detalhada, em sessão dedicada).
-- [ ] Se o handshake falhar na Hunter: avaliar, com autorização, a ativação do CCCD como a referência faz.
-- [ ] Atualizar `HunterValidation` do que for comprovado.
+- [x] Contratos: `RouteProvider`, fonte de localização, `NavigationEngine`, `TripperDisplayController`, `ScreenStreamPort`.
+- [x] Rotas GraphHopper (chave do usuário), rastreamento com histerese, desvio e recálculo com limites.
+- [x] Telas de navegação e "recalculando" liberadas **só** em sessões de navegação (lista branca + porta própria).
+- [x] Serviço em primeiro plano (localização + dispositivo conectado), notificação com Encerrar, trajeto simulado.
+- [x] Interface diária (Codex): Início, Navegação, Personalização, Configurações; laboratório em Avançado.
+- [ ] Roteiros N00–N07 de `PHYSICAL_TEST_PLAN.md` (telas de navegação ainda não testadas na moto).
 
-## 0.3.0 — Navegação real (só depois da bússola validada)
+## 0.4.0 — Radares reais ⏳
 
-- [ ] Novo `NavigationProvider` com fonte externa, sem modificar APKs de terceiros (avaliar termos de uso).
-- [ ] Liberar `NavigationFrame` na lista branca do laboratório, com reenvio a cada 2 s e prioridade do árbitro.
+- [x] Radares fixos do OpenStreetMap (Overpass), cache por tiles, casamento com a rota e sentido, alertas 700/300 m.
+- [ ] Roteiro N08 com radar mapeado conhecido.
 
-## 0.4.0 — Radares reais
+## 1.0.0 — Estabilização
 
-- [ ] Fonte local de radares, sem servidor; localização com permissão e justificativa próprias.
-
-## 0.5.0 — Visual e símbolos
-
-- [ ] Sequências de símbolos no hardware, só depois de revisar `HardwareExecutionPolicy`.
+- [ ] N00–N11 aprovados; release assinado com chave estável; documentação curta de uso.
+- [ ] Decidir com base em teste (T11): `HANDSHAKE_RESUME` para não digitar o PIN a cada viagem e reconexão automática.
 
 ## Decisões
 
@@ -56,7 +51,9 @@ Aprovadas em 21/11/2026:
 | Reconexão automática | **Não implementar** nesta versão |
 | Testes físicos | **Preparar T07–T09** para execução manual; T10 (bússola) e T11 ficam para depois |
 
-Pendentes: autorização para executar T07–T09 (decisão do usuário no local); depois, autorização própria para T10.
+Tomadas na 0.3.0 (documentadas em `MVP_ARCHITECTURE.md`): persistência mínima de preferências (sem PIN, sem
+endereço do Tripper); rede só para rotas e radares; navegação usa confirmação única por sessão depois dos termos aceitos
+uma vez (o checklist de 5 itens continua no laboratório). Pendente de teste: retomada sem PIN (T11).
 
 ## Dívida técnica conhecida
 

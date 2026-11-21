@@ -1,8 +1,9 @@
 # Testes físicos — Hunter 350 2027 + Tripper Pod
 
-> **Situação (0.2.0):** os testes somente leitura da 0.1.0 foram executados pelo usuário numa Hunter 350 2027
-> (resultados abaixo, conforme relatado). **Nenhum teste de escrita foi executado.** Os roteiros T07–T11 usam o
-> Laboratório BLE e seguem `docs/PRIMEIRO_HANDSHAKE.md`. Preencha apenas com observações reais.
+> **Situação (0.2.2):** leitura (0.1.0), conexão do laboratório (0.2.1) e **duas sessões reais com escrita**
+> (handshake, PIN e bússola) foram executadas pelo usuário numa Hunter 350 2027, com um Samsung SM-A155M
+> (Android 16, API 36). Resultados abaixo **conforme relatado pelo usuário**. Navegação real ainda não foi testada
+> na moto — roteiro em `docs/PHYSICAL_TEST_PLAN.md`. Preencha apenas com observações reais.
 
 ## Antes de começar
 
@@ -74,14 +75,25 @@ queda por status 19 ~5 s após conectar.
 | T04 | — | — | Não informado | — |
 | T05 | — | — | Não informado | — |
 | T06 | nov/2026 | 0.1.0 | **Executado — OK** | App oficial Royal Enfield continuou funcionando; relógio voltou ao normal; nenhum comportamento anormal observado. |
-| T07 | nov/2026 | 0.2.0 | **Bloqueado antes do envio** | Laboratório: `RE_DISP` encontrado, pré-autorização OK, servidor local pronto em ~0,1–0,2 s, cliente GATT terminou com **status 147**; repetido com a inspeção já encerrada. **Nenhum pacote enviado**; sem descoberta nem handshake. Investigação: `docs/DIAGNOSTICO_CONEXAO.md`. |
-| D1–D6 | — | 0.2.1 | Não executado | Reteste de conexão **sem transmissão** (`DIAGNOSTICO_CONEXAO.md` §7) |
-| T08 | — | 0.2.0 | Não executado | PIN manual e confirmação |
-| T09 | — | 0.2.0 | Não executado | Estabilidade com keepalive e Interromper |
-| T10 | — | 0.2.0 | Não executado | Teste de bússola |
-| T11 | — | 0.2.0 | Não executado | Retomada (`HANDSHAKE_RESUME`) |
+| T07 (0.2.0) | nov/2026 | 0.2.0 | **Bloqueado antes do envio** | Cliente GATT terminou com **status 147**; nenhum pacote enviado. Investigação: `docs/DIAGNOSTICO_CONEXAO.md`. |
+| D3 | nov/2026 | 0.2.1 | **Executado — OK** | Anúncio em 0,2 s; `connectGatt` com o dispositivo do anúncio; `status=0 newState=2` em 0,4 s; perfil reconhecido em 0,8 s; servidor local recebeu a conexão; nenhuma escrita. Após sair da tela, nova tentativa sem anúncio (compatível com "desconexão pelo celular → Tripper para de anunciar"). |
+| T07 | nov/2026 | 0.2.1 | **Executado — OK** (2 sessões) | `HANDSHAKE_SHOW_PIN` enviado; o PIN apareceu no display (deduzido do T08 ter sido concluído; tempo até aparecer e nº de caracteres não informados). |
+| T08 | nov/2026 | 0.2.1 | **Executado — OK** (2 sessões) | Sessão 1: autenticação confirmada visualmente **após duas tentativas**. Sessão 2: PIN aceito visualmente **na primeira tentativa**. Confirmação visual — o protocolo não confirma. |
+| T09 | nov/2026 | 0.2.1 | **Parcial** | Sessão 2: conexão em ~0,5 s, perfil em ~1 s; **respostas recebidas pelo servidor GATT local** (formato não interpretado); fim com **status 19**; **relógio nativo voltou sozinho**; **app oficial continuou funcionando**. Estabilidade de 30 s só com keepalive e o botão Interromper não foram relatados separadamente. |
+| T10 | nov/2026 | 0.2.1 | **Executado — OK** (2 sessões) | Sessão 1: bússola **Norte, noturno**, 10 quadros em 20 s, "100% visível" no display. Sessão 2: bússola **Leste, diurno**, 10 quadros em 20 s, sucesso visual confirmado. |
+| T11 | — | — | Não executado | Retomada (`HANDSHAKE_RESUME`) |
+| N01–N06 | — | 0.3.0 | Não executado | Navegação real e radares — `docs/PHYSICAL_TEST_PLAN.md` |
 
 Nenhum comando de escrita foi enviado nos testes T01–T06 (a 0.1.0 não tinha código de escrita).
+
+**Observado × não verificado (sessões 1 e 2):**
+
+- Observado pelo usuário: PIN aceito (visual), bússola exibida, relógio nativo de volta após a sessão 2, app oficial
+  funcionando depois, fim por status 19 após o último quadro, respostas chegando ao servidor local.
+- Não verificado: autenticação comprovada pelo protocolo (respostas não interpretadas); se o relógio voltou também
+  após a sessão 1; tempo exato entre o último quadro e o status 19; estabilidade em sessões longas; `HANDSHAKE_RESUME`.
+- Defeito do relatório na 0.2.1: o cabeçalho mostrava **0 escritas e 0 respostas** depois da desconexão, embora o
+  histórico listasse os envios e recebimentos. **Corrigido na 0.2.2** (o relatório mantém os contadores da última sessão).
 
 ### Ficha da moto e do celular
 
@@ -90,8 +102,8 @@ Nenhum comando de escrita foi enviado nos testes T01–T06 (a 0.1.0 não tinha c
 | Modelo / ano | Royal Enfield Hunter 350, linha 2027 (Brasil) |
 | Variante | — |
 | Firmware do Tripper (se legível) | — |
-| Celular / versão do Android | — |
-| Versão do Hunter Lab | 0.1.0 (T01–T06); 0.2.0 (T07–T11) |
+| Celular / versão do Android | Samsung SM-A155M · Android 16 (API 36) |
+| Versão do Hunter Lab | 0.1.0 (T01–T06); 0.2.0 (T07 bloqueado); 0.2.1 (D3, T07–T10) |
 
 ## Roteiros com escrita (0.2.0) — executar só após autorização explícita
 
