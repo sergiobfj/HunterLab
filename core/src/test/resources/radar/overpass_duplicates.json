@@ -1,0 +1,26 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API (fixture ficticia)",
+  "elements": [
+    {"type": "node", "id": 4001, "lat": -10.7001, "lon": -48.5001, "tags": {"highway": "speed_camera", "direction": "180"}},
+    {"type": "node", "id": 4101, "lat": -10.7101, "lon": -48.5101, "tags": {"highway": "speed_camera", "maxspeed": "50"}},
+    {
+      "type": "relation", "id": 5001,
+      "members": [
+        {"type": "node", "ref": 4001, "role": "device"},
+        {"type": "node", "ref": 4002, "role": "from"}
+      ],
+      "tags": {"type": "enforcement", "enforcement": "maxspeed", "maxspeed": "60"}
+    },
+    {
+      "type": "relation", "id": 5002,
+      "members": [
+        {"type": "node", "ref": 4101, "role": "device"}
+      ],
+      "tags": {"type": "enforcement", "enforcement": "traffic_signals"}
+    },
+    {"type": "node", "id": 4001, "lat": -10.7001, "lon": -48.5001},
+    {"type": "node", "id": 4002, "lat": -10.7003, "lon": -48.5001},
+    {"type": "node", "id": 4101, "lat": -10.7101, "lon": -48.5101}
+  ]
+}

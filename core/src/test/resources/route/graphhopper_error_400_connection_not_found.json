@@ -1,0 +1,9 @@
+{
+  "message": "Connection between locations not found",
+  "hints": [
+    {
+      "message": "Connection between locations not found",
+      "details": "com.graphhopper.util.exceptions.ConnectionNotFoundException"
+    }
+  ]
+}

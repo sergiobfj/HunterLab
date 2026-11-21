@@ -1,0 +1,20 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API (fixture ficticia)",
+  "osm3s": {
+    "timestamp_osm_base": "2026-11-01T00:00:00Z",
+    "copyright": "Fixture ficticia para testes; formato de saida do Overpass API."
+  },
+  "elements": [
+    {
+      "type": "node",
+      "id": 1001,
+      "lat": -10.5000000,
+      "lon": -48.3000000,
+      "tags": {
+        "highway": "speed_camera",
+        "maxspeed": "60"
+      }
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API (fixture ficticia)",
+  "elements": [
+    {
+      "type": "relation", "id": 2001,
+      "members": [
+        {"type": "node", "ref": 1101, "role": "device"},
+        {"type": "node", "ref": 1102, "role": "from"}
+      ],
+      "tags": {"type": "enforcement", "enforcement": "maxspeed", "maxspeed": "80"}
+    },
+    {
+      "type": "relation", "id": 2002,
+      "members": [
+        {"type": "node", "ref": 1201, "role": "from"}
+      ],
+      "tags": {"type": "enforcement", "enforcement": "maxspeed", "maxspeed": "50"}
+    },
+    {
+      "type": "relation", "id": 2003,
+      "members": [
+        {"type": "node", "ref": 1303, "role": "device"},
+        {"type": "node", "ref": 1301, "role": "from"},
+        {"type": "node", "ref": 1302, "role": "to"},
+        {"type": "way", "ref": 9001, "role": ""}
+      ],
+      "tags": {"type": "enforcement", "enforcement": "average_speed", "maxspeed": "100"}
+    },
+    {
+      "type": "relation", "id": 2004,
+      "members": [
+        {"type": "node", "ref": 1401, "role": "device"}
+      ],
+      "tags": {"type": "enforcement", "enforcement": "traffic_signals"}
+    },
+    {
+      "type": "relation", "id": 2005,
+      "members": [
+        {"type": "node", "ref": 1501, "role": "device"}
+      ],
+      "tags": {"type": "enforcement", "enforcement": "maxspeed", "maxspeed": "40"}
+    },
+    {
+      "type": "relation", "id": 2006,
+      "members": [
+        {"type": "node", "ref": 1201, "role": "device"}
+      ],
+      "tags": {"type": "enforcement", "enforcement": "check"}
+    },
+    {
+      "type": "relation", "id": 2007,
+      "members": [
+        {"type": "node", "ref": 1601, "role": "from"},
+        {"type": "node", "ref": 1602, "role": "to"}
+      ],
+      "tags": {"type": "enforcement", "enforcement": "maxspeed", "maxspeed": "60", "direction": "forward"}
+    },
+    {"type": "node", "id": 1101, "lat": -10.5100000, "lon": -48.3100000},
+    {"type": "node", "id": 1102, "lat": -10.5101000, "lon": -48.3105000},
+    {"type": "node", "id": 1201, "lat": -10.5200000, "lon": -48.3200000},
+    {"type": "node", "id": 1301, "lat": -10.5300000, "lon": -48.3300000},
+    {"type": "node", "id": 1302, "lat": -10.5300000, "lon": -48.3000000},
+    {"type": "node", "id": 1303, "lat": -10.5300000, "lon": -48.3010000},
+    {"type": "node", "id": 1401, "lat": -10.5400000, "lon": -48.3400000},
+    {"type": "node", "id": 1601, "lat": -10.5600000, "lon": -48.3600000},
+    {"type": "node", "id": 1602, "lat": -10.5600000, "lon": -48.3590000},
+    {"type": "way", "id": 9001, "nodes": [1301, 1302]}
+  ]
+}

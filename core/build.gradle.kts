@@ -20,6 +20,8 @@ kotlin {
 dependencies {
     api(project(":protocol"))
     api(libs.kotlinx.coroutines.core)
+    // Só a API de árvore (Json.parseToJsonElement), sem o plugin de compilação: respostas de rota e radar.
+    implementation(libs.kotlinx.serialization.json)
 
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)

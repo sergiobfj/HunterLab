@@ -1,0 +1,84 @@
+{
+  "hints": {
+    "visited_nodes.sum": 87,
+    "visited_nodes.average": 87.0
+  },
+  "info": {
+    "copyrights": [
+      "GraphHopper",
+      "OpenStreetMap contributors"
+    ],
+    "took": 4,
+    "road_data_timestamp": "2026-11-15T21:00:00Z"
+  },
+  "paths": [
+    {
+      "distance": 766.818,
+      "weight": 97.50589,
+      "time": 91127,
+      "transfers": 0,
+      "points_encoded": true,
+      "points_encoded_multiplier": 100000.0,
+      "bbox": [
+        -46.60208,
+        -23.5,
+        -46.6,
+        -23.4968
+      ],
+      "points": "~ylnC~pl{GuR?IJHJfJ??fK",
+      "instructions": [
+        {
+          "distance": 350.265,
+          "heading": 0.0,
+          "sign": 0,
+          "interval": [
+            0,
+            1
+          ],
+          "text": "Continue na Avenida Beira-Rio",
+          "time": 35026,
+          "street_name": "Avenida Beira-Rio"
+        },
+        {
+          "distance": 216.686,
+          "sign": -8,
+          "interval": [
+            1,
+            4
+          ],
+          "text": "Faça o retorno à esquerda na Avenida Beira-Rio",
+          "time": 36114,
+          "street_name": "Avenida Beira-Rio"
+        },
+        {
+          "distance": 199.868,
+          "sign": 2,
+          "interval": [
+            4,
+            5
+          ],
+          "text": "Vire à direita na Rua do Porto",
+          "time": 19987,
+          "street_name": "Rua do Porto"
+        },
+        {
+          "distance": 0.0,
+          "sign": 4,
+          "last_heading": 270.0,
+          "interval": [
+            5,
+            5
+          ],
+          "text": "Chegada ao destino",
+          "time": 0,
+          "street_name": ""
+        }
+      ],
+      "legs": [],
+      "details": {},
+      "ascend": 3.2,
+      "descend": 1.8,
+      "snapped_waypoints": "~ylnC~pl{GmG~K"
+    }
+  ]
+}
