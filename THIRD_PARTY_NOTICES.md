@@ -1,0 +1,44 @@
+# Créditos e revisão de terceiros
+
+## Hunter Lab
+
+A licença do código próprio está pendente de escolha pelo mantenedor. Não foi adicionada uma licença presumida. Opções a avaliar: Apache-2.0 ou MIT; a escolha deve considerar qualquer material derivado de terceiros identificado na revisão de origem.
+
+## Referência de protocolo: WazeTripper
+
+- Projeto: [jnsdias/wazetripper](https://github.com/jnsdias/wazetripper).
+- Revisão consultada em 2026-11-21: `7c4235d5c4de5a1a60aa74ea6ece0c06e9ffab07`.
+- [Licença Apache-2.0](https://github.com/jnsdias/wazetripper/blob/7c4235d5c4de5a1a60aa74ea6ece0c06e9ffab07/LICENSE).
+- [Avisos de atribuição da referência](https://github.com/jnsdias/wazetripper/blob/7c4235d5c4de5a1a60aa74ea6ece0c06e9ffab07/NOTICE.md).
+- Uso declarado no Hunter Lab: conhecimento do protocolo, constantes, catálogo de ícones e vetores de teste. Veja `docs/PROTOCOLO.md` e os testes de `protocol/`.
+
+O código local declara implementação Kotlin independente. A revisão inicial não encontrou código Java, smali, scripts de modificação do Waze, APKs proprietários ou bibliotecas vendorizadas, exceto o Gradle Wrapper. Isso não constitui prova integral de autoria ou análise jurídica. O mantenedor deve confirmar a origem antes de atribuir licença própria ou distribuir binários.
+
+O WazeTripper credita o [wazeology](https://github.com/agstrc/wazeology), também Apache-2.0, por sua infraestrutura de modificação do Waze. Essa infraestrutura não foi localizada no Hunter Lab. A licença do WazeTripper não licencia materiais proprietários do Waze ou da Royal Enfield.
+
+Se for identificada adaptação de código ou texto protegido, preservar os avisos aplicáveis, incluir a licença correspondente e indicar as modificações antes de distribuir. Esta revisão não aplica Apache-2.0 ao código próprio do Hunter Lab.
+
+## Dependências declaradas
+
+Licenças conferidas nos POMs do cache Gradle local das versões declaradas. O inventário abaixo cobre dependências diretas e ferramentas principais; não substitui o inventário transitivo do APK final.
+
+| Componente | Versão declarada | Licença informada |
+|---|---|---|
+| Kotlin e plugin Compose | 2.4.21 | Apache-2.0 |
+| kotlinx.coroutines | 1.11.0 | Apache-2.0 |
+| AndroidX Core KTX | 1.19.1 | Apache-2.0 |
+| AndroidX Activity Compose | 1.13.0 | Apache-2.0 |
+| AndroidX Lifecycle | 2.11.1 | Apache-2.0 |
+| Compose UI / Material 3 | BOM 2026.11.01 | Apache-2.0 (artefatos UI e Material 3 consultados) |
+| JUnit Jupiter / Platform | BOM 6.1.3 | EPL-2.0 (testes) |
+| JUnit | 4.13.2 | EPL-1.0 (testes) |
+| Android Gradle Plugin | 9.5.2 | Apache-2.0 |
+| Gradle Wrapper | 9.9.2 | Apache-2.0; avisos mantidos em `gradlew` e `gradlew.bat` |
+
+O JAR do Gradle Wrapper inclui seu texto de licença em `META-INF/LICENSE`, conferido na revisão.
+
+Antes de uma release pública, gerar o inventário das dependências transitivas resolvidas e incluir no aplicativo/distribuição os textos e avisos exigidos pelas licenças. Repetir a revisão quando os provedores de navegação e mapas forem integrados.
+
+## Marcas
+
+Royal Enfield, Hunter 350, Meteor 350, Tripper, Waze e demais marcas pertencem aos respectivos titulares. As referências descrevem compatibilidade e origem técnica; não indicam afiliação ou endosso.

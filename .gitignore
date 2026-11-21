@@ -1,0 +1,58 @@
+# Gradle / build
+.gradle/
+.kotlin/
+build/
+**/build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Específico da máquina (caminho do Android SDK)
+local.properties
+
+# IDE
+.idea/
+*.iml
+.DS_Store
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Artefatos e chaves
+*.apk
+*.aab
+*.keystore
+*.jks
+
+# Logs exportados de testes físicos (podem conter endereços MAC)
+field-logs/
+
+# Credenciais e assinatura (inclusive variantes locais)
+.env*
+*.jks.*
+*.keystore.*
+*.p12
+*.pfx
+*.pem
+*.key
+keystore.properties
+signing.properties
+google-services.json
+service-account*.json
+
+# Evidências privadas: conservar localmente, publicar apenas resumos anonimizados
+private/
+private-reports/
+physical-reports/
+session-dumps/
+*.log
+*.hprof
+*.pcap
+*.pcapng
+*.btsnoop
+*.tmp
+*.bak
+
+# Ferramentas e sistema
+.vscode/
+Thumbs.db
+desktop.ini
+*.orig
