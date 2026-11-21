@@ -1,0 +1,144 @@
+name: Android release draft
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing audited main tag (vX.Y.Z), with docs/releases/vX.Y.Z.md'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-release
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      commit: ${{ steps.source.outputs.commit }}
+    steps:
+      - name: Require configured release signing
+        env:
+          SIGNING_READY: ${{ vars.RELEASE_SIGNING_READY }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          test "$SIGNING_READY" = true || { echo 'Release signing is not enabled.'; exit 1; }
+          [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo 'Invalid version tag.'; exit 1; }
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify audited source
+        id: source
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          commit=$(git rev-parse --verify "refs/tags/$TAG^{commit}")
+          git merge-base --is-ancestor "$commit" refs/remotes/origin/main
+          git checkout --detach "$commit"
+          test -s "docs/releases/$TAG.md"
+          echo "commit=$commit" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
+        with:
+          packages: platform-tools
+      - uses: gradle/actions/setup-gradle@4c125117fe7c5aed11272ec4213f602f012f89f2 # v5
+        with:
+          cache-read-only: true
+      - run: sdkmanager 'platforms;android-37.2' 'build-tools;36.0.0'
+      - name: Test, lint and build unsigned release
+        run: bash ./gradlew --no-daemon --stacktrace test :app:lintRelease :app:assembleRelease
+      - name: Check APK version against tag
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          apk=app/build/outputs/apk/release/app-release-unsigned.apk
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "$apk" > "$RUNNER_TEMP/badging.txt"
+          version=$(sed -n "s/.*versionName='\([^']*\)'.*/\1/p" "$RUNNER_TEMP/badging.txt" | head -n 1)
+          test "v$version" = "$TAG"
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: unsigned-release
+          path: app/build/outputs/apk/release/app-release-unsigned.apk
+          if-no-files-found: error
+          retention-days: 1
+
+  sign-and-draft:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: release
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ needs.build.outputs.commit }}
+          persist-credentials: false
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
+        with:
+          packages: platform-tools
+      - run: sdkmanager 'build-tools;36.0.0'
+      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
+        with:
+          name: unsigned-release
+          path: unsigned/
+      - name: Sign and verify approved certificate
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          EXPECTED_CERT: ${{ vars.ANDROID_RELEASE_CERT_SHA256 }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          test -n "$KEYSTORE_BASE64" && test -n "$KEYSTORE_PASSWORD" && test -n "$KEY_ALIAS" && test -n "$KEY_PASSWORD"
+          [[ "$EXPECTED_CERT" =~ ^[[:xdigit:]]{64}$ ]]
+          umask 077
+          keyfile="$RUNNER_TEMP/hunterlab-release.jks"
+          trap 'rm -f "$keyfile"' EXIT
+          printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$keyfile"
+          mkdir -p dist
+          tools="$ANDROID_HOME/build-tools/36.0.0"
+          "$tools/zipalign" -P 16 -f 4 unsigned/app-release-unsigned.apk "$RUNNER_TEMP/aligned.apk"
+          "$tools/apksigner" sign --ks "$keyfile" --ks-key-alias "$KEY_ALIAS" \
+            --ks-pass env:KEYSTORE_PASSWORD --key-pass env:KEY_PASSWORD \
+            --out "dist/hunterlab-$TAG.apk" "$RUNNER_TEMP/aligned.apk"
+          "$tools/apksigner" verify --verbose --print-certs "dist/hunterlab-$TAG.apk" > "$RUNNER_TEMP/certificate.txt"
+          actual=$(sed -n 's/^Signer #1 certificate SHA-256 digest: //p' "$RUNNER_TEMP/certificate.txt")
+          test "${actual,,}" = "${EXPECTED_CERT,,}"
+          (cd dist && sha256sum "hunterlab-$TAG.apk" > SHA256SUMS.txt)
+          cat dist/SHA256SUMS.txt >> "$GITHUB_STEP_SUMMARY"
+      - name: Create draft with APK, checksum and installation notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ inputs.tag }}
+          SOURCE_COMMIT: ${{ needs.build.outputs.commit }}
+        run: |
+          cp "docs/releases/$TAG.md" "$RUNNER_TEMP/release-notes.md"
+          printf '\n\nCommit: `%s`\n\n' "$SOURCE_COMMIT" >> "$RUNNER_TEMP/release-notes.md"
+          cat >> "$RUNNER_TEMP/release-notes.md" <<'NOTES'
+          Instalação: confira SHA256SUMS.txt e instale o APK pelo gerenciador de arquivos do Android.
+          Requer Android 12 ou superior. Projeto experimental e independente; use com a moto parada.
+          Esta variante não atualiza automaticamente o debug. Confira pacote e certificado antes de migrar.
+          Se o mesmo pacote tiver assinatura diferente, pode ser necessária uma desinstalação, com perda de dados locais.
+          O mantenedor deve testar instalação e atualização antes de publicar este rascunho.
+          NOTES
+          gh release create "$TAG" "dist/hunterlab-$TAG.apk" dist/SHA256SUMS.txt \
+            --verify-tag --target "$SOURCE_COMMIT" --draft --title "Hunter Lab $TAG" \
+            --notes-file "$RUNNER_TEMP/release-notes.md"
