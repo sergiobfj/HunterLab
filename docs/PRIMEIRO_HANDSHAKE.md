@@ -1,8 +1,8 @@
 # Primeiro handshake — Hunter 350 2027
 
-> **Situação: procedimento revisado, NÃO executado.** Na primeira tentativa real (0.2.0) a conexão do laboratório
-> falhou com **status 147** antes de qualquer envio. A 0.2.1 traz uma correção candidata; **antes do T07, faça o reteste
-> sem transmissão de `docs/DIAGNOSTICO_CONEXAO.md`**. Os testes T07–T09 são manuais e dependem de você.
+> **Situação: executado com sucesso em duas sessões (0.2.1, nov/2026)** — PIN aceito visualmente e bússola exibida;
+> depois da sessão 2 o relógio voltou sozinho e o app oficial continuou funcionando. Resultados em
+> `docs/TESTES_FISICOS.md`. Este roteiro continua valendo para o Laboratório BLE.
 
 **Decisões aprovadas (21/11/2026):** handshake exclusivamente manual · reconhecimento do dispositivo só em memória
 (não persiste entre execuções) · CCCD/notificações desativadas · sem reconexão automática · nesta etapa, só T07–T09.
@@ -20,10 +20,11 @@
 | Janela de anúncio após ligar a ignição | < ~30 s | não medido |
 | Watchdog (link cai ~5 s após o último pacote) | Observado | não medido |
 | Desconexão pelo celular → Pod para de anunciar até ciclar a ignição | Observado | não testado |
-| `HANDSHAKE_SHOW_PIN` faz o display mostrar um PIN | Funciona | **não testado** |
-| `PIN` (`0x20` + ASCII) | Funciona (pareamento da referência) | **não testado** |
-| Respostas do Pod pelo servidor GATT local | Só registradas; formato não documentado | **não testado** |
-| Bússola (`10 11 41 …`) | Confirmado (capturas reais) | **não testado** (T10, fora desta etapa) |
+| `HANDSHAKE_SHOW_PIN` faz o display mostrar um PIN | Funciona | **Observado** (2 sessões) |
+| `PIN` (`0x20` + ASCII) | Funciona (pareamento da referência) | **Observado** — aceito visualmente (1ª e 2ª tentativa) |
+| Respostas do Pod pelo servidor GATT local | Só registradas; formato não documentado | **Observado** (chegam; formato não interpretado) |
+| Bússola (`10 11 41 …`) | Confirmado (capturas reais) | **Observado** — N noturno e E diurno, 10 quadros/20 s |
+| Fim do link após o último quadro | ~5 s, status 19 | **Observado** status 19; relógio voltou sozinho (sessão 2) |
 
 Diferenças deliberadas do Hunter Lab em relação à referência:
 

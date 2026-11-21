@@ -5,7 +5,7 @@ object LinkReport {
     fun format(s: LinkSnapshot, appVersion: String, timestamp: String): String = buildString {
         appendLine("Hunter Lab $appVersion — Laboratório BLE (experimental)")
         appendLine("Data: $timestamp")
-        appendLine("Sessão: #${s.sessionId} · estado final/atual: ${s.state.label}")
+        appendLine("Sessão: #${s.sessionId} · estado final/atual: ${s.state.label}" + (s.purpose?.let { " · ${it.label}" } ?: ""))
         appendLine("Dispositivo: ${s.deviceName ?: "(sem nome)"} ${s.maskedAddress ?: ""}".trimEnd())
         appendLine("Caminho de autenticação: ${s.authPath?.label ?: "nenhum"} · tentativas de PIN: ${s.pinAttemptsUsed}/${s.pinAttemptsMax}")
         appendLine("Evidência de autenticação: somente confirmação visual do usuário; nenhuma resposta do Tripper é interpretada.")
@@ -15,8 +15,15 @@ object LinkReport {
         val d = s.diagnostics
         appendLine(
             "Escritas entregues ao controlador: ${d.writesDelivered} · falhas: ${d.writeFailures} · " +
-                "respostas recebidas: ${d.inboundAccepted} (rejeitadas: ${d.inboundRejected})",
+                "respostas recebidas: ${d.inboundAccepted} (rejeitadas: ${d.inboundRejected})" +
+                if (d.fromEndedSession) " · contadores da última sessão (sessão encerrada)" else "",
         )
+        s.screenStream?.let {
+            appendLine(
+                "Navegação no Tripper: última tela ${it.screenLabel}, ${it.elapsedMs / 1000} s, " +
+                    "telas enfileiradas ${it.framesQueued}, entregues ${it.framesDelivered}",
+            )
+        }
         s.compass?.let {
             appendLine(
                 "Último teste de bússola: ${it.direction.label}, ${it.period.label.lowercase()}, " +

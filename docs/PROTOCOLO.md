@@ -15,8 +15,9 @@ Nenhum código foi copiado; a implementação em `protocol/` é original.
 | **Provável** | Consistente entre fontes, sem verificação em hardware. |
 | **Não verificado** | Hipótese/palpite; exige teste físico. |
 
-> **Hunter 350 2027:** com a 0.1.0 (somente leitura) foram **observados** o nome `RE_DISP` e o perfil GATT
-> (serviço, característica, WRITE_NO_RESPONSE). **Handshake, escrita, watchdog e telas não foram testados.**
+> **Hunter 350 2027:** observados o nome `RE_DISP`, o perfil GATT (WRITE_NO_RESPONSE), o handshake com PIN
+> (aceito visualmente), a tela de **bússola** (2 sessões) e o fim do link por status 19 após o último quadro.
+> **Telas de navegação ainda não foram testadas na Hunter** (são "Confirmado" só na Meteor).
 > Os ícones seguem com `HunterValidation.NOT_TESTED`. Ver `docs/TESTES_FISICOS.md` e `docs/PRIMEIRO_HANDSHAKE.md`.
 
 ## 1. Transporte
@@ -28,11 +29,11 @@ Nenhum código foi copiado; a implementação em `protocol/` é original.
 | Característica | `01FF0101-BA5E-F4EE-5CA1-EB1E5E4B1CE0`, sem NOTIFY | WRITE / WRITE_NO_RESPONSE | **WRITE_NO_RESPONSE** |
 | OUI do endereço | `00:60:37` (NXP Semiconductors) | Observado | não informado |
 | Transporte | `connectGatt(..., TRANSPORT_LE)` | Confirmado | **Observado** (conexão funcionou) |
-| Respostas do Pod | por um **servidor GATT local** no celular, mesmos UUIDs | Confirmado (só registradas) | não testado |
+| Respostas do Pod | por um **servidor GATT local** no celular, mesmos UUIDs | Confirmado (só registradas) | **Observado** (chegam; não interpretadas) |
 | Janela de anúncio | < ~30 s após ligar a ignição | Observado | não medido |
-| Watchdog | link derrubado ~5 s após o último pacote (status 19) | Observado | não medido |
-| Desconexão pelo celular | Pod deixou de anunciar até ciclar a ignição | Observado | não testado |
-| Primeira escrita | esperar ~200 ms após a descoberta; serializar escritas | Observado | não testado |
+| Watchdog | link derrubado ~5 s após o último pacote (status 19) | Observado | **Observado** status 19 após o último quadro (tempo não medido) |
+| Desconexão pelo celular | Pod deixou de anunciar até ciclar a ignição | Observado | **Compatível** (sem anúncio após sair da tela, 0.2.1) |
+| Primeira escrita | esperar ~200 ms após a descoberta; serializar escritas | Observado | **Funcionou** com essa regra |
 
 Implementação: `TripperTransport` (constantes), `TripperCandidateClassifier` (identificação),
 `TripperProfileCheck` (comparação da tabela GATT descoberta), `LinkProfile` (verificação do alvo de escrita, 0.2.0).
@@ -145,8 +146,8 @@ independente, e o CRC é conferido contra um segundo algoritmo (por tabela) em 2
 
 1. ~~O Pod da Hunter anuncia como `RE_DISP`?~~ **Sim** (0.1.0). OUI não informado.
 2. ~~A tabela GATT é idêntica?~~ **Sim** para serviço/característica; propriedade observada: só WRITE_NO_RESPONSE.
-3. O watchdog de ~5 s e a janela de anúncio de ~30 s se repetem?
-4. O pareamento por PIN do app convive com o pareamento do app oficial, ou o substitui?
+3. O watchdog de ~5 s e a janela de anúncio de ~30 s se repetem? (status 19 após o último quadro: **observado**; tempos não medidos)
+4. O pareamento por PIN do app convive com o pareamento do app oficial, ou o substitui? (**app oficial continuou funcionando** após a sessão 2)
 5. Os ícones "prováveis" e "não verificados" desenham o esperado?
 6. Os bytes `[8-9]` mostram alguma distância (radar experimental)?
 7. Existe ícone de radar dedicado nas faixas não testadas?

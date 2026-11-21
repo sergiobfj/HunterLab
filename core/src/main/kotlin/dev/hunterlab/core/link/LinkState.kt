@@ -89,6 +89,8 @@ data class LinkTiming(
     val stopGraceMs: Long = 8_000,
     val forceCloseMs: Long = 2_000,
     val sessionMaxMs: Long = 300_000,
+    /** Sessões de navegação (serviço em primeiro plano, botão Encerrar sempre na notificação). */
+    val navigationSessionMaxMs: Long = 6 * 3_600_000L,
     val preAuthorizationTtlMs: Long = 120_000,
 ) {
     init {

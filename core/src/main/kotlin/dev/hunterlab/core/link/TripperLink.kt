@@ -6,6 +6,7 @@ import dev.hunterlab.protocol.ClockFormat
 import dev.hunterlab.protocol.CompassDirection
 import dev.hunterlab.protocol.DayPeriod
 import dev.hunterlab.protocol.TripperCommands
+import dev.hunterlab.protocol.TripperScreen
 import dev.hunterlab.protocol.TripperTransport
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -35,11 +36,14 @@ class TripperLink(
     val timing: LinkTiming = LinkTiming(),
     private val timeOfDay: () -> LocalTime = { LocalTime.now() },
     private val clockFormat: () -> ClockFormat = { ClockFormat.H24 },
-) : LinkEvents {
+) : LinkEvents, ScreenStreamPort {
 
     private var state = LinkState.DISCONNECTED
     private var generation = 0L
     private var session: Session? = null
+
+    /** Última sessão encerrada: o relatório continua mostrando seus contadores até a próxima conexão. */
+    private var lastEnded: Session? = null
     private var preAuthorizedAt: Long? = null
     private val queue = WriteQueue(timing.maxQueue)
     private val log = LinkLog()
@@ -83,6 +87,11 @@ class TripperLink(
         var inboundOk = 0
         var inboundRejected = 0
         var compass: CompassRunState? = null
+        var stream: StreamState? = null
+
+        /** Envios periódicos idênticos não são listados um a um no histórico (só contados), para não empurrar o resto para fora. */
+        val lastTxSignature = mutableMapOf<CommandKind, String>()
+        val txRepeats = sortedMapOf<CommandKind, Int>()
         var completionTask: Cancellable? = null
         var pumpTask: Cancellable? = null
 
@@ -104,6 +113,15 @@ class TripperLink(
         var delivered: Int = 0,
         var resendTask: Cancellable? = null,
         var endTask: Cancellable? = null,
+    )
+
+    private class StreamState(
+        var screen: TripperScreen,
+        var command: LinkCommand,
+        val startedAt: Long,
+        var queued: Int = 0,
+        var delivered: Int = 0,
+        var resendTask: Cancellable? = null,
     )
 
     // =========================================================================== comandos do usuário
@@ -162,6 +180,7 @@ class TripperLink(
         if (state != LinkState.DISCONNECTED) return reject("Já existe uma sessão (${state.label}). Interrompa antes.")
         require(address.isNotBlank()) { "Endereço vazio" }
         message = null
+        lastEnded = null
         generation += 1
         val now = scheduler.now()
         val s = Session(generation, address, name, now)
@@ -187,7 +206,7 @@ class TripperLink(
             "NÃO exigido (comportamento da 0.2.0)"
         }
         val ageText = lastAdvertisementAgeMs?.let { "há ${LinkFormat.seconds(it)}" } ?: "desconhecido"
-        info("Opções: anúncio recente $freshText; servidor local: ${options.serverMode.label}. Último anúncio visto na busca: $ageText.")
+        info("Opções: ${options.purpose.label}; anúncio recente $freshText; servidor local: ${options.serverMode.label}. Último anúncio visto na busca: $ageText.")
         startTick(s)
         if (options.serverMode == ServerMode.BEFORE_CONNECT) {
             if (!openServer(s)) return reject("Servidor local indisponível.")
@@ -356,6 +375,101 @@ class TripperLink(
         return CommandResult.Accepted
     }
 
+    // =========================================================================== navegação (0.3.0)
+
+    override val streamAvailability: StreamAvailability
+        get() {
+            val s = session ?: return StreamAvailability.UNAVAILABLE
+            if (s.options.purpose != SessionPurpose.NAVIGATION || !s.authorized) return StreamAvailability.UNAVAILABLE
+            return when {
+                state == LinkState.DISPLAY_ACTIVE && s.stream != null -> StreamAvailability.STREAMING
+                state == LinkState.AUTHENTICATED -> StreamAvailability.READY
+                else -> StreamAvailability.UNAVAILABLE
+            }
+        }
+
+    /** Inicia a transmissão contínua de telas de navegação (reenvio a cada ~2 s). Só em sessão de navegação autenticada. */
+    override fun startScreenStream(screen: TripperScreen): CommandResult {
+        val s = session ?: return reject("Sem sessão.")
+        if (s.options.purpose != SessionPurpose.NAVIGATION) return reject("Transmissão contínua só em sessões de navegação.")
+        if (state != LinkState.AUTHENTICATED) return reject("A navegação no Tripper exige autenticação confirmada.")
+        val command = screenCommand(screen) ?: return reject("Tela não permitida na navegação: ${screenLabel(screen)}.")
+        val st = StreamState(screen, command, scheduler.now())
+        s.stream = st
+        moveTo(LinkState.DISPLAY_ACTIVE)
+        info("Navegação no Tripper iniciada (${screenLabel(screen)}; reenvio a cada ${LinkFormat.seconds(timing.screenResendMs)}).")
+        sendStreamFrame(s, st)
+        publish()
+        return CommandResult.Accepted
+    }
+
+    /** Troca a tela transmitida. Tela igual à atual não gera envio extra (o reenvio periódico continua). */
+    override fun updateScreen(screen: TripperScreen): CommandResult {
+        val s = session ?: return reject("Sem sessão.")
+        val st = s.stream
+        if (st == null || state != LinkState.DISPLAY_ACTIVE) return reject("Nenhuma transmissão de navegação ativa.")
+        if (screen == st.screen) return CommandResult.Accepted
+        val command = screenCommand(screen) ?: return reject("Tela não permitida na navegação: ${screenLabel(screen)}.")
+        if (screenLabel(screen) != screenLabel(st.screen)) info("Tela do Tripper: ${screenLabel(screen)}.")
+        st.screen = screen
+        st.command = command
+        st.resendTask?.let { it.cancel(); s.tasks.remove(it) }
+        sendStreamFrame(s, st)
+        publish()
+        return CommandResult.Accepted
+    }
+
+    /** Para de enviar telas. Pela referência, o Tripper encerra o link ~5 s depois e volta ao relógio. */
+    override fun stopScreenStream(reason: String): CommandResult {
+        val s = session ?: return reject("Sem sessão.")
+        if (s.stream == null || state != LinkState.DISPLAY_ACTIVE) return reject("Nenhuma transmissão de navegação ativa.")
+        endStream(s)
+        moveTo(LinkState.AUTHENTICATED)
+        info("Navegação no Tripper encerrada ($reason). Sem novas telas, o Tripper deve encerrar o link ~5 s depois e voltar ao relógio.")
+        publish()
+        return CommandResult.Accepted
+    }
+
+    /**
+     * Ciclo de vida da tela (sair do app): interrompe só sessões do laboratório. A sessão de navegação pertence ao
+     * serviço em primeiro plano, que tem o próprio botão Encerrar na notificação.
+     */
+    fun interruptIfLab(reason: String): CommandResult {
+        if (session?.options?.purpose == SessionPurpose.NAVIGATION) return CommandResult.Accepted
+        return interrupt(reason)
+    }
+
+    private fun screenCommand(screen: TripperScreen): LinkCommand? = when (screen) {
+        is TripperScreen.Navigation -> LinkCommand.navigation(screen.frame).takeIf { CommandWhitelist.matches(it) }
+        is TripperScreen.Recalculating -> LinkCommand.recalculating(screen.period)
+        else -> null
+    }
+
+    private fun screenLabel(screen: TripperScreen): String = when (screen) {
+        is TripperScreen.Navigation -> "navegação (ícone 0x%02X)".format(screen.frame.icon)
+        is TripperScreen.Recalculating -> "recalculando"
+        is TripperScreen.Compass -> "bússola"
+        is TripperScreen.RouteStarted -> "rota iniciada"
+        TripperScreen.NativeClock -> "relógio nativo"
+    }
+
+    private fun sendStreamFrame(s: Session, st: StreamState) {
+        if (session !== s || state != LinkState.DISPLAY_ACTIVE || s.stream !== st) return
+        if (enqueue(s, st.command)) st.queued += 1
+        st.resendTask = later(s, timing.screenResendMs) { sendStreamFrame(s, st) }
+    }
+
+    private fun endStream(s: Session) {
+        val st = s.stream ?: return
+        st.resendTask?.let { it.cancel(); s.tasks.remove(it) }
+        val removed = queue.removeKind(CommandKind.NAVIGATION) + queue.removeKind(CommandKind.RECALCULATING)
+        if (removed > 0) info("$removed tela(s) pendente(s) descartada(s).")
+        s.stream = null
+        lastStream = ScreenStreamInfo(screenLabel(st.screen), scheduler.now() - st.startedAt, st.queued, st.delivered)
+    }
+
+    private var lastStream: ScreenStreamInfo? = null
+
     fun recordObservation(observation: CompassObservation) = addObservation("Durante o teste: ${observation.label}")
     fun recordObservation(observation: AfterTestObservation) = addObservation("Após o teste: ${observation.label}")
 
@@ -466,7 +580,8 @@ class TripperLink(
             val kind = entry.command.kind
             if (kind == CommandKind.PIN || kind == CommandKind.RESUME) s.authDelivered = true
             if (kind == CommandKind.COMPASS) s.compass?.let { it.delivered += 1 }
-            if (kind != CommandKind.PING) info("${kind.label}: entregue ao controlador Bluetooth (não é confirmação do Tripper).")
+            if (kind == CommandKind.NAVIGATION || kind == CommandKind.RECALCULATING) s.stream?.let { it.delivered += 1 }
+            if (kind.handshake || kind == CommandKind.SET_TIME) info("${kind.label}: entregue ao controlador Bluetooth (não é confirmação do Tripper).")
         } else {
             writeFailed(s, entry, "status $status")
             if (session !== s) return
@@ -592,7 +707,7 @@ class TripperLink(
         queue.markInFlight(entry)
         s.lastWriteAt = now
         s.lastWriteLabel = entry.command.kind.label
-        log(LogLevel.TX, entry.command.logLabel)
+        logTx(s, entry.command)
         when (val r = client.writePacket(s.generation, entry.command.packet.toByteArray(), s.withoutResponse)) {
             WriteStart.Started -> s.completionTask = later(s, timing.writeCompletionTimeoutMs) {
                 s.completionTask = null
@@ -605,6 +720,22 @@ class TripperLink(
             }
         }
         publish()
+    }
+
+    private fun logTx(s: Session, command: LinkCommand) {
+        val signature = when (command.kind) {
+            CommandKind.PING -> "ping"
+            CommandKind.COMPASS, CommandKind.RECALCULATING -> command.packet.toHex()
+            // Navegação: lista só quando muda o ícone principal ou o pequeno; a distância muda o tempo todo.
+            CommandKind.NAVIGATION -> command.packet.toByteArray().let { "${it[2]}/${it[7]}" }
+            else -> null
+        }
+        if (signature != null && s.lastTxSignature[command.kind] == signature) {
+            s.txRepeats.merge(command.kind, 1, Int::plus)
+            return
+        }
+        if (signature != null) s.lastTxSignature[command.kind] = signature
+        log(LogLevel.TX, command.logLabel)
     }
 
     private fun onWriteTimeout(s: Session) {
@@ -641,13 +772,14 @@ class TripperLink(
     private fun onTick(s: Session) {
         val now = scheduler.now()
         val authorizedAt = s.authorizedAt
-        if (authorizedAt != null && s.authorized && now - authorizedAt >= timing.sessionMaxMs) {
-            interrupt("limite de ${timing.sessionMaxMs / 60_000} min de sessão autorizada")
+        val maxMs = if (s.options.purpose == SessionPurpose.NAVIGATION) timing.navigationSessionMaxMs else timing.sessionMaxMs
+        if (authorizedAt != null && s.authorized && now - authorizedAt >= maxMs) {
+            interrupt("limite de ${maxMs / 60_000} min de sessão autorizada")
             return
         }
         val last = s.lastWriteAt
         // Durante o teste de tela o reenvio da bússola (a cada ~2 s) já mantém o link.
-        if (keepaliveActive(s) && s.compass == null && last != null && queue.inFlight == null && now - last >= timing.keepaliveIdleMs) {
+        if (keepaliveActive(s) && s.compass == null && s.stream == null && last != null && queue.inFlight == null && now - last >= timing.keepaliveIdleMs) {
             enqueue(s, LinkCommand.keepalivePing())
         }
         publish()
@@ -662,8 +794,8 @@ class TripperLink(
 
     private fun endCompass(s: Session) {
         val run = s.compass ?: return
-        run.resendTask?.cancel()
-        run.endTask?.cancel()
+        run.resendTask?.let { it.cancel(); s.tasks.remove(it) }
+        run.endTask?.let { it.cancel(); s.tasks.remove(it) }
         val removed = queue.removeKind(CommandKind.COMPASS)
         if (removed > 0) info("$removed quadro(s) de bússola pendente(s) descartado(s).")
         s.compass = null
@@ -678,6 +810,7 @@ class TripperLink(
     private fun haltTransmissions(s: Session): Int {
         s.authorized = false
         endCompass(s)
+        endStream(s)
         s.pumpTask?.cancel()
         s.pumpTask = null
         s.completionTask?.cancel()
@@ -721,6 +854,10 @@ class TripperLink(
         client.close(s.generation)
         server.close()
         session = null
+        lastEnded = s
+        if (s.txRepeats.isNotEmpty()) {
+            info("Envios periódicos repetidos (contados, não listados um a um): " + s.txRepeats.entries.joinToString { "${it.key.label} ×${it.value}" } + ".")
+        }
         if (status != null && previous != LinkState.ERROR) {
             message = BleErrorTranslator.connectionClosed(status, initiatedByApp = false)
         }
@@ -838,17 +975,18 @@ class TripperLink(
 
     private fun publish() {
         val s = session
+        val shown = s ?: lastEnded
         val now = scheduler.now()
         val pre = preAuthorizedAt?.let { timing.preAuthorizationTtlMs - (now - it) }?.takeIf { it > 0 }
         _snapshot.value = LinkSnapshot(
             state = state,
             sessionId = s?.generation ?: generation,
-            deviceName = s?.name,
-            maskedAddress = LinkFormat.maskAddress(s?.address),
+            deviceName = shown?.name,
+            maskedAddress = LinkFormat.maskAddress(shown?.address),
             transmissionAuthorized = s?.authorized == true,
             preAuthorizedRemainingMs = if (s == null) pre else null,
-            authPath = s?.authPath,
-            pinAttemptsUsed = s?.pinAttempts ?: 0,
+            authPath = shown?.authPath,
+            pinAttemptsUsed = shown?.pinAttempts ?: 0,
             pinAttemptsMax = timing.maxPinAttempts,
             canResume = s != null && pairings.isRecognized(s.address),
             authCommandDelivered = s?.authDelivered == true,
@@ -858,31 +996,35 @@ class TripperLink(
                 ?: lastCompass,
             compassTestsRun = compassTestsRun,
             observations = observations.toList(),
-            diagnostics = if (s == null) {
+            diagnostics = if (shown == null) {
                 LinkDiagnostics(inboundCaptureDetailed = captureInboundBytes, inboundCaptureEverUsed = captureEverUsed)
             } else {
+                val live = s != null
                 LinkDiagnostics(
-                    profileVerified = s.profileOk,
-                    writeMode = if (!s.profileOk) null else if (s.withoutResponse) "WRITE_NO_RESPONSE" else "WRITE",
-                    server = s.server,
-                    serverPeerConnected = s.serverPeer,
-                    keepaliveActive = keepaliveActive(s),
-                    queueSize = queue.size,
-                    inFlight = queue.inFlight?.command?.kind?.label,
-                    writesDelivered = s.writesDelivered,
-                    writeFailures = s.writeFailures,
-                    lastWrite = s.lastWriteLabel,
-                    lastWriteAgoMs = s.lastWriteAt?.let { now - it },
-                    inboundAccepted = s.inboundOk,
-                    inboundRejected = s.inboundRejected,
+                    profileVerified = shown.profileOk,
+                    writeMode = if (!shown.profileOk) null else if (shown.withoutResponse) "WRITE_NO_RESPONSE" else "WRITE",
+                    server = if (live) shown.server else ServerState.CLOSED,
+                    serverPeerConnected = live && shown.serverPeer,
+                    keepaliveActive = live && keepaliveActive(shown),
+                    queueSize = if (live) queue.size else 0,
+                    inFlight = if (live) queue.inFlight?.command?.kind?.label else null,
+                    writesDelivered = shown.writesDelivered,
+                    writeFailures = shown.writeFailures,
+                    lastWrite = shown.lastWriteLabel,
+                    lastWriteAgoMs = shown.lastWriteAt?.let { now - it },
+                    inboundAccepted = shown.inboundOk,
+                    inboundRejected = shown.inboundRejected,
                     inboundCaptureDetailed = captureInboundBytes,
                     inboundCaptureEverUsed = captureEverUsed,
+                    fromEndedSession = !live,
                 )
             },
             message = message,
             log = log.snapshot(),
             connectOptions = s?.options,
             attempts = attempts.toList() + listOfNotNull(s?.let { summarize(it, null, null, "Em andamento (${state.label})") }),
+            purpose = shown?.options?.purpose,
+            screenStream = s?.stream?.let { ScreenStreamInfo(screenLabel(it.screen), now - it.startedAt, it.queued, it.delivered) } ?: lastStream,
         )
     }
 

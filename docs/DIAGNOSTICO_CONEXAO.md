@@ -1,7 +1,8 @@
 # Diagnóstico — Status 147 no Laboratório BLE
 
-> **Situação: NÃO resolvido.** A 0.2.1 traz uma correção **candidata** e instrumentação. O defeito só pode ser dado
-> como resolvido depois do reteste no celular real (§6). Nenhum diagnóstico desta página transmite comandos.
+> **Situação: resolvido nas sessões observadas.** Com a 0.2.1 (anúncio recente obrigatório + dispositivo do anúncio),
+> o laboratório conectou no celular real em três sessões (0,4–0,5 s até conectar). A confiabilidade em uso prolongado
+> e em muitas ignições ainda não foi medida. A regra continua: não inspecionar no mesmo ciclo de ignição.
 
 ## 1. Fatos relatados (0.2.0, Hunter 350 2027)
 
