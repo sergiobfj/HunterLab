@@ -1,0 +1,14 @@
+{
+  "device_model": "SM-A155M",
+  "android_version": 16,
+  "source": "real Samsung screen captures; cropped to Hunter Lab",
+  "instrumented_fixture": "unknownDirectionAndParallelStreetRemainDistinct",
+  "instrumented_result": "OK (1 test)",
+  "mock_data": true,
+  "physical_gps": false,
+  "physical_ble": false,
+  "themed_icons_setting_preserved": true,
+  "palette_changed_permanently": false,
+  "splash_source": "final installed raster APK",
+  "color_icon_source": "temporary color-mode verification before restoring original themed mode"
+}

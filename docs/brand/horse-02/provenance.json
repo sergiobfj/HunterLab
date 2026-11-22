@@ -1,0 +1,18 @@
+{
+  "proposal": "02 — Cavalo gráfico",
+  "source_commit": "9cbb667",
+  "source_branch": "feat/ui-horse-art-references",
+  "approved_by_user": true,
+  "foreground_xml_sha256": "e02d4bdc721a103fd37cfc0546c014b6bace5fb528b7c3800ab9af842da80cf2",
+  "monochrome_xml_sha256": "db97a43d1a737c28124d67c9ad215e63d6ad1a69caefebb6efe833e24c3123e4",
+  "shape_changes": false,
+  "background": "#101416",
+  "horse": "#E8ECEE",
+  "accent": "#B7CF62",
+  "origin": "Original generated artwork/vectorization from the Hunter Lab art exploration. No reference images copied.",
+  "runtime_format": "lossless RGBA PNG, 864x864, drawable-nodpi",
+  "runtime_png_sha256": {
+    "ic_launcher_foreground": "78f7221154fca522cbdddc5d824bd35e6a84cd17d324c1802f05bc82b1f84b76",
+    "ic_launcher_monochrome": "561d2f720853cf7df29cc3e8700c40e947fe486a4c378dcea430f8e95aa36ce7"
+  }
+}

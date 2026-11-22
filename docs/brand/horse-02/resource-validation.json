@@ -1,0 +1,11 @@
+{
+  "viewport_dp": 108,
+  "displayed_central_area_dp": 72,
+  "safe_circle_diameter_dp": 66,
+  "raster_sampling_size_px": 432,
+  "max_opaque_radius_dp": 32.5312,
+  "within_safe_circle": true,
+  "foreground_paths": 2,
+  "longest_path_characters": 9267,
+  "path_geometry_changed": false
+}

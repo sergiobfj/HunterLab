@@ -117,3 +117,15 @@ Telas com fixtures em 450 dp/100%, 320 dp/100% e 320 dp/150%, sem GPS/BLE. Fonte
 TTS pt-BR offline do Google exercitado; confirmação auditiva humana pendente. Sem chave GraphHopper no aparelho.
 Resultado: NO-GO provisório para recomendação de merge. Relatório e capturas em [RADAR_SPEED_LIMITS.md](RADAR_SPEED_LIMITS.md).
 Não integrar na main nesta rodada; não usar o APK do CI como se tivesse a chave debug local.
+
+
+## Marca 02 aprovada — 22/11/2026
+
+`feat/brand-horse-02`, sobre a base de radares `4dd8408`. Proposta 02 — Cavalo gráfico
+aprovada pelo usuário; importação seletiva dos próprios assets de `9cbb667`, sem merge da
+branch de arte e sem copiar referências do WhatsApp. Alterações restritas a recursos Android
+e documentação; nenhum código funcional ou permissão foi alterado. Main e pesquisas preservadas.
+513 testes JVM, Lint zero e build debug aprovados. Atualização no Samsung confirmada após
+comparação dos certificados; preferências idênticas antes/depois. Tema original dos ícones
+preservado a pedido do usuário. Evidências e proveniência em [brand/horse-02/README.md](brand/horse-02/README.md).
+Não integrar na main nesta rodada. Confirmação auditiva humana do TTS e teste na moto continuam pendentes.

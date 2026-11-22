@@ -86,3 +86,12 @@ são dependências **somente de testes**, sob Apache-2.0. Não entram no APK de 
 Referências: https://developer.android.com/jetpack/androidx/releases/test e
 https://developer.android.com/jetpack/androidx/releases/compose-ui . O runner e o APK de testes
 exercitam telas e voz com fixtures explícitas, sem implementar transporte BLE ou provedores novos.
+
+
+### Marca Hunter Lab — proposta 02
+
+Arte própria da exploração Hunter Lab em `9cbb667`, gerada originalmente e vetorizada
+a partir dessa própria arte, aplicada com aprovação do usuário. Não foram incorporadas
+imagens de referência do WhatsApp, vetores de terceiros ou marcas oficiais Royal Enfield.
+Fontes editáveis e proveniência: `docs/brand/horse-02/`. Não há afirmação de exclusividade
+jurídica ou registro de marca. Esta aplicação não define uma licença nova para o projeto.

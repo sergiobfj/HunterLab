@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="graphite_950">#FF0C0D0F</color>
+    <color name="graphite_950">#FF101416</color>
     <color name="amber">#FFE2A240</color>
 
     <style name="Theme.HunterLab" parent="android:Theme.Material.NoActionBar">
