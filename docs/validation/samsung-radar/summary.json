@@ -1,0 +1,182 @@
+{
+  "date": "2026-11-22",
+  "device_model": "SM-A155M",
+  "android_release": "16",
+  "emulator_used": false,
+  "android_user": 0,
+  "original_review_commit": "57b32052961616253b3d66a9f56a35a931f4490e",
+  "installation": {
+    "certificate_sha256": "cd7734c98417fe084fb5d9c149c98d897db6b271cc3c32f999de4b4d855033cf",
+    "apk_sha256": "29a03f5d66947797c51afdde4d170d0d881aaf8e8e599548d4b1ae15c5094a96",
+    "install_confirmed": true,
+    "installed_apk_matches": true,
+    "version_name": "0.3.1-debug",
+    "version_code": 6
+  },
+  "preferences_byte_identical_after_first_update": true,
+  "unit_tests": {
+    "protocol": {
+      "tests": 115,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "core": {
+      "tests": 365,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "app": {
+      "tests": 33,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "lint_issues": 0,
+  "build": "SUCCESS",
+  "layouts": [
+    {
+      "fixtures": true,
+      "capture": "device_app_window_pixelcopy",
+      "cases": [
+        {
+          "case": "known",
+          "critical_visible": true,
+          "distance_bounds": "Rect.fromLTRB(316.0, 905.0, 503.0, 983.0)",
+          "sign_bounds": "Rect.fromLTRB(86.0, 845.0, 278.0, 1037.0)",
+          "font_scale": 1,
+          "screen_width_dp": 450
+        },
+        {
+          "case": "missing",
+          "critical_visible": true,
+          "distance_bounds": "Rect.fromLTRB(316.0, 905.0, 503.0, 983.0)",
+          "sign_bounds": "Rect.fromLTRB(86.0, 845.0, 278.0, 1037.0)",
+          "font_scale": 1,
+          "screen_width_dp": 450
+        },
+        {
+          "case": "conflict",
+          "critical_visible": true,
+          "distance_bounds": "Rect.fromLTRB(316.0, 905.0, 503.0, 983.0)",
+          "sign_bounds": "Rect.fromLTRB(86.0, 845.0, 278.0, 1037.0)",
+          "font_scale": 1,
+          "screen_width_dp": 450
+        },
+        {
+          "case": "conditional",
+          "critical_visible": true,
+          "distance_bounds": "Rect.fromLTRB(316.0, 905.0, 503.0, 983.0)",
+          "sign_bounds": "Rect.fromLTRB(86.0, 845.0, 278.0, 1037.0)",
+          "font_scale": 1,
+          "screen_width_dp": 450
+        }
+      ]
+    },
+    {
+      "fixtures": true,
+      "capture": "device_app_window_pixelcopy",
+      "cases": [
+        {
+          "case": "known",
+          "critical_visible": true,
+          "distance_bounds": "Rect.fromLTRB(446.0, 1246.0, 706.0, 1357.0)",
+          "sign_bounds": "Rect.fromLTRB(122.0, 1163.0, 392.0, 1433.0)",
+          "font_scale": 1,
+          "screen_width_dp": 320
+        },
+        {
+          "case": "missing",
+          "critical_visible": true,
+          "distance_bounds": "Rect.fromLTRB(446.0, 1246.0, 706.0, 1357.0)",
+          "sign_bounds": "Rect.fromLTRB(122.0, 1163.0, 392.0, 1433.0)",
+          "font_scale": 1,
+          "screen_width_dp": 320
+        },
+        {
+          "case": "conflict",
+          "critical_visible": true,
+          "distance_bounds": "Rect.fromLTRB(446.0, 1246.0, 706.0, 1357.0)",
+          "sign_bounds": "Rect.fromLTRB(122.0, 1163.0, 392.0, 1433.0)",
+          "font_scale": 1,
+          "screen_width_dp": 320
+        },
+        {
+          "case": "conditional",
+          "critical_visible": true,
+          "distance_bounds": "Rect.fromLTRB(446.0, 1246.0, 706.0, 1357.0)",
+          "sign_bounds": "Rect.fromLTRB(122.0, 1163.0, 392.0, 1433.0)",
+          "font_scale": 1,
+          "screen_width_dp": 320
+        }
+      ]
+    },
+    {
+      "fixtures": true,
+      "capture": "device_app_window_pixelcopy",
+      "cases": [
+        {
+          "case": "known",
+          "critical_visible": true,
+          "distance_bounds": "Rect.fromLTRB(446.0, 1403.0, 718.0, 1519.0)",
+          "sign_bounds": "Rect.fromLTRB(122.0, 1273.0, 392.0, 1543.0)",
+          "font_scale": 1.5,
+          "screen_width_dp": 320
+        },
+        {
+          "case": "missing",
+          "critical_visible": true,
+          "distance_bounds": "Rect.fromLTRB(446.0, 1403.0, 718.0, 1519.0)",
+          "sign_bounds": "Rect.fromLTRB(122.0, 1273.0, 392.0, 1543.0)",
+          "font_scale": 1.5,
+          "screen_width_dp": 320
+        },
+        {
+          "case": "conflict",
+          "critical_visible": true,
+          "distance_bounds": "Rect.fromLTRB(446.0, 1403.0, 718.0, 1519.0)",
+          "sign_bounds": "Rect.fromLTRB(122.0, 1273.0, 392.0, 1543.0)",
+          "font_scale": 1.5,
+          "screen_width_dp": 320
+        },
+        {
+          "case": "conditional",
+          "critical_visible": true,
+          "distance_bounds": "Rect.fromLTRB(446.0, 1403.0, 718.0, 1519.0)",
+          "sign_bounds": "Rect.fromLTRB(122.0, 1273.0, 392.0, 1543.0)",
+          "font_scale": 1.5,
+          "screen_width_dp": 320
+        }
+      ]
+    }
+  ],
+  "instrumentation_methods": 3,
+  "device_test_executions": 5,
+  "auditory_human_confirmation": "PENDING",
+  "graphhopper_key_configured": false,
+  "live_graphhopper_route": "NOT_TESTED_NO_KEY",
+  "gps_route_or_physical_cameras_validated": false,
+  "tripper_connected": false,
+  "firmware_or_ota_tested": false,
+  "display_restored": {
+    "density": "Physical density: 450\nOverride density: 384",
+    "font_scale": "1.0"
+  },
+  "voice_preference_restored": "OFF",
+  "screenshot_sha256": {
+    "window-dense150-conditional.png": "0a80a4a768210c318e86c20e245e2cc2c5c378cd0434300d360060636fc9faf2",
+    "window-dense150-conflict.png": "54f8a0b4f38727207ff4b2551c0464f7ef186ca93c712eea9064e17c2694da48",
+    "window-dense150-known.png": "09c469e43f9906522ef2752035a5d8e7836a6ec2b1bbdc97c4e6c38cc605660e",
+    "window-dense150-missing.png": "6851491a1f3dedb6142a7b6f8a956538aacb51b3a72c2ea9907c6e4a4a67281c",
+    "window-narrow100-conditional.png": "97facd912fd5a29c2dba832476babd10a3454942609dfac059fd2c747b27cdd1",
+    "window-narrow100-conflict.png": "3a946c8001e9d21ec643f7e3ec64e51d169e8266d67a400c6601dbf87656cb2a",
+    "window-narrow100-known.png": "bad201b10eb1d6de12819fa75eb5677a5dff4a62500c8dc0ca804d170131537c",
+    "window-narrow100-missing.png": "585c87599402f68c1306502836532ba040c5e143077959a881a5d483bae74ec2",
+    "window-normal-conditional.png": "53292487be6ac34929fd56c59c0a73d3bc4d0f4af789bc3c3c8c7951b3df90f8",
+    "window-normal-conflict.png": "57033c584a5e75dea75e885e259e93fff7627a1fba90787e91b30d7bd099bc00",
+    "window-normal-known.png": "de098b883b5101d3f722f1ce0af8873bc7029b2c4226f98f7403ceb57369846a",
+    "window-normal-missing.png": "ca8d640e3921be7f262307bba99c759a1959a1bdc6a7caaad3ace29be20b2247"
+  }
+}

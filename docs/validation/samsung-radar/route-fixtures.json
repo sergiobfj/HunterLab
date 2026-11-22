@@ -1,0 +1,6 @@
+{
+  "unknown_direction_preserved": true,
+  "parallel_street_100m_excluded": true,
+  "conflicting_limit_hidden": true,
+  "fixtures_not_gps": true
+}

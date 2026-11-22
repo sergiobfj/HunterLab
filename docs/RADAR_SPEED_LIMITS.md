@@ -201,8 +201,8 @@ As regressões anteriores de BLE/OTA, Playground, alertas 700/300 m, desvio, rua
 Prévias Layoutlib em `validation/caruaru/radar-previews/` usam dados sintéticos, incluindo 320 dp e fonte a 150%.
 Não são captura do Samsung, execução de TTS, teste de estrada ou confirmação de fiscalização ativa.
 
-Antes de integrar: revisar prévias e CI da branch. No Samsung: verificar voz pt-BR, volume, permissões,
-notificação, bloqueio de tela, GPS perdido, encerrar e ausência de conexão BLE automática.
+A rodada no Samsung está registrada abaixo. Fluxo completo de rota/serviço, notificação, bloqueio de tela e GPS real
+continuam pendentes de uma rota válida; o teste de componentes com fixtures não os substitui.
 Depois, só com autorização e moto estacionada, testar funções já permitidas no Tripper; esta entrega não exige OTA ou comandos novos.
 
 ## Resultado automatizado desta branch
@@ -213,13 +213,99 @@ Depois, só com autorização e moto estacionada, testar funções já permitida
   versão do cache e filtragem do bbox da fixture foram atualizadas para a semântica corrigida, sem eliminar testes negativos.
 - Gitleaks: snapshot público e histórico de todas as refs sem segredos detectados; revisão de arquivos gerados,
   keystores, logs privados, permissões, atribuição e diff antes do push.
-- APK de revisão local em `build/distributions/HunterLab-0.3.1-radar-speed-review-debug-local.apk`,
+- APK de revisão local em `build/distributions/HunterLab-0.3.1-radar-speed-samsung-review-debug-local.apk`,
   applicationId `dev.hunterlab.app.debug`, versionName `0.3.1-debug`, versionCode `6`.
 - Certificado SHA-256 `cd7734c98417fe084fb5d9c149c98d897db6b271cc3c32f999de4b4d855033cf`,
-  igual ao APK local anterior. Certificado da instalação do Samsung não foi consultado nesta sessão.
+  igual ao APK local anterior e ao APK extraído da instalação do Samsung, verificados por apksigner.
   Usar o APK local para revisão; não assumir que o APK do CI tem a mesma assinatura.
 
-A branch é publicada para revisão, sem merge na main ou release estável. Instalação e áudio no Samsung pendentes.
+A branch é publicada para revisão, sem merge na main ou release estável. Instalação no Samsung confirmada;
+a avaliação auditiva humana do áudio permanece pendente.
+
+## Validação real no Samsung — 22/11/2026
+
+Aparelho **SM-A155M / Android 16**, usuário Android **0**, sem emulador. Serial, UID e caminhos aleatórios
+de instalação foram omitidos dos registros públicos. Nenhuma operação de teste, instalação ou alteração foi direcionada ao aplicativo oficial Royal Enfield.
+
+### Assinatura e atualização
+
+Foram feitas consultas ADB sucessivas, `pm path --user 0`, extração do APK instalado e verificação dos dois APKs
+por `apksigner verify --print-certs`. Os certificados reais têm o mesmo SHA-256:
+
+`cd7734c98417fe084fb5d9c149c98d897db6b271cc3c32f999de4b4d855033cf`
+
+A atualização do APK de `57b3205` retornou **Success**, sem downgrade, desinstalação ou limpeza.
+O arquivo de preferências permaneceu byte a byte igual imediatamente antes/depois dessa primeira atualização.
+Depois da correção mínima de layout, houve nova atualização bem-sucedida, novamente com o mesmo certificado.
+O APK extraído da instalação final é byte a byte igual ao APK local final:
+
+- applicationId: `dev.hunterlab.app.debug`;
+- versionName: `0.3.1-debug`, versionCode: `6`;
+- SHA-256: `29a03f5d66947797c51afdde4d170d0d881aaf8e8e599548d4b1ae15c5094a96`;
+- arquivo local: `build/distributions/HunterLab-0.3.1-radar-speed-samsung-review-debug-local.apk`.
+
+### Resultados observados
+
+| Verificação | Resultado e alcance |
+|---|---|
+| Inicialização e quatro áreas | Abertas no aparelho, sem crash observado |
+| Permissões | Estados exibidos corretamente: localização/notificações não concedidas, dispositivos próximos permitidos; não foram modificados |
+| Playground | Aberto em estado inativo, sem transmissão |
+| Simulador existente | SIM-01 fictício, aproximadamente 204 m e 60 km/h; não é uma câmera observada na rua |
+| Placa nova na Navegação | Fixture de 100 km/h / 280 m, sem substituir a distância de manobra de 300 m |
+| Sem limite, conflito e condição | Traço sem número e respectivos rótulos corretos |
+| Fonte/largura | Quatro estados em 450 dp/100%, 320 dp/100% e 320 dp/150%; distância, placa e estado do limite visíveis antes de Encerrar |
+| Sentido desconhecido | Preservado nos dois rumos da fixture; não é convertido em sentido confirmado |
+| Rua paralela | Fixture paralela a aproximadamente 110 m não é casada com a rota; não comprova separação universal de vias muito próximas |
+| BLE | Observação do controlador: zero sessões, zero escritas, scan não iniciado, servidor GATT fechado e inspetor inativo |
+| GraphHopper real | Sem chave configurada no aparelho; cálculo público real não executado |
+
+A tela é a **composição real do aplicativo executada no Samsung**, alimentada por estados sintéticos via
+instrumentação. Não é uma rota GPS ou uma requisição GraphHopper de ponta a ponta. O simulador antigo é
+uma verificação separada; sua prévia do Tripper não prova que a nova placa tenha sido transmitida.
+
+As [12 capturas reais da janela do app](validation/samsung-radar/README.md) usam PixelCopy e não incluem
+notificações externas. O [resumo estruturado](validation/samsung-radar/summary.json), os resultados JUnit e os
+registros técnicos sanitizados estão na mesma pasta. APKs extraídos, dumps e logcat integrais ficam no registro local privado.
+
+### Correções mínimas encontradas nesta rodada
+
+Em 320 dp/fonte 150%, os rótulos da barra inferior cortavam. Nessa configuração, a barra agora mantém os
+quatro ícones com nomes acessíveis e apresenta o nome da área selecionada numa linha própria.
+O estado do limite também passa para a largura do cartão nessa configuração, evitando corte parcial de
+“indisponível” ou “divergente”. A aparência normal, tema, ícone e lógica permanecem preservados.
+Os testes verificam os quatro controles acessíveis e os limites visíveis sem rolagem; informações secundárias podem exigir rolagem.
+
+### TTS real: técnico aprovado, escuta humana pendente
+
+O aviso por voz foi ativado pela interface do aplicativo e sua preferência conferida antes do teste.
+O adaptador **AndroidRadarSpeech** e o **RadarVoice** reais foram exercitados no aparelho com eventos sintéticos.
+Foi usada uma voz **pt-BR instalada e sem necessidade de rede**, do motor `com.google.android.tts`.
+O volume de mídia era 8/15 e não foi alterado.
+
+- Primeiro alerta: um único pedido apesar das repetições do evento; callbacks reais `start` e `done`.
+- Inicialização cancelada: não houve novo pedido de fala após desativar.
+- Segundo alerta: começou e foi encerrado após aproximadamente um segundo; não houve pedido posterior ao encerramento.
+- O segundo alerta não registrou callback final de áudio antes da liberação do motor. Isso não comprova silêncio auditivo.
+- A confirmação humana de que o primeiro foi ouvido uma vez e de que o segundo foi cortado **continua pendente**.
+
+Os resultados técnicos estão em [tts-platform.json](validation/samsung-radar/tts-platform.json).
+Esse teste de componente não valida o botão Encerrar durante uma rota GPS real, nem áudio com a tela bloqueada.
+A preferência de voz foi restaurada para **desligada**, e fonte/densidade foram restauradas aos valores originais
+(100%, override de densidade 384). Não foram alterados motor TTS padrão, volume ou permissões.
+
+### Regressões, decisão e limites
+
+Após os ajustes: **513 testes JVM aprovados** (115 protocol, 365 core, 33 app), Lint zero achados,
+build debug e APK de instrumentação aprovados. Três métodos de teste instrumentado cobrem a tela, o casamento
+com a rota e a voz; a tela foi repetida em três configurações, totalizando cinco execuções de método finais aprovadas.
+O teste de voz foi executado na revisão inicial; sua implementação permaneceu idêntica após os ajustes exclusivamente visuais.
+O logcat do app foi mantido privado e seu resumo não apresentou crash Java/nativo no período observado.
+
+**NO-GO provisório para recomendar merge:** falta confirmação auditiva humana; CI da atualização deve estar aprovado.
+Não houve merge na main. A falta de chave GraphHopper deixa a chamada real e o fluxo completo de navegação pendentes,
+sem transformar a aprovação dos componentes com fixtures em validação de estrada. Nenhum teste físico da Hunter,
+conexão ao Tripper, OTA, comando desconhecido, modificação de firmware ou interação com ECU foi realizado.
 
 ## Referências primárias
 

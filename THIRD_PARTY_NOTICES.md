@@ -77,3 +77,12 @@ não há licença proprietária restringindo acesso às bases derivadas. Caches 
 Atribuições também aparecem em Configurações e Navegação. O código do gerador Pardal não foi copiado;
 a licença MIT do código desse projeto não substitui a ODbL dos dados nem define a licença própria do Hunter Lab.
 A data do pacote não comprova funcionamento físico, calibração vigente ou cobertura completa dos equipamentos.
+
+
+### Instrumentação Android — revisão no Samsung
+
+AndroidX Test Runner 1.7.0, AndroidX Test JUnit 1.3.0 e Compose UI Test (versão do BOM existente)
+são dependências **somente de testes**, sob Apache-2.0. Não entram no APK de produção.
+Referências: https://developer.android.com/jetpack/androidx/releases/test e
+https://developer.android.com/jetpack/androidx/releases/compose-ui . O runner e o APK de testes
+exercitam telas e voz com fixtures explícitas, sem implementar transporte BLE ou provedores novos.

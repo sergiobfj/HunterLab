@@ -105,3 +105,15 @@ Modelo de evidências OSM/Pardal, cache v2 com migração conservadora, limites 
 voz pt-BR offline opcional e placa de limite no Android. Pesquisa e licença em [RADAR_SPEED_LIMITS.md](RADAR_SPEED_LIMITS.md).
 Prévias em `validation/caruaru/radar-previews/`. A main e as worktrees de marca permanecem preservadas.
 Dados reais públicos; fluxos TTS/GraphHopper válidos e execução no Samsung não foram comprovados nesta máquina.
+
+
+## Revisão Samsung dos radares — 22/11/2026
+
+Worktree/branch de radares preservadas. APK de `57b3205` instalado por cima após extração e comparação do certificado;
+preferências idênticas imediatamente após a atualização. Ajustes apenas de reflow para fonte ampliada na barra inferior
+e no rótulo do limite; nenhuma mudança em BLE, core, protocolo, firmware ou identidade visual.
+513 testes JVM, Lint zero, build debug e testes instrumentados no SM-A155M/Android 16 aprovados tecnicamente.
+Telas com fixtures em 450 dp/100%, 320 dp/100% e 320 dp/150%, sem GPS/BLE. Fonte/densidade e voz restauradas.
+TTS pt-BR offline do Google exercitado; confirmação auditiva humana pendente. Sem chave GraphHopper no aparelho.
+Resultado: NO-GO provisório para recomendação de merge. Relatório e capturas em [RADAR_SPEED_LIMITS.md](RADAR_SPEED_LIMITS.md).
+Não integrar na main nesta rodada; não usar o APK do CI como se tivesse a chave debug local.

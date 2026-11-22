@@ -8,6 +8,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -106,6 +108,9 @@ fun NavigationScreen(
 /** A mapped value, never a tolerance or an inferred adjacent-road limit. */
 @Composable
 fun RadarAlert(state: RadarUi, modifier: Modifier = Modifier) {
+    val density = LocalDensity.current
+    val width = with(density) { LocalWindowInfo.current.containerSize.width.toDp() }
+    val reflowLimitLabel = width < 360.dp && density.fontScale > 1.2f
     Column(modifier.fillMaxWidth().background(HunterColors.SurfaceHigh, RoundedCornerShape(14.dp)).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -113,9 +118,10 @@ fun RadarAlert(state: RadarUi, modifier: Modifier = Modifier) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(state.kindText, style = MaterialTheme.typography.titleMedium, color = HunterColors.AmberSoft)
                 Text(state.alertDistanceM?.let { "$it m" } ?: "À frente", style = MaterialTheme.typography.headlineMedium)
-                Text(state.limitStatus, style = MaterialTheme.typography.bodyMedium, color = HunterColors.TextSecondary)
+                if (!reflowLimitLabel) Text(state.limitStatus, style = MaterialTheme.typography.bodyMedium, color = HunterColors.TextSecondary)
             }
         }
+        if (reflowLimitLabel) Text(state.limitStatus, style = MaterialTheme.typography.bodyMedium, color = HunterColors.TextSecondary)
         if (state.directionUnknown) SupportingText("Sentido de fiscalização não confirmado")
         SupportingText(state.sourceText)
     }

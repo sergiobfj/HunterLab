@@ -8,6 +8,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -65,6 +68,9 @@ fun HunterLabRoot(ble: BleController, nav: NavBindings) {
     val active = homeState.navigationActive || navState.hasActiveNavigation()
     val canInterrupt = navState.tripper.canInterrupt || homeState.tripper.canInterrupt
     val keyboardVisible = WindowInsets.isImeVisible
+    val windowSize = LocalWindowInfo.current.containerSize
+    val displayDensity = LocalDensity.current
+    val compactNavigationLabels = with(displayDensity) { windowSize.width.toDp() } < 360.dp && displayDensity.fontScale > 1.2f
 
     BackHandler(enabled = advanced != null || destination != DailyDestination.HOME) {
         if (advanced != null) advanced = null else destination = DailyDestination.HOME
@@ -94,13 +100,22 @@ fun HunterLabRoot(ble: BleController, nav: NavBindings) {
         bottomBar = {
             Column {
                 SessionSafetyActions(active, canInterrupt, nav.actions)
+                if (!keyboardVisible && compactNavigationLabels) Text(
+                    destination.label,
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = HunterColors.TextPrimary,
+                )
                 if (!keyboardVisible) NavigationBar(containerColor = HunterColors.Surface, tonalElevation = 0.dp) {
                     DailyDestination.entries.forEach { item ->
                         NavigationBarItem(
                             selected = item == destination,
                             onClick = { destination = item; advanced = null },
-                            icon = { Icon(item.icon, contentDescription = null) },
-                            label = { Text(item.label, style = MaterialTheme.typography.labelSmall) },
+                            icon = { Icon(item.icon, contentDescription = if (compactNavigationLabels) item.label else null) },
+                            label = if (compactNavigationLabels) null else {
+                                { Text(item.label, style = MaterialTheme.typography.labelSmall) }
+                            },
                             colors = NavigationBarItemDefaults.colors(
                                 selectedIconColor = HunterColors.TextPrimary,
                                 selectedTextColor = HunterColors.TextPrimary,

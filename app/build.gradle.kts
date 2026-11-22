@@ -20,6 +20,7 @@ android {
         targetSdk = 37
         versionCode = 6
         versionName = "0.3.1"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -62,6 +63,10 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
 
     testImplementation(libs.junit4)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.junit)
 }
 
 // O teste de cache lê este snapshot do módulo core. Mudanças no dado devem invalidar o resultado do app.

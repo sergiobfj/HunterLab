@@ -1,0 +1,22 @@
+{
+  "fixtures": true,
+  "auditory_approval": "requires_human_confirmation",
+  "media_volume": 8,
+  "engine": "com.google.android.tts",
+  "voice_locale": "pt-BR",
+  "voice_requires_network": false,
+  "offline_pt_br_available": true,
+  "first_alert_requests": 1,
+  "first_engine_callbacks": [
+    "start",
+    "done"
+  ],
+  "pending_cancel_prevented_speech": true,
+  "total_speech_requests": 2,
+  "all_engine_callbacks": [
+    "start",
+    "done",
+    "start"
+  ],
+  "no_requests_after_stop": true
+}
