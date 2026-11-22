@@ -78,7 +78,7 @@ uma vez (o checklist de 5 itens continua no laboratório). Pendente de teste: re
 ## Consolidação 0.3.1 e identidade
 
 - [x] Reunir Playground, base Graphite Grey e pesquisa gráfica do Pod, preservando o código funcional da 0.3.1.
-- [ ] Escolher e aprovar nova marca entre cavalo, roadster e híbrida. Assets novos permanecem fora da main até aprovação.
+- [x] Proposta 02 — Cavalo gráfico aprovada e aplicada na branch `feat/brand-horse-02`; preservada na base desta melhoria. Main não alterada nesta rodada.
 - [ ] Validar a 0.3.1 no Samsung e na Hunter estacionada seguindo o procedimento existente; sem testes físicos nesta consolidação.
 
 ### Branch de limites e voz — 22/11/2026
@@ -86,3 +86,11 @@ uma vez (o checklist de 5 itens continua no laboratório). Pendente de teste: re
 - Evidências OSM/Pardal PE, limite condicionado/conflitante sem número e fonte por radar.
 - GraphHopper `max_speed` separado do limite do equipamento; voz opcional sem comandos BLE novos.
 - Pendente: revisão das prévias, integração controlada, GraphHopper com chave válida e validação Android/TTS no Samsung.
+
+
+### Planejamento visual — branch em revisão
+
+- [x] Implementar MapLibre/MapTiler, busca POI, favoritos e alternativas GraphHopper sem tocar no BLE.
+- [x] Manter rota selecionada ao iniciar e exigir nova conferência quando a prévia estiver vencida.
+- [ ] Validar tiles, busca e rotas reais com chaves próprias; Samsung 320 dp/150%, teclado e ciclo de vida.
+- [ ] Revisar branch/previews antes de integrar na main. Detalhes em [NAVIGATION_MAP_PLANNING.md](NAVIGATION_MAP_PLANNING.md).

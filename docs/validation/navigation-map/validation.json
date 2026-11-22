@@ -1,0 +1,37 @@
+{
+  "jvm_tests": {
+    "protocol": {
+      "tests": 115,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "core": {
+      "tests": 400,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "app": {
+      "tests": 41,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "lint_findings": 0,
+  "build_debug": "success",
+  "build_test_apk": "success, not executed",
+  "layoutlib_previews": 10,
+  "apk_sha256": "9ca35fdd66a9e9cd16a560d2b1e1754f0513504a0f115cf8895ad48a1ba002f2",
+  "signer_sha256": "cd7734c98417fe084fb5d9c149c98d897db6b271cc3c32f999de4b4d855033cf",
+  "matches_previous_extracted_samsung_certificate": true,
+  "installed_this_round": false,
+  "zipalign_16kb": "pass",
+  "device_validation": "pending; no ADB device",
+  "live_successful_poi_and_routes": "pending legitimate credentials",
+  "code_commits": [
+    "780af40",
+    "47940dd"
+  ]
+}

@@ -129,3 +129,21 @@ e documentação; nenhum código funcional ou permissão foi alterado. Main e pe
 comparação dos certificados; preferências idênticas antes/depois. Tema original dos ícones
 preservado a pedido do usuário. Evidências e proveniência em [brand/horse-02/README.md](brand/horse-02/README.md).
 Não integrar na main nesta rodada. Confirmação auditiva humana do TTS e teste na moto continuam pendentes.
+
+
+## Planejamento visual — 22/11/2026
+
+Worktree `HunterLab-navigation-smart-search`, branch `feat/navigation-smart-search`, baseada em `290e6fd`
+(radares/limites/TTS e Logo 02). Branch inexistente no início; nenhuma implementação paralela foi sobrescrita.
+MapLibre nativo OpenGL, MapTiler para tiles/POIs e alternativas GraphHopper; contratos estendidos com defaults.
+O motor de navegação existente recebe a rota selecionada; protocolo, BLE, guard OTA e Playground preservados.
+Sem merge na main. Pesquisa Claude/worktrees de firmware intactas. Nenhuma chave incluída.
+Samsung não disponível no ADB nesta rodada; chamadas reais bem-sucedidas dependem de credenciais próprias.
+Custos, segurança, testes e limites em [NAVIGATION_MAP_PLANNING.md](NAVIGATION_MAP_PLANNING.md).
+
+Validação local final desta frente: 556 testes JVM, Lint zero, APK debug e APK de instrumentação compilados;
+10 prévias Layoutlib. Reflow da busca em 320 dp/150% e cartão selecionado corrigidos. Sem execução no aparelho.
+Certificado do APK local igual à cópia anteriormente extraída do Samsung; nova atualização não realizada.
+Ferramenta temporária de render e goldens completos conservados somente na auditoria privada.
+Publicar apenas esta branch, conferir CI e manter merge bloqueado até validação de tiles/POIs/rotas com chaves
+válidas e revisão no Samsung. A marca e a proteção BLE/OTA não foram alteradas.

@@ -1,0 +1,97 @@
+{
+  "rendering": "Layoutlib; map area deliberately marked as layout preview, native MapLibre not exercised",
+  "preview_images": [
+    {
+      "file": "ActiveNavigation.png",
+      "pixels": [
+        720,
+        1800
+      ],
+      "sha256": "47792074195bd56910de35cad7d1bda285bfeb157c491d771216820503dd4199",
+      "source": "Layoutlib, synthetic fixtures, no native map tiles"
+    },
+    {
+      "file": "MapEmpty.png",
+      "pixels": [
+        720,
+        1600
+      ],
+      "sha256": "e2f8b416b311201aa469edf52ab7f0513e1f9a4dd32381283bdbe884105cfaea",
+      "source": "Layoutlib, synthetic fixtures, no native map tiles"
+    },
+    {
+      "file": "MapError.png",
+      "pixels": [
+        720,
+        1600
+      ],
+      "sha256": "f823c6368a23ae8a979df48bcf88280b8a9e4cf7e8baaa548a527c9f54593667",
+      "source": "Layoutlib, synthetic fixtures, no native map tiles"
+    },
+    {
+      "file": "MapLarge.png",
+      "pixels": [
+        640,
+        1440
+      ],
+      "sha256": "ee4ca4edc7b082d863ccebd469d687be1dd8f3f4fda86ed0c3f532e365560155",
+      "source": "Layoutlib, synthetic fixtures, no native map tiles"
+    },
+    {
+      "file": "MapLoading.png",
+      "pixels": [
+        720,
+        1600
+      ],
+      "sha256": "2ceb5be37890820b96cbbc3fe95f0949f907cde462320ced3be46ac97ed18956",
+      "source": "Layoutlib, synthetic fixtures, no native map tiles"
+    },
+    {
+      "file": "MapRoutes.png",
+      "pixels": [
+        720,
+        1600
+      ],
+      "sha256": "e7d0581fc0debca9a2e8e356e290cdc7648c3336fed630cffca479984ddeaf69",
+      "source": "Layoutlib, synthetic fixtures, no native map tiles"
+    },
+    {
+      "file": "MapSingle.png",
+      "pixels": [
+        720,
+        1600
+      ],
+      "sha256": "6e1b486d445e8ba72b425e94572d6365632a8999bd49f259a4855d668efc8e63",
+      "source": "Layoutlib, synthetic fixtures, no native map tiles"
+    },
+    {
+      "file": "SearchLarge.png",
+      "pixels": [
+        640,
+        1440
+      ],
+      "sha256": "407437c7a67df2f1b3cebe815f1d8c5e6da76de15e20c9ab58eefcc3f87ec698",
+      "source": "Layoutlib, synthetic fixtures, no native map tiles"
+    },
+    {
+      "file": "Search.png",
+      "pixels": [
+        720,
+        1600
+      ],
+      "sha256": "7f8eb81dab25c0a069642cd4c247bd426faefebb76512d4c2a3d0884a32e8793",
+      "source": "Layoutlib, synthetic fixtures, no native map tiles"
+    },
+    {
+      "file": "SelectedRoute.png",
+      "pixels": [
+        720,
+        1600
+      ],
+      "sha256": "e82a91e88c6a2b96dd1abb0f6c57ba6f0bd30e4dddefb14fe58e198f5a59caba",
+      "source": "Layoutlib, synthetic fixtures, no native map tiles"
+    }
+  ],
+  "samsung_validation": false,
+  "emulator_validation": false
+}

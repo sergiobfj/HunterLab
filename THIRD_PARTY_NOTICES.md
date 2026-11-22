@@ -95,3 +95,21 @@ a partir dessa própria arte, aplicada com aprovação do usuário. Não foram i
 imagens de referência do WhatsApp, vetores de terceiros ou marcas oficiais Royal Enfield.
 Fontes editáveis e proveniência: `docs/brand/horse-02/`. Não há afirmação de exclusividade
 jurídica ou registro de marca. Esta aplicação não define uma licença nova para o projeto.
+
+
+### MapLibre e cartografia MapTiler — planejamento visual
+
+MapLibre Native Android OpenGL 13.7.1 é uma dependência Maven, sob BSD-2-Clause. Aviso integral
+da tag `android-v13.7.1`, incluindo componentes transitivos, preservado no APK em
+`app/src/main/assets/licenses/maplibre-native-android-13.7.1.txt` e acessível nas Configurações.
+SHA-256 da cópia: `db3cc41e2c79f394a1dddd890c55c263426175029a898d5167820498ddebf152`.
+SDK e licença: https://github.com/maplibre/maplibre-native/blob/android-v13.7.1/platform/android/LICENSE.md .
+
+Tiles/POIs são serviços MapTiler, sujeitos à conta/quota/termos do usuário; não são hospedagem gratuita incluída
+no MapLibre. Atribuição visível: © MapTiler © OpenStreetMap contributors, com links. O logo oficial foi obtido
+de https://api.maptiler.com/resources/logo.svg exclusivamente para a atribuição exigida pelo plano Free;
+a versão PNG é sua renderização, sem redesenho. Fonte SVG SHA-256:
+`c2fef38a1e77e9ff774dc1b21a2e931c81eab12191395be726c594404e4bf332`.
+Uso/atribuição: https://docs.maptiler.com/guides/map-design/attribution/add-attribution/ .
+Não há cópia de tiles, bases cartográficas ou resultados comerciais reais neste commit. As prévias usam fixtures.
+Esses termos não substituem ODbL da base de radares nem definem a licença própria do Hunter Lab.

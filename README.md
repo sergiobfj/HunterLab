@@ -33,11 +33,17 @@ A transmissão existente exige autorização por sessão e ações manuais no La
   GPS com desvio e recálculo; telas de navegação no Tripper só em sessão de navegação autenticada.
 - Radares fixos do OpenStreetMap (Overpass) com cache local e aviso de cobertura limitada.
 - Interface em Início, Navegação, Personalização e Configurações; Laboratório BLE em Configurações → Avançado.
-- Novas permissões: internet (só rotas e radares), localização durante a navegação, notificações e serviço em
+- Novas permissões: internet (rotas, cartografia, busca e radares), localização durante a navegação, notificações e serviço em
   primeiro plano. Detalhes em [MVP_ARCHITECTURE](docs/MVP_ARCHITECTURE.md); validação em
   [PHYSICAL_TEST_PLAN](docs/PHYSICAL_TEST_PLAN.md).
 
 Consulte o [roadmap](docs/ROADMAP.md) e as [prévias Android do Playground](docs/TRIPPER_PLAYGROUND.md). São renders, sem validação em aparelho.
+
+## Planejamento com mapa — branch em revisão
+
+Mapa MapLibre/MapTiler, busca de estabelecimentos e até três rotas GraphHopper, com seleção explícita do percurso.
+Exige chaves próprias; chamadas bem-sucedidas e renderização no Samsung ainda pendentes.
+Leia [configuração, custos e validação](docs/NAVIGATION_MAP_PLANNING.md). Não foi integrado à main.
 
 ## Arquitetura
 
@@ -77,7 +83,7 @@ A distribuição de release depende de uma chave estável aprovada pelo mantened
 - **0.3.0 é um MVP sem validação física.** Apenas a base 0.2.1 tem os testes de Tripper relatados acima.
 - As rotas usam **perfil de carro** da GraphHopper; não são otimizadas ou validadas para motocicletas e podem exigir conferir restrições legais de circulação.
 - Radares fixos dependem de contribuição e cobertura OSM. A ausência de alerta não indica ausência de fiscalização.
-- Origem/destino seguem por HTTPS para GraphHopper; tiles da região da rota para Overpass; buscas de endereço usam o Geocoder do aparelho. A chave do usuário, até cinco destinos recentes e o cache ficam no armazenamento privado. A chave não tem criptografia adicional; root ou depuração autorizada podem expô-la. Backup e transferência de dados do app são explicitamente excluídos.
+- Origem/destino seguem por HTTPS para GraphHopper; tiles da região da rota para Overpass; mapas e busca de estabelecimentos usam MapTiler com chave própria. Chaves, até cinco destinos recentes, vinte favoritos e o cache ficam no armazenamento privado. A chave não tem criptografia adicional; root ou depuração autorizada podem expô-la. Backup e transferência de dados do app são explicitamente excluídos.
 - Serviço foreground, GPS com tela bloqueada e consumo de bateria ainda exigem testes no Samsung. Sem serviço foreground, a navegação e o link são encerrados.
 
 - Não opere o celular pilotando. O protocolo é parcial e experimental.
