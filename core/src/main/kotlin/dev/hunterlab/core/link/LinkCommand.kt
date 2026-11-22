@@ -95,7 +95,10 @@ object CommandWhitelist {
             DecodedPacket.PingFirmware -> kind == CommandKind.PING
             is DecodedPacket.Pin -> kind == CommandKind.PIN && d.code.length in 1..TripperCommands.PIN_MAX_LENGTH
             is DecodedPacket.SetTime -> kind == CommandKind.SET_TIME
-            is DecodedPacket.Compass -> kind == CommandKind.COMPASS && d.direction != null
+            // A identificação da tela não basta: somente os 16 quadros do builder são permitidos.
+            is DecodedPacket.Compass -> kind == CommandKind.COMPASS && d.direction?.let { direction ->
+                packet == TripperCommands.compass(direction, if (d.night) DayPeriod.NIGHT else DayPeriod.DAY)
+            } == true
             // Tela de navegação documentada; "rota iniciada" (0x45, só provável) continua fora.
             is DecodedPacket.Navigation -> kind == CommandKind.NAVIGATION && d.icon != TripperIcons.ROUTE_STARTED && d.distance != null
             is DecodedPacket.Screen -> kind == CommandKind.RECALCULATING && d.icon == TripperIcons.RECALCULATING

@@ -2,6 +2,7 @@ package dev.hunterlab.core.link
 
 import dev.hunterlab.protocol.*
 import java.time.LocalTime
+import kotlin.random.Random
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
@@ -16,9 +17,19 @@ class OutboundPacketSafetyTest {
     }
 
     @Test fun `update opcode is rejected with valid CRC and every declared command kind`() {
+        // Complementary fixtures adapted from FirmwareUpdateOpcodeGuardTest @ 4871e00.
+        // Fixed seeds make this an offline deterministic regression, not radio probing.
+        val random = Random(20261122)
         updateOpcodes.forEach { opcode ->
-            listOf(0, 1, 0x10, 0x11, 0x21, 0xFF).forEach { fill ->
-                val packet = synthetic(opcode, fill)
+            val payloads = buildList {
+                listOf(0, 1, 0x10, 0x11, 0x21, 0xFF).forEach { add(synthetic(opcode, it).payload()) }
+                add(ByteArray(18).also { it[1] = 0x11; it[2] = 0x41; it[14] = 0x10 })
+                add(ByteArray(18).also { it[1] = 0x11; it[10] = 0x41; it[5] = 0x01 })
+                repeat(2_000) { add(random.nextBytes(18)) }
+            }
+            payloads.forEach { payload ->
+                payload[0] = opcode.toByte()
+                val packet = TripperPacket.fromPayload(payload)
                 assertTrue(TripperPacket.parse(packet.toByteArray()) is PacketParseResult.Valid)
                 assertFalse(CommandWhitelist.isTransmittable(packet))
                 assertFalse(CommandWhitelist.isTransmittable(packet.toByteArray()))
@@ -62,6 +73,13 @@ class OutboundPacketSafetyTest {
         allowed(ping)
         assertTrue(CommandWhitelist.matches(CommandKind.PING, ping))
         assertFalse(CommandWhitelist.isTransmittable(synthetic(0x03, 1)))
+        val random = Random(3)
+        repeat(500) {
+            val payload = random.nextBytes(18).also { it[0] = 0x03 }
+            // Distorted reserved fields, with a newly valid CRC, must still be refused.
+            assertTrue(payload.drop(1).any { it != 0.toByte() })
+            assertFalse(CommandWhitelist.isTransmittable(TripperPacket.fromPayload(payload).toByteArray()))
+        }
     }
 
     @Test fun `OTA byte values in documented icon fields are not top level commands`() {
@@ -102,6 +120,61 @@ class OutboundPacketSafetyTest {
         CompassDirection.entries.forEach { d -> DayPeriod.entries.forEach { period ->
             allowed(TripperCommands.compass(d, period))
         } }
+    }
+
+    @Test fun `catalogue and documented builders never produce update opcodes`() {
+        // Catalogue includes preview-only commands: inspecting them does NOT authorize transmission.
+        val packets = CommandCatalog.all.map { it.example } +
+            CompassDirection.entries.flatMap { d -> DayPeriod.entries.map { TripperCommands.compass(d, it) } } +
+            DayPeriod.entries.flatMap { listOf(TripperCommands.recalculating(it), TripperCommands.idleScreen(it)) } +
+            listOf(TripperCommands.pingFirmware(), TripperCommands.callIcon(), TripperCommands.routeStarted())
+        packets.forEach { assertFalse(it[0] in updateOpcodes, it.toHex()) }
+        listOf(TripperCommands.callIcon(), TripperCommands.routeStarted(), TripperCommands.idleScreen(DayPeriod.DAY))
+            .forEach { assertFalse(CommandWhitelist.isTransmittable(it.toByteArray())) }
+    }
+
+    // Frozen documented layout + independent CRC fixtures, not 16 physical validations.
+    private val compassVectors = listOf(
+        Triple(CompassDirection.N, DayPeriod.DAY, "10 11 41 00 00 00 00 FF 00 00 00 FF FF FF 10 00 00 00 94 76"),
+        Triple(CompassDirection.N, DayPeriod.NIGHT, "10 11 41 00 00 00 01 FF 00 00 00 FF FF FF 10 00 00 00 97 03"),
+        Triple(CompassDirection.NE, DayPeriod.DAY, "10 11 41 00 00 00 00 FF 00 00 00 FF FF FF 50 00 00 00 FA EA"),
+        Triple(CompassDirection.NE, DayPeriod.NIGHT, "10 11 41 00 00 00 01 FF 00 00 00 FF FF FF 50 00 00 00 F9 9F"),
+        Triple(CompassDirection.E, DayPeriod.DAY, "10 11 41 00 00 00 00 FF 00 00 00 FF FF FF 20 00 00 00 B8 9F"),
+        Triple(CompassDirection.E, DayPeriod.NIGHT, "10 11 41 00 00 00 01 FF 00 00 00 FF FF FF 20 00 00 00 BB EA"),
+        Triple(CompassDirection.SE, DayPeriod.DAY, "10 11 41 00 00 00 00 FF 00 00 00 FF FF FF 70 00 00 00 CD A4"),
+        Triple(CompassDirection.SE, DayPeriod.NIGHT, "10 11 41 00 00 00 01 FF 00 00 00 FF FF FF 70 00 00 00 CE D1"),
+        Triple(CompassDirection.S, DayPeriod.DAY, "10 11 41 00 00 00 00 FF 00 00 00 FF FF FF 40 00 00 00 E1 4D"),
+        Triple(CompassDirection.S, DayPeriod.NIGHT, "10 11 41 00 00 00 01 FF 00 00 00 FF FF FF 40 00 00 00 E2 38"),
+        Triple(CompassDirection.SW, DayPeriod.DAY, "10 11 41 00 00 00 00 FF 00 00 00 FF FF FF 80 00 00 00 52 E9"),
+        Triple(CompassDirection.SW, DayPeriod.NIGHT, "10 11 41 00 00 00 01 FF 00 00 00 FF FF FF 80 00 00 00 51 9C"),
+        Triple(CompassDirection.W, DayPeriod.DAY, "10 11 41 00 00 00 00 FF 00 00 00 FF FF FF 30 00 00 00 A3 38"),
+        Triple(CompassDirection.W, DayPeriod.NIGHT, "10 11 41 00 00 00 01 FF 00 00 00 FF FF FF 30 00 00 00 A0 4D"),
+        Triple(CompassDirection.NW, DayPeriod.DAY, "10 11 41 00 00 00 00 FF 00 00 00 FF FF FF 60 00 00 00 D6 03"),
+        Triple(CompassDirection.NW, DayPeriod.NIGHT, "10 11 41 00 00 00 01 FF 00 00 00 FF FF FF 60 00 00 00 D5 76"),
+    )
+
+    @Test fun `all sixteen canonical compass frames and their CRCs remain byte exact and allowed`() {
+        compassVectors.forEach { (direction, period, hex) ->
+            val expected = TripperPacket.ofHex(hex)
+            assertEquals(expected, TripperCommands.compass(direction, period))
+            assertEquals(expected, LinkCommand.compass(direction, period).packet)
+            assertTrue(CommandWhitelist.matches(CommandKind.COMPASS, expected))
+            allowed(expected)
+        }
+    }
+
+    @Test fun `compass rejects noncanonical fields even with valid CRC`() {
+        val canonical = compassVectors.map { TripperPacket.ofHex(it.third) }.toSet()
+        canonical.forEach { original ->
+            // Keep the screen identifiers [0..2]. Exhaust every value in every remaining field.
+            for (index in 3 until TripperPacket.PAYLOAD_SIZE) for (value in 0..255) {
+                val payload = original.payload().also { it[index] = value.toByte() }
+                val mutated = TripperPacket.fromPayload(payload)
+                if (mutated in canonical) continue // Changing only to a documented direction/theme is legitimate.
+                assertFalse(CommandWhitelist.matches(CommandKind.COMPASS, mutated), "field=$index value=$value")
+                assertFalse(CommandWhitelist.isTransmittable(mutated.toByteArray()), "field=$index value=$value")
+            }
+        }
     }
 
     @Test fun `normal authorized sessions for every owner produce no update commands`() {
