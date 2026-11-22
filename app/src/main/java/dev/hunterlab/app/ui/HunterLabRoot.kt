@@ -26,6 +26,7 @@ import dev.hunterlab.app.ui.home.HomeScreen
 import dev.hunterlab.app.ui.lab.LabActiveStrip
 import dev.hunterlab.app.ui.lab.LabViewModel
 import dev.hunterlab.app.ui.navigation.NavigationScreen
+import dev.hunterlab.app.ui.navigation.NavigationPlannerScreen
 import dev.hunterlab.app.ui.navigation.hasActiveNavigation
 import dev.hunterlab.app.ui.personalization.PersonalizationScreen
 import dev.hunterlab.app.ui.playground.PlaygroundScreen
@@ -146,9 +147,12 @@ fun HunterLabRoot(ble: BleController, nav: NavBindings) {
                     onNavigation = { destination = DailyDestination.NAVIGATION },
                     onSettings = { destination = DailyDestination.SETTINGS }, modifier = content,
                 )
-                DailyDestination.NAVIGATION -> NavigationScreen(
+                DailyDestination.NAVIGATION -> if (active) NavigationScreen(
                     navState, nav.actions, onHome = { destination = DailyDestination.HOME }, modifier = content,
                     navigationActive = active, showSafetyActions = false,
+                    mapContent = { dev.hunterlab.app.ui.map.RouteMap(homeState.planner, homeState.destination, nav.actions, Modifier.fillMaxWidth().height(240.dp)) },
+                ) else NavigationPlannerScreen(
+                    homeState, navState, nav.actions, onSettings = { destination = DailyDestination.SETTINGS }, modifier = content,
                 )
                 DailyDestination.PERSONALIZATION -> PersonalizationScreen(settingsState, nav.actions, content, navState.tripperPreview, onPlayground = { advanced = AdvancedDestination.PLAYGROUND })
                 DailyDestination.SETTINGS -> SettingsScreen(settingsState, nav.actions, onAdvanced = { advanced = it }, modifier = content)

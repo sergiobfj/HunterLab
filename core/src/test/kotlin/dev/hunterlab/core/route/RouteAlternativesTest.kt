@@ -132,4 +132,3 @@ class RouteAlternativesTest {
         assertEquals(2,urls.size);assertTrue(urls.all{it.contains("alternative_route.max_paths=3")});assertFalse(urls.last().contains("details="))
     }
 }
-

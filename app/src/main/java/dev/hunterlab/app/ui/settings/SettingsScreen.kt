@@ -8,6 +8,7 @@ import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -38,6 +39,10 @@ enum class AdvancedDestination(val title: String) {
 fun SettingsScreen(state: SettingsUi, actions: NavActions, onAdvanced: (AdvancedDestination) -> Unit, modifier: Modifier = Modifier) {
     // A chave em edição também não sobrevive à recriação da Activity.
     var apiKey by remember { mutableStateOf("") }
+    val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
+    val appContext = LocalContext.current.applicationContext
+    var licensesOpen by remember { mutableStateOf(false) }
+    var mapKey by remember { mutableStateOf("") }
     var keySaved by remember { mutableStateOf(false) }
     DailyScreen(modifier) {
         DailyHeading("Configurações")
@@ -63,6 +68,19 @@ fun SettingsScreen(state: SettingsUi, actions: NavActions, onAdvanced: (Advanced
             }
         }
         if (keySaved && state.apiKeyConfigured) SupportingText("Chave salva.")
+        HorizontalDivider()
+        SectionTitle("Mapas e estabelecimentos")
+        SupportingText(if(state.mapKeyConfigured) "Chave MapTiler configurada." else "MapLibre renderiza o mapa; MapTiler fornece cartografia e busca. Cadastre sua chave MapTiler.")
+        SupportingText("Consultas e tiles usam a quota da sua conta. O plano Free é para uso pessoal/não comercial; confira os limites atuais no provedor. Não há download offline em massa.")
+        OutlinedTextField(value=mapKey,onValueChange={mapKey=it},label={Text("Chave MapTiler")},singleLine=true,
+            visualTransformation=PasswordVisualTransformation(),keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Password),modifier=Modifier.fillMaxWidth())
+        Row {
+            TextButton(onClick={actions.setMapKey(mapKey);mapKey=""},enabled=mapKey.isNotBlank()) {Text("Salvar MapTiler")}
+            if(state.mapKeyConfigured) TextButton(onClick={actions.clearMapKey();mapKey=""}) {Text("Remover MapTiler")}
+        }
+        TextButton(onClick={uriHandler.openUri("https://cloud.maptiler.com/")}) {Text("Obter minha chave MapTiler")}
+        TextButton(onClick={licensesOpen=true}) {Text("Licenças de mapas")}
+        SupportingText("As duas chaves ficam nas preferências privadas, sem backup ou logs. MapTiler recebe a busca e, quando autorizada, a região aproximada para priorizar resultados. Favoritos ficam somente no aparelho.")
         HorizontalDivider()
         SectionTitle("Radares")
         DailySwitch("Alertas de radar", checked = state.radarEnabled, onChecked = actions::setRadarEnabled)
@@ -104,6 +122,11 @@ fun SettingsScreen(state: SettingsUi, actions: NavActions, onAdvanced: (Advanced
         if (state.routingAttribution.isNotBlank()) SupportingText(state.routingAttribution)
         SupportingText("Radares: © colaboradores do OpenStreetMap · Pardal (ODbL). Fontes: DER-PE, DNIT, INMETRO, PCR, SEINFRA-BA. Consulte a documentação de dados.")
     }
+    if (licensesOpen) AlertDialog(onDismissRequest={licensesOpen=false}, title={Text("MapLibre e dependências")},
+        text={ Text(remember { appContext.assets.open("licenses/maplibre-native-android-13.7.1.txt").bufferedReader().use { it.readText() } },
+            Modifier.heightIn(max=400.dp).verticalScroll(androidx.compose.foundation.rememberScrollState()),style=MaterialTheme.typography.bodySmall) },
+        confirmButton={TextButton(onClick={licensesOpen=false}) {Text("Fechar")}})
+
 }
 
 @Composable

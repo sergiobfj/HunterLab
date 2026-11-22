@@ -20,6 +20,18 @@ class AppPreferences(context: Context) {
         get() = sp.getString(KEY_API, null)?.takeIf { it.isNotBlank() }
         set(value) = sp.edit { if (value.isNullOrBlank()) remove(KEY_API) else putString(KEY_API, value.trim()) }
 
+    var mapApiKey: String?
+        get() = sp.getString("maptiler_api_key", null)?.takeIf { it.isNotBlank() }
+        set(value) = sp.edit { if (value.isNullOrBlank()) remove("maptiler_api_key") else putString("maptiler_api_key", value.trim()) }
+
+    var favorites: List<DestinationUi>
+        get() = sp.getString("favorite_destinations_v1", null).orEmpty().lines().mapNotNull(::decode)
+        set(value) = sp.edit { putString("favorite_destinations_v1", value.take(20).joinToString("\n", transform = ::encode)) }
+
+    fun toggleFavorite(d: DestinationUi) {
+        favorites = if (favorites.any { same(it, d) }) favorites.filterNot { same(it, d) } else listOf(d) + favorites
+    }
+
     /** Registro estruturado do Playground: somente IDs de catálogo, contadores e opções de observação. */
     var playgroundHistory: String
         get() = sp.getString("playground_history_v1", "[]") ?: "[]"
@@ -70,16 +82,8 @@ class AppPreferences(context: Context) {
     private fun same(a: DestinationUi, b: DestinationUi) =
         kotlin.math.abs(a.lat - b.lat) < 1e-5 && kotlin.math.abs(a.lon - b.lon) < 1e-5
 
-    private fun encode(d: DestinationUi) = "${d.lat}|${d.lon}|${d.label.replace('\n', ' ').replace('|', '/')}"
-
-    private fun decode(line: String): DestinationUi? {
-        val parts = line.split('|', limit = 3)
-        if (parts.size != 3) return null
-        val lat = parts[0].toDoubleOrNull() ?: return null
-        val lon = parts[1].toDoubleOrNull() ?: return null
-        if (lat !in -90.0..90.0 || lon !in -180.0..180.0) return null
-        return DestinationUi(parts[2], lat, lon)
-    }
+    private fun encode(d: DestinationUi) = DestinationBookmarkCodec.encode(d)
+    private fun decode(line: String): DestinationUi? = DestinationBookmarkCodec.decode(line)
 
     private inline fun <reified E : Enum<E>> enumOr(name: String?, default: E): E =
         name?.let { n -> enumValues<E>().firstOrNull { it.name == n } } ?: default

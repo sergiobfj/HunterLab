@@ -185,7 +185,17 @@ class SafetyGuardTest {
     fun `manifesto declara so as permissoes necessarias`() {
         val manifest = sources.getValue("app/src/main/AndroidManifest.xml")
         assertTrue(manifest.contains("neverForLocation"))
-        val permissions = Regex("uses-permission\\s+android:name=\"([^\"]+)\"").findAll(manifest).map { it.groupValues[1] }.toSet()
+        val factory = javax.xml.parsers.DocumentBuilderFactory.newInstance().apply { isNamespaceAware = true }
+        val document = factory.newDocumentBuilder().parse(manifest.byteInputStream())
+        val tags = document.getElementsByTagName("uses-permission")
+        val elements = (0 until tags.length).map { tags.item(it) as org.w3c.dom.Element }
+        val androidNs = "http://schemas.android.com/apk/res/android"
+        val toolsNs = "http://schemas.android.com/tools"
+        val permissions = elements.filter { it.getAttributeNS(toolsNs, "node") != "remove" }
+            .map { it.getAttributeNS(androidNs, "name") }.toSet()
+        val removed = elements.filter { it.getAttributeNS(toolsNs, "node") == "remove" }
+            .map { it.getAttributeNS(androidNs, "name") }.toSet()
+        assertEquals(setOf("android.permission.ACCESS_WIFI_STATE"), removed)
         val expected = setOf(
             "BLUETOOTH_SCAN", "BLUETOOTH_CONNECT", "INTERNET", "ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION",
             "FOREGROUND_SERVICE", "FOREGROUND_SERVICE_LOCATION", "FOREGROUND_SERVICE_CONNECTED_DEVICE",

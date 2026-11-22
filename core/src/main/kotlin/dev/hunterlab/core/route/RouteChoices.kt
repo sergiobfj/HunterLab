@@ -37,4 +37,3 @@ class PreparedRoutePlan(val routes: List<Route>, val origin: GeoPoint, val creat
     fun usableAt(position: GeoPoint?, nowMs: Long, simulated: Boolean): Boolean = simulated ||
         (position != null && nowMs - createdAtMs in 0..180_000 && Geo.distanceM(origin, position) < 150)
 }
-

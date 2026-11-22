@@ -36,6 +36,7 @@ fun NavigationScreen(
     modifier: Modifier = Modifier,
     navigationActive: Boolean = state.hasActiveNavigation(),
     showSafetyActions: Boolean = true,
+    mapContent: (@Composable () -> Unit)? = null,
 ) {
     Column(modifier.fillMaxSize()) {
         DailyScreen(Modifier.weight(1f)) {
@@ -73,6 +74,7 @@ fun NavigationScreen(
                         Text("Depois · ${next.distanceText} · ${next.instruction}", style = MaterialTheme.typography.bodyMedium, color = HunterColors.TextSecondary)
                     }
                 }
+                mapContent?.invoke()
                 HorizontalDivider()
                 if (state.showJourneyMetrics) FlowRow(horizontalArrangement = Arrangement.spacedBy(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     state.remainingTimeText?.let { Metric("Restante", it) }

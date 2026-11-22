@@ -57,6 +57,14 @@ import dev.hunterlab.core.route.GraphHopperRouteProvider
 import dev.hunterlab.core.route.Route
 import dev.hunterlab.core.route.RouteRequest
 import dev.hunterlab.core.route.RouteResult
+import dev.hunterlab.core.route.RouteChoicesResult
+import dev.hunterlab.core.route.PreparedRoutePlan
+import dev.hunterlab.core.search.MapTilerPlaceSearch
+import dev.hunterlab.core.search.PlaceSearchResult
+import dev.hunterlab.app.ui.contract.PlannerUi
+import dev.hunterlab.app.ui.contract.MapRadarUi
+import dev.hunterlab.app.ui.contract.RouteOptionUi
+import dev.hunterlab.core.radar.RouteRadarMatcher
 import dev.hunterlab.protocol.ManeuverMapper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -92,7 +100,18 @@ class NavigationController(context: Context, private val ble: BleController) : N
     private val http = HttpsClient(BuildConfigInfo.VERSION)
     private val provider = GraphHopperRouteProvider(http, apiKey = { prefs.routingApiKey })
     private val location = AndroidLocationSource(app, mainExecutor)
-    private val search = DestinationSearch(app, io)
+    private val search = MapTilerPlaceSearch(http) { prefs.mapApiKey }
+    private val searchIo = Executors.newSingleThreadExecutor { r -> Thread(r, "hunterlab-search").apply { isDaemon = true } }
+    private var placeSearchGeneration = 0
+    private var searchFuture: java.util.concurrent.Future<*>? = null
+    private var routePlan: PreparedRoutePlan? = null
+    private var planNotice: String? = null
+    private var planningFuture: java.util.concurrent.Future<*>? = null
+    private var planningGeneration = 0
+    private var mapRevision = 0
+    private var plannerOpen = false
+    private var previewRadars: List<MapRadarUi> = emptyList()
+    private var previewRadarStatus = "Selecione uma rota para consultar radares."
     private val radarRepo = RadarRepository(app, http, io)
     private val display = TripperDisplayController(ble.lab)
 
@@ -144,20 +163,61 @@ class NavigationController(context: Context, private val ble: BleController) : N
     // ============================================================================ destino e rota
 
     override fun search(query: String) {
-        searchState = SearchUi(query = query, searching = true)
-        publish()
-        search.search(query, lastFix?.point) { result ->
-            main.post {
-                searchState = when (result) {
-                    is DestinationSearch.Result.Found -> SearchUi(query = query, results = result.places)
-                    is DestinationSearch.Result.Failed -> SearchUi(query = query, error = result.message)
-                }
-                publish()
-            }
+        if (navigating) {
+            searchState = SearchUi(query = query.take(160), error = "Encerre a navegação para alterar o destino.")
+            publish(); return
         }
+        val gen = ++placeSearchGeneration
+        searchFuture?.cancel(true)
+        val q = query.take(160)
+        searchState = SearchUi(query = q, searching = q.trim().length >= 3)
+        publish()
+        if (q.trim().length < 3) return
+        main.postDelayed({
+            if (gen != placeSearchGeneration) return@postDelayed
+            val near = freshFix(PREVIEW_FIX_MAX_AGE_MS)?.takeIf { location.hasPermission() }?.point
+            searchFuture = searchIo.submit {
+                val result = search.search(q, near)
+                main.post {
+                    if (gen != placeSearchGeneration || navigating) return@post
+                    searchState = when (result) {
+                        is PlaceSearchResult.Found -> SearchUi(query = q, results = result.places.map {
+                            DestinationUi(it.name, it.point.lat, it.point.lon, it.detail,
+                                near?.let { origin -> Format.distance(dev.hunterlab.core.geo.Geo.distanceM(origin, it.point)) + " em linha reta" })
+                        })
+                        is PlaceSearchResult.Failed -> SearchUi(query = q, error = result.message)
+                    }
+                    publish()
+                }
+            }
+        }, 400)
     }
 
+    override fun openPlanner() { plannerOpen = true; ensureLocation(); publish() }
+    override fun closePlanner() {
+        plannerOpen = false
+        ++placeSearchGeneration
+        searchFuture?.cancel(true)
+        searchState = SearchUi()
+        if (!navigating) { location.stop(); locationRunning = false }
+        publish()
+    }
+    override fun mapStyleJson(): String? = dev.hunterlab.app.ui.map.MapStyleConfig.style(prefs.mapApiKey)
+    override fun setMapKey(key: String) { prefs.mapApiKey = key; mapRevision++; publish() }
+    override fun clearMapKey() { prefs.mapApiKey = null; mapRevision++; search(""); publish() }
+    override fun toggleFavorite(destination: DestinationUi) { prefs.toggleFavorite(destination); publish() }
+
     override fun selectDestination(destination: DestinationUi) {
+        if (navigating) return
+        ++planningGeneration
+        planningFuture?.cancel(true)
+        routingPreview = false
+        ++placeSearchGeneration
+        searchFuture?.cancel(true)
+        routePlan = null
+        planNotice = null
+        previewRadars = emptyList()
+        previewRadarStatus = "Selecione uma rota para consultar radares."
         this.destination = destination
         previewRoute = null
         routeError = null
@@ -184,6 +244,13 @@ class NavigationController(context: Context, private val ble: BleController) : N
 
     override fun clearDestination() {
         if (navigating) return
+        ++planningGeneration
+        planningFuture?.cancel(true)
+        routingPreview = false
+        routePlan = null
+        planNotice = null
+        radarRepo.cancel()
+        previewRadars = emptyList()
         destination = null
         previewRoute = null
         routeError = null
@@ -191,38 +258,74 @@ class NavigationController(context: Context, private val ble: BleController) : N
     }
 
     override fun previewRoute() {
+        if (navigating) return
         val dest = destination ?: return
+        val gen = ++planningGeneration
+        planningFuture?.cancel(true)
+        routingPreview = false
+        routeError = null
         if (prefs.routingApiKey == null) {
-            routeError = "Cadastre a chave da GraphHopper em Configurações."
-            publish()
-            return
+            routeError = "Cadastre a chave GraphHopper em Configurações."
+            publish(); return
         }
-        val origin = freshFix(PREVIEW_FIX_MAX_AGE_MS)?.point
+        val origin = freshFix(PREVIEW_FIX_MAX_AGE_MS)?.takeIf { location.hasPermission() }?.point
         if (origin == null) {
             ensureLocation()
-            routeError = if (location.hasPermission()) "Aguardando a localização atual…" else "Permita a localização para calcular a rota."
-            publish()
-            if (location.hasPermission()) main.postDelayed({ if (freshFix(PREVIEW_FIX_MAX_AGE_MS) != null && previewRoute == null && !navigating) previewRoute() }, 3_000)
-            return
+            routeError = if (location.hasPermission()) "Aguardando a localização atual. Toque em Calcular rota quando o GPS estiver pronto."
+                else "Permita a localização em Configurações para calcular a rota. O mapa e a busca continuam disponíveis."
+            publish(); return
         }
         routingPreview = true
-        routeError = null
+        routePlan = null
+        planNotice = null
+        previewRoute = null
+        previewRadars = emptyList()
+        radarRepo.cancel()
         publish()
         val request = RouteRequest(origin, GeoPoint(dest.lat, dest.lon))
-        routeIo.execute {
-            val result = provider.route(request)
+        planningFuture = routeIo.submit {
+            val result = provider.alternatives(request)
             main.post {
+                if (gen != planningGeneration || destination !== dest || navigating) return@post
                 routingPreview = false
-                if (destination !== dest) return@post // o destino mudou enquanto a rota era calculada
                 when (result) {
-                    is RouteResult.Success -> {
-                        previewRoute = result.route
+                    is RouteChoicesResult.Success -> {
+                        planNotice = result.notice
+                        routePlan = PreparedRoutePlan(result.routes, origin, SystemClock.elapsedRealtime())
                         previewOrigin = origin
                         previewDest = request.destination
                         previewAtMs = SystemClock.elapsedRealtime()
+                        selectRoute(0)
                     }
-                    is RouteResult.Failure -> routeError = result.message
+                    is RouteChoicesResult.Failure -> routeError = result.failure.message
                 }
+                publish()
+            }
+        }
+    }
+
+    override fun selectRoute(index: Int) {
+        if (navigating || routePlan?.select(index) != true) return
+        previewRoute = routePlan!!.selected
+        previewRadars = emptyList()
+        routeError = null
+        preparePreviewRadars(previewRoute!!)
+        publish()
+    }
+
+    private fun preparePreviewRadars(route: Route) {
+        radarRepo.cancel()
+        if (!prefs.radarEnabled) { previewRadarStatus = "Radares desativados."; return }
+        previewRadarStatus = "Consultando radares desta rota…"
+        radarRepo.prepare(route.polyline, System::currentTimeMillis) { data ->
+            val matches = RouteRadarMatcher().match(route.polyline, data.tiles.flatMap { it.cameras })
+            main.post {
+                if (navigating || previewRoute !== route) return@post
+                previewRadars = matches.distinctBy { it.camera.id }.map { match ->
+                    val c = match.camera
+                    MapRadarUi(c.id, c.point, c.maxSpeedKmh, c.speedLimit.status.label, c.source, !match.directionConfirmed)
+                }
+                previewRadarStatus = "${previewRadars.size} radares cadastrados na rota · ${data.coverage.label}. Cobertura limitada."
                 publish()
             }
         }
@@ -233,11 +336,19 @@ class NavigationController(context: Context, private val ble: BleController) : N
     override fun startNavigation(simulated: Boolean) {
         val dest = destination ?: return
         if (navigating) return
-        if (simulated && previewRoute == null) {
-            routeError = "Calcule a rota antes de simular o trajeto."
-            publish()
-            return
+        val plan = routePlan
+        if (plan == null || previewRoute !== plan.selected || routingPreview) {
+            routeError = "Calcule e selecione uma rota antes de iniciar."
+            publish(); return
         }
+        if (!plan.usableAt(freshFix(START_FIX_MAX_AGE_MS)?.point, SystemClock.elapsedRealtime(), simulated)) {
+            routeError = "A origem mudou ou a prévia expirou. Atualize a rota e confira as alternativas antes de iniciar."
+            publish(); return
+        }
+        ++placeSearchGeneration
+        searchFuture?.cancel(true)
+        ++planningGeneration
+        radarRepo.cancel()
         if (!simulated && !location.hasPermission()) {
             routeError = "Permita a localização precisa para navegar."
             publish()
@@ -303,6 +414,11 @@ class NavigationController(context: Context, private val ble: BleController) : N
 
     /** Sem a tela do app e sem o serviço em primeiro plano não há Interromper visível: encerra o Tripper. */
     fun onAppBackgrounded() {
+        if (!navigating) { location.stop(); locationRunning = false }
+        ++placeSearchGeneration
+        searchFuture?.cancel(true)
+        if (searchState.searching) searchState = searchState.copy(searching = false,
+            error = "Busca pausada. Digite novamente para continuar.")
         if (!serviceRunning && (tripperNavSessionActive() || tripperSearch != null)) interruptTripper()
     }
 
@@ -390,18 +506,14 @@ class NavigationController(context: Context, private val ble: BleController) : N
 
     private fun requestRoute(id: Long, request: RouteRequest) {
         val preview = previewRoute
-        val origin = previewOrigin
         val eng = engine
         val sameDestination = previewDest?.let { dev.hunterlab.core.geo.Geo.distanceM(it, request.destination) < 30 } == true
-        val reusable = preview != null && sameDestination && engine.state.route == null && (
-            simulated || (origin != null && dev.hunterlab.core.geo.Geo.distanceM(origin, request.origin) < 150 &&
-                SystemClock.elapsedRealtime() - previewAtMs < 3 * 60_000)
-            )
+        val reusable = preview != null && sameDestination && engine.state.route == null
         if (reusable) {
             // Rota inicial = a do resumo (economiza um crédito da API).
             main.post {
                 if (navigating && engine === eng) {
-                    handle(engine.onRouteResult(id, RouteResult.Success(preview!!), SystemClock.elapsedRealtime()))
+                    handle(engine.onRouteResult(id, RouteResult.Success(preview), SystemClock.elapsedRealtime()))
                     afterEngineUpdate(SystemClock.elapsedRealtime())
                 }
             }
@@ -424,11 +536,15 @@ class NavigationController(context: Context, private val ble: BleController) : N
         val route = state.route
         if (route != null && route !== radarRoute && prefs.radarEnabled) {
             radarRoute = route
+            previewRadars = emptyList()
             radar.setRoute(route.polyline, emptyList(), dev.hunterlab.core.radar.CoverageStatus.NONE)
             radarRepo.prepare(route.polyline, { System.currentTimeMillis() }) { data ->
                 main.post {
                     if (navigating && prefs.radarEnabled && radarRoute === route) {
                         radar.setRouteFromTiles(route.polyline, data.tiles, data.coverage)
+                        previewRadars = RouteRadarMatcher().match(route.polyline, data.tiles.flatMap { it.cameras })
+                            .distinctBy { it.camera.id }.map { match -> val c = match.camera
+                                MapRadarUi(c.id,c.point,c.maxSpeedKmh,c.speedLimit.status.label,c.source,!match.directionConfirmed) }
                         publish()
                     }
                 }
@@ -454,10 +570,10 @@ class NavigationController(context: Context, private val ble: BleController) : N
 
     private fun ensureLocation() {
         if (simulated || locationRunning) return
-        val availability = location.start(onFix = ::onFix, onProviderChange = { enabled -> gpsEnabled = enabled; publish() })
+        val availability = location.start(onFix = ::onFix, onProviderChange = { enabled -> gpsEnabled = enabled; if (!enabled && !navigating) lastFix = null; publish() })
         locationRunning = availability != AndroidLocationSource.Availability.NO_PERMISSION
         gpsEnabled = availability == AndroidLocationSource.Availability.ACTIVE
-        if (!navigating) main.postDelayed({ if (!navigating && locationRunning) { location.stop(); locationRunning = false } }, IDLE_LOCATION_MS)
+        if (!navigating) main.postDelayed({ if (!navigating && locationRunning && !plannerOpen) { location.stop(); locationRunning = false; publish() } }, IDLE_LOCATION_MS)
     }
 
     // ============================================================================ Tripper
@@ -624,6 +740,8 @@ class NavigationController(context: Context, private val ble: BleController) : N
     override fun setRadarEnabled(enabled: Boolean) {
         prefs.radarEnabled = enabled
         if (!enabled) {
+            previewRadars = emptyList()
+            previewRadarStatus = "Radares desativados."
             radarVoice.configure(false, false)
             radarRepo.cancel()
             radarRoute = null
@@ -648,6 +766,8 @@ class NavigationController(context: Context, private val ble: BleController) : N
 
     override fun refreshPermissions() {
         ble.refresh()
+        if (!location.hasPermission()) { location.stop(); locationRunning = false; lastFix = null }
+        if (plannerOpen) ensureLocation()
         publish()
     }
 
@@ -682,9 +802,22 @@ class NavigationController(context: Context, private val ble: BleController) : N
             routing = routingPreview,
             routeError = routeError,
             providerConfigured = keyOk,
-            canStart = destination != null && !navigating && keyOk,
+            canStart = previewRoute != null && routePlan != null && !routingPreview && !navigating && keyOk,
             navigationActive = navigating,
             recent = prefs.recent,
+            planner = PlannerUi(
+                mapConfigured = prefs.mapApiKey != null,
+                mapRevision = mapRevision,
+                currentPosition = freshFix(PREVIEW_FIX_MAX_AGE_MS)?.takeIf { location.hasPermission() }?.point,
+                alternatives = if (navigating) state.route?.let { listOf(RouteOptionUi(0, it.polyline.points, summary(it), it.roadNames.joinToString(" · ").ifBlank { null })) }.orEmpty()
+                    else routePlan?.routes?.mapIndexed { i, r -> RouteOptionUi(i, r.polyline.points, summary(r),
+                        r.roadNames.ifEmpty { r.steps.mapNotNull { it.streetName }.distinct().take(3) }.joinToString(" · ").ifBlank { null }) }.orEmpty(),
+                selectedIndex = if (navigating) 0 else routePlan?.selectedIndex ?: 0,
+                radars = previewRadars,
+                radarStatus = previewRadarStatus,
+                notice = planNotice,
+                favorites = prefs.favorites,
+            ),
             tripper = tripperUi,
             gps = gps,
         )
@@ -721,6 +854,7 @@ class NavigationController(context: Context, private val ble: BleController) : N
 
         _settings.value = SettingsUi(
             apiKeyConfigured = keyOk,
+            mapKeyConfigured = prefs.mapApiKey != null,
             apiKeyMasked = AppPreferences.mask(prefs.routingApiKey),
             dayNight = prefs.dayNight,
             bottomLine = prefs.bottomLine,
@@ -772,7 +906,7 @@ class NavigationController(context: Context, private val ble: BleController) : N
         !location.hasPermission() -> GpsUi.NO_PERMISSION
         !gpsEnabled && !location.gpsEnabled() -> GpsUi.OFF
         navigating && engine.state.gpsLost -> GpsUi.LOST
-        lastFix == null -> GpsUi.SEARCHING
+        lastFix == null || (!navigating && freshFix(PREVIEW_FIX_MAX_AGE_MS) == null) -> GpsUi.SEARCHING
         (lastFix?.accuracyM ?: 0f) > IMPRECISE_M -> GpsUi.IMPRECISE
         else -> GpsUi.OK
     }

@@ -9,8 +9,8 @@ import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 
 /**
- * Único ponto de rede do app (verificado pelo SafetyGuardTest).
- * Só HTTPS e só para [ALLOWED_HOSTS]: rotas (GraphHopper) e radares (Overpass/OpenStreetMap). Sem telemetria,
+ * Cliente dos dados de navegação, verificado pelo SafetyGuardTest; tiles ficam no SDK isolado em ui/map.
+ * Só HTTPS para [ALLOWED_HOSTS]: GraphHopper, MapTiler e Overpass. Sem telemetria própria,
  * sem cookies, sem cabeçalhos de identificação além de um User-Agent genérico do app (exigido pelo Overpass).
  * Nunca registra a URL (ela pode conter a chave da API).
  */

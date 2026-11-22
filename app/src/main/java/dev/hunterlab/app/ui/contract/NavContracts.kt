@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
  */
 
 /** Destino escolhido (busca, coordenadas ou link geo:). */
-data class DestinationUi(val label: String, val lat: Double, val lon: Double, val detail: String? = null)
+data class DestinationUi(val label: String, val lat: Double, val lon: Double, val detail: String? = null, val straightLineDistanceText: String? = null)
 
 data class SearchUi(
     val query: String = "",
@@ -148,6 +148,31 @@ data class HomeUi(
     val recent: List<DestinationUi> = emptyList(),
     val tripper: TripperUi = TripperUi(),
     val gps: GpsUi = GpsUi.SEARCHING,
+    val planner: PlannerUi = PlannerUi(),
+)
+
+data class RouteOptionUi(
+    val index: Int,
+    val points: List<dev.hunterlab.core.geo.GeoPoint>,
+    val summary: RouteSummaryUi,
+    val roads: String? = null,
+)
+
+data class MapRadarUi(
+    val id: String, val point: dev.hunterlab.core.geo.GeoPoint,
+    val limitKmh: Int?, val limitStatus: String, val source: String, val directionUnknown: Boolean,
+)
+
+data class PlannerUi(
+    val mapConfigured: Boolean = false,
+    val mapRevision: Int = 0,
+    val currentPosition: dev.hunterlab.core.geo.GeoPoint? = null,
+    val alternatives: List<RouteOptionUi> = emptyList(),
+    val selectedIndex: Int = 0,
+    val radars: List<MapRadarUi> = emptyList(),
+    val radarStatus: String = "Selecione uma rota para consultar radares.",
+    val notice: String? = null,
+    val favorites: List<DestinationUi> = emptyList(),
 )
 
 data class PermissionsUi(
@@ -158,6 +183,7 @@ data class PermissionsUi(
 
 data class SettingsUi(
     val apiKeyConfigured: Boolean = false,
+    val mapKeyConfigured: Boolean = false,
     /** Ex.: "••••••3f2a". Nunca a chave inteira. */
     val apiKeyMasked: String? = null,
     val dayNight: DayNightMode = DayNightMode.AUTO,
@@ -181,6 +207,14 @@ interface NavActions {
     fun setDestinationFromText(text: String): String?
     fun clearDestination()
     fun previewRoute()
+    fun selectRoute(index: Int) = Unit
+    fun toggleFavorite(destination: DestinationUi) = Unit
+    fun openPlanner() = Unit
+    fun closePlanner() = Unit
+    /** Ephemeral SDK configuration; never rendered as text or saved in UI state. */
+    fun mapStyleJson(): String? = null
+    fun setMapKey(key: String) = Unit
+    fun clearMapKey() = Unit
 
     // Navegação
     fun startNavigation(simulated: Boolean = false)
