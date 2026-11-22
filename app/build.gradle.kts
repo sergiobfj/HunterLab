@@ -63,3 +63,9 @@ dependencies {
 
     testImplementation(libs.junit4)
 }
+
+// O teste de cache lê este snapshot do módulo core. Mudanças no dado devem invalidar o resultado do app.
+tasks.withType<org.gradle.api.tasks.testing.Test>().configureEach {
+    inputs.file(rootProject.file("core/src/test/resources/validation/caruaru/urban.json"))
+        .withPropertyName("caruaruRadarSnapshot")
+}

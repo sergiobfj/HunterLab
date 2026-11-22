@@ -195,6 +195,7 @@ O casamento geométrico não garante separação de pistas ou ruas paralelas mui
 `CaruaruRadarCacheTest` também executa o repositório de produção contra diretórios temporários e porta HTTP falsa:
 cache frio salvo e relido por outra instância sem nova rede; cache em disco vencido mantido após falha; arquivo
 corrompido descartado sem inventar cobertura. Isso valida I/O no computador, sem afirmar execução no armazenamento Android.
+O snapshot lido pelo teste do app foi declarado como input do Gradle: alterá-lo invalida o resultado em cache do teste.
 
 **Cache instalado no Samsung: não inspecionado**, pois não há ADB disponível. Consultas desktop não preenchem o cache do app.
 Os snapshots arquivados são evidência/testes e não são embutidos como base operacional no APK.
