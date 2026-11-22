@@ -83,3 +83,14 @@ referências visuais ou ferramentas de `research/cavalo01`. Worktree do Claude p
 Comparação, evidências e limites em [BLE_OUTBOUND_SAFETY.md](BLE_OUTBOUND_SAFETY.md).
 Validação local: 462 testes, Lint zero achados, build debug aprovado. Protocolo, builders e `03` preservados.
 Nenhuma conexão BLE ou validação física nesta consolidação. Identidade visual continua em branch separada para aprovação.
+
+
+## Validação doméstica e dados Caruaru — 22/11/2026
+
+Branch `feat/mvp-caruaru-validation`, sobre a main com proteção BLE `6c240c8`.
+Sem alterações em produção: seis testes de snapshots públicos, três testes do repositório/cache em diretórios temporários, consultas Overpass, relatório
+[VALIDACAO_CARUARU.md](VALIDACAO_CARUARU.md) e dez prévias Layoutlib normais/ampliadas.
+Resultado local: 471 testes, Lint zero achados e build debug aprovado. Consultas reais: 37 nós no recorte urbano,
+44 IDs na união regional; GraphHopper com chave inválida retorna 401, chave válida não localizada.
+Sem dispositivo ADB/emulador disponível: Android em execução, busca por endereço no Geocoder, notificação e tela
+bloqueada permanecem pendentes. Sem BLE físico e sem identidade visual nova na main.
