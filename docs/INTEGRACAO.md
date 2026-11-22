@@ -72,3 +72,10 @@ A main permanece na 0.3.0 até integração controlada. Procedimentos, inventár
 Worktree `HunterLab-consolidation-031`, branch `feat/mvp-031-consolidation`, criada de `306a3cf` após conferir main, worktrees e diffs. A base Graphite `4b7169b` já é ancestral do Playground. Integração da pesquisa pelo commit isolado `8d7841a`; não integrar `6c97737` nem aplicar o H em movimento, que não foi aprovado.
 
 Código funcional, protocolo, adaptadores BLE, permissões, assinatura, versão 0.3.1/code 6 e proteções do Playground preservados byte a byte da branch funcional. Marca nova em branch de arte separada, com três conceitos para aprovação. Documentação consolidada em `CONSOLIDACAO_031.md`.
+
+
+## Estudos de marca A/B/C — aprovação pendente
+
+Worktree `HunterLab-brand-exploration`, branch `feat/ui-hunter-brand-concepts`, sobre main consolidada `78f2e8a`. Três caminhos distintos: A Cavalo de rua (recomendação artística), B Roadster e C Elo mecânico. Pranchas, fontes SVG e aplicações em `docs/brand/README.md`.
+
+A está ligada aos recursos launcher/splash **somente nesta branch de estudos**; B/C são candidatos usados em prévias. A main mantém o ícone anterior. Não mesclar esta branch nem selecionar identidade definitiva sem aprovação explícita do usuário. Pacote, assinatura, permissões, protocolo, core, BLE, navegação, GPS e radar preservados. Nenhum teste físico.

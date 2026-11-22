@@ -116,3 +116,7 @@ As dependências e as limitações da revisão de origem estão em [créditos de
 A 0.3.1 reúne navegação GPS, radares, BLE, Playground e base Graphite Grey. O [relatório de consolidação](docs/CONSOLIDACAO_031.md) descreve a preservação funcional e a validação. A nova marca está em exploração e **aguarda aprovação**; o ícone anterior continua nesta versão.
 
 A [investigação gráfica do Tripper](docs/TRIPPER_GRAPHICS_RESEARCH.md) permanece passiva: não há evidência suficiente de suporte a GIFs, vídeo ou imagens arbitrárias no Pod original. FOTA não comprova upload gráfico de operação.
+
+## Estudos de identidade — branch de revisão
+
+Esta branch apresenta [três propostas de marca](docs/brand/README.md), ainda não aprovadas. O launcher A é demonstrativo; a main 0.3.1 mantém o ícone anterior até escolha explícita do usuário.

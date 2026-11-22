@@ -53,3 +53,7 @@ As rotas e os radares mantêm a atribuição ao OpenStreetMap. Os radares baixad
 ## Pesquisa 0.3.1
 
 Tachyon, Waveshare, Espressif e LVGL são referências documentais para uma plataforma futura. Nenhum código, biblioteca, firmware ou asset desses projetos foi adicionado ao aplicativo. O README Tachyon declara MIT, mas a revisão consultada não contém o arquivo LICENSE; reutilização de código fica pendente de esclarecimento. Não há dependência nova de produção na 0.3.1.
+
+## Ferramenta opcional de prévias de marca
+
+`tools/render_brand_concepts.py` é uma rotina desktop opcional que usa PyMuPDF para rasterizar SVGs originais. PyMuPDF/MuPDF são oferecidos sob AGPL e licença comercial Artifex; consultar os [termos oficiais](https://pymupdf.readthedocs.io/en/latest/about.html#license-and-copyright) antes de reutilizar a ferramenta em outro contexto. A biblioteca não é vendorizada, não faz parte das dependências Android e não é incluída no APK. Nenhuma licença própria do Hunter Lab foi escolhida ou alterada nesta entrega. Os arquivos SVG/Android contêm geometria original, sem vetores, fotografias ou emblemas de terceiros copiados.

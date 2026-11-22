@@ -1,23 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Aro do "pod" em âmbar com uma seta de manobra: identidade própria, sem marcas de terceiros. -->
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp"
-    android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
-    <path
-        android:pathData="M54,30a24,24 0,1 1,0 48a24,24 0,1 1,0 -48z"
-        android:strokeWidth="3.5"
-        android:strokeColor="#FFE2A240"
-        android:fillColor="#00000000" />
-    <path
-        android:pathData="M48,67L48,55Q48,47 56,47L61,47"
-        android:strokeWidth="4.5"
-        android:strokeColor="#FFEDE8E0"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round"
-        android:fillColor="#00000000" />
-    <path
-        android:pathData="M60,40.5L68.5,47L60,53.5Z"
-        android:fillColor="#FFEDE8E0" />
+<!-- Draft concept; requires identity approval before main integration. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+    <path android:pathData="M31.6 78 C32.4 62.8 38.8 51.6 49.2 45.2 L48.4 34 L54.8 39.6 L61.2 32.4 L64.4 44.4 C68.4 50 71.6 56.4 79.6 65.2 L82 69.2 Q82 72.4 78.8 74.8 L74.8 78 L66 74.8 L60.4 67.6 L57.2 74.8 L45.2 81.2 Z M63.6 51.6 Q66 50 67.6 52.4 Q66 54.8 63.6 54 Z" android:fillType="evenOdd" android:fillColor="#E8ECEE" />
+    <path android:pathData="M48.4 34 L54.8 39.6 L52.4 43.6 L49.2 41.2 Z" android:fillType="evenOdd" android:fillColor="#B7CF62" />
 </vector>
