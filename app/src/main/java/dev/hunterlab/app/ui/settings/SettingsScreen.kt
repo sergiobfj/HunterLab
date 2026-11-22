@@ -31,7 +31,7 @@ enum class AdvancedDestination(val title: String) {
     DEVICES("Laboratório BLE e diagnóstico"),
     NAVIGATION_SIM("Simulador de navegação"),
     RADAR_SIM("Simulador de radares"),
-    PLAYGROUND("Playground"),
+    PLAYGROUND("Tripper Playground"),
 }
 
 @Composable
