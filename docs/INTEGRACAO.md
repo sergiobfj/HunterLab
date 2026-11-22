@@ -59,3 +59,9 @@ A entrega foi copiada com conferência de hashes para `HunterLab-mvp-030` / `fea
 Branch `feat/ui-graphite-grey`, baseada na main `a5fad26`, worktree própria. Primeira entrega coesa: paleta grafite/verde-oliva solicitada, tokens de espaços e shapes 10/14/18 dp, tipografia, chips sem âmbar de seleção, botões primários e controles de segurança que se empilham com fonte ampliada. Cores de sinal possuem variantes de texto com contraste testado; o tom fraco é reservado a estados desabilitados/decorativos. Sem dynamic color por padrão.
 
 Validação da base: 422 testes (421 anteriores + contraste dos papéis usados), Lint debug sem achados, build debug aprovado. Não há validação em aparelho. Esta entrega é a base do design system, não a conclusão do polimento de todas as telas. A frente Playground 0.3.1 pode integrar este commit pronto; não deve copiar arquivos em edição nem refazer o tema.
+
+## Playground 0.3.1 — integração isolada
+
+Worktree `HunterLab-playground-031`, branch `feat/tripper-playground-031`, base main `a5fad26`. Integração normal da base visual pronta `4b7169b`, sem copiar arquivos em edição. Nenhum arquivo em `protocol/` ou adaptadores Android BLE foi alterado. O novo dono `PLAYGROUND` e a barreira de prioridade usam o link existente; o controlador de navegação só sinaliza início/fim dessa prioridade. Todos os demais símbolos/efeitos continuam simulados; só bússolas individuais são elegíveis no Playground físico.
+
+A main permanece na 0.3.0 até integração controlada. Procedimentos, inventário e fronteiras: `TRIPPER_PLAYGROUND.md`; pesquisa independente: `FUTURE_ROUND_DISPLAY.md`. Não considerar esta entrega validada na moto. O restante do polimento visual do aplicativo continua na frente Graphite Grey; não substituí-lo pelo Playground.

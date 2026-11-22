@@ -2,7 +2,7 @@
 
 Aplicativo Android experimental e independente para explorar o **Tripper Pod original da Royal Enfield Hunter 350 2027**. Kotlin, Jetpack Compose e Bluetooth LE, com foco em uma experiência simples de navegação e no entendimento do protocolo.
 
-**MVP atual: 0.3.0 · Base validada fisicamente informada: 0.2.1.** Projeto não oficial, sem afiliação ou endosso da Royal Enfield, Eicher Motors, Waze ou Google. Faça testes com a moto parada e em local seguro.
+**Versão desta branch: 0.3.1 · base MVP: 0.3.0 · Base validada fisicamente informada: 0.2.1.** Projeto não oficial, sem afiliação ou endosso da Royal Enfield, Eicher Motors, Waze ou Google. Faça testes com a moto parada e em local seguro.
 
 ## Compatibilidade conhecida
 
@@ -87,6 +87,10 @@ A distribuição de release depende de uma chave estável aprovada pelo mantened
 - Conserve logs e relatórios físicos privados em `field-logs/` ou `private-reports/`, ignorados pelo Git.
 
 Consulte a [auditoria de publicação](docs/AUDITORIA_PUBLICACAO.md) e os [testes físicos](docs/TESTES_FISICOS.md). Os roteiros antigos documentam etapas anteriores; não substituem o relato atual do mantenedor.
+
+## Tripper Playground 0.3.1
+
+A branch de funcionalidade acrescenta catálogo por evidência, prévias, sequências simuladas e testes individuais de bússola com prioridade absoluta da navegação. A validação física da 0.3.1 ainda está pendente. [Recursos, matriz e checklist](docs/TRIPPER_PLAYGROUND.md) · [Pesquisa de tela circular independente](docs/FUTURE_ROUND_DISPLAY.md).
 
 ## Documentação técnica
 

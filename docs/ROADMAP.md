@@ -29,6 +29,17 @@ personalização, (4) experimentos com os símbolos existentes.
 - [x] Interface diária (Codex): Início, Navegação, Personalização, Configurações; laboratório em Avançado.
 - [ ] Roteiros N00–N07 de `PHYSICAL_TEST_PLAN.md` (telas de navegação ainda não testadas na moto).
 
+## 0.3.1 — Tripper Playground ⏳ validação estacionária
+
+- [x] Catálogo por evidência, prévias Compose e oito bússolas tipadas; 71 códigos não são 71 confirmações na Hunter.
+- [x] Editor de sequências somente simulado, com pausa, ordem e limites; efeitos físicos bloqueados.
+- [x] Modo físico desativado por padrão; sessão própria, handshake existente, interlock síncrono com navegação e teste de 5–15 s.
+- [x] Histórico local estruturado, exportação sanitizada e preservação após desconexão.
+- [x] Base Graphite Grey compartilhada, sem refazer o tema no Playground.
+- [x] [Pesquisa Hunter Display](FUTURE_ROUND_DISPLAY.md): ESP32-S3/LVGL e limites de GIF/vídeo; sem compra ou firmware.
+- [ ] Checklist de [TRIPPER_PLAYGROUND.md](TRIPPER_PLAYGROUND.md) na Hunter parada; verificar interrupção, relógio e app oficial.
+- [ ] Decidir próximos símbolos físicos somente após evidência individual; não aumentar cadência para animação.
+
 ## 0.4.0 — Radares reais ⏳
 
 - [x] Radares fixos do OpenStreetMap (Overpass), cache por tiles, casamento com a rota e sentido, alertas 700/300 m.
@@ -61,4 +72,4 @@ uma vez (o checklist de 5 itens continua no laboratório). Pendente de teste: re
 - `connectGatt(Context, Boolean, Callback, Int)` obsoleta na API 37; a alternativa só existe na API 37+.
 - Sem testes instrumentados/UI (não há aparelho/emulador neste ambiente); a camada Android do laboratório só foi
   compilada e analisada pelo Lint — o comportamento real depende do teste físico.
-- Sem CI.
+- CI Android ativa com testes, Lint, APK e checksum; release estável ainda depende da assinatura.

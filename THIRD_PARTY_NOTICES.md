@@ -49,3 +49,7 @@ Royal Enfield, Hunter 350, Meteor 350, Tripper, Waze e demais marcas pertencem a
 O cliente GraphHopper e o parser Overpass são Kotlin do projeto, usando a porta HTTP própria. Nenhum SDK GraphHopper, banco de radares, binário proprietário ou código vendorizado foi acrescentado. O acesso à API depende da chave e das condições do serviço do usuário; não transfere ao app uma licença dos dados retornados.
 
 As rotas e os radares mantêm a atribuição ao OpenStreetMap. Os radares baixados permanecem no cache privado do aparelho; os dados OSM são ODbL, sem aplicar essa licença ao código Kotlin. Consulte [direitos do OpenStreetMap](https://www.openstreetmap.org/copyright) e [política de radares](docs/RADAR_DATA.md). Não foram identificadas novas dependências de produção com licença incompatível nesta revisão; a escolha da licença própria continua pendente.
+
+## Pesquisa 0.3.1
+
+Tachyon, Waveshare, Espressif e LVGL são referências documentais para uma plataforma futura. Nenhum código, biblioteca, firmware ou asset desses projetos foi adicionado ao aplicativo. O README Tachyon declara MIT, mas a revisão consultada não contém o arquivo LICENSE; reutilização de código fica pendente de esclarecimento. Não há dependência nova de produção na 0.3.1.
