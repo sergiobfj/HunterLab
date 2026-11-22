@@ -79,3 +79,10 @@ Código funcional, protocolo, adaptadores BLE, permissões, assinatura, versão 
 Worktree `HunterLab-brand-exploration`, branch `feat/ui-hunter-brand-concepts`, sobre main consolidada `78f2e8a`. Três caminhos distintos: A Cavalo de rua (recomendação artística), B Roadster e C Elo mecânico. Pranchas, fontes SVG e aplicações em `docs/brand/README.md`.
 
 A está ligada aos recursos launcher/splash **somente nesta branch de estudos**; B/C são candidatos usados em prévias. A main mantém o ícone anterior. Não mesclar esta branch nem selecionar identidade definitiva sem aprovação explícita do usuário. Pacote, assinatura, permissões, protocolo, core, BLE, navegação, GPS e radar preservados. Nenhum teste físico.
+
+
+## Refinamento A1 × A2 — 22/11/2026
+
+Branch `feat/ui-hunter-horse-refinement`, worktree `HunterLab-horse-refinement`, baseada na exploração `586837f`. A1 preservada por comparação de 23 blobs Git; A2 em drawables próprios e componentes de prévia; wrappers adaptativo/arredondado e fundo preparados nas fontes documentais para integração após aprovação. Nenhum recurso ativo de launcher, Manifest, configuração de assinatura, core, protocolo, transporte ou contrato de navegação foi modificado.
+
+A direção A foi escolhida como candidata principal, não aprovada como marca definitiva. A2 e A1 devem ser comparadas visualmente antes de ativar qualquer novo ícone na main. A main consolidada continua `78f2e8a`. Ver `docs/brand/horse-refinement/README.md`. Sem testes físicos.

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Draft A2 background; not referenced by the application launcher. -->
+    <color name="horse_candidate_background">#FF101416</color>
+</resources>

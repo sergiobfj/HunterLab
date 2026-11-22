@@ -2,6 +2,8 @@
 
 **Status: propostas para aprovação. Nenhuma marca nova foi aplicada à main.** A consolidação funcional 0.3.1 usa o ícone anterior. Esta branch `feat/ui-hunter-brand-concepts` contém recursos de demonstração da proposta A e estudos completos A/B/C; não publicar esse ícone como definitivo antes da escolha do usuário.
 
+**Atualização 22/11/2026:** o usuário escolheu a direção A como candidata principal, sem aprovação definitiva. O [refinamento A1 × A2](horse-refinement/README.md) está em branch isolada; as propostas anteriores permanecem preservadas.
+
 ![Comparação A, B e C](concepts/comparison.png)
 
 ## A — Cavalo de rua · recomendação
