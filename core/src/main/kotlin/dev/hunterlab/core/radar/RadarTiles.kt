@@ -168,12 +168,14 @@ data class RadarTileData(
     val fetchedAtMs: Long,
     val cameras: List<RadarCamera>,
     val attribution: String = OSM_ATTRIBUTION,
+    val needsRefresh: Boolean = false,
 ) {
     fun serialize(): String = buildJsonObject {
         put("schema", SCHEMA_VERSION)
         put("tile", tile.id)
         put("fetchedAtMs", fetchedAtMs)
         put("attribution", attribution)
+        put("needsRefresh", needsRefresh)
         putJsonArray("cameras") {
             cameras.forEach { c ->
                 add(
@@ -186,6 +188,16 @@ data class RadarTileData(
                         put("directionDeg", c.directionDeg)
                         put("directionKnown", c.directionKnown)
                         put("source", c.source)
+                        put("facingDirectionDeg", c.facingDirectionDeg)
+                        putJsonArray("limitObservations") {
+                            c.speedLimit.observations.forEach { observation ->
+                                add(buildJsonObject {
+                                    put("source", observation.source); put("raw", observation.raw)
+                                    put("conditional", observation.conditional); put("estimated", observation.estimated)
+                                    put("usable", observation.usable)
+                                })
+                            }
+                        }
                     },
                 )
             }
@@ -193,7 +205,7 @@ data class RadarTileData(
     }.toString()
 
     companion object {
-        const val SCHEMA_VERSION = 1
+        const val SCHEMA_VERSION = 2
         const val OSM_ATTRIBUTION = "© colaboradores do OpenStreetMap (ODbL)"
 
         /** Lê o JSON de [serialize]. Lança [IllegalArgumentException] se malformado ou com `schema` desconhecido. */
@@ -205,7 +217,7 @@ data class RadarTileData(
             }
             val obj = root as? JsonObject ?: throw IllegalArgumentException("Cache de radar não é um objeto JSON")
             val schema = obj.prim("schema")?.intOrNull ?: throw IllegalArgumentException("Cache de radar sem \"schema\"")
-            require(schema == SCHEMA_VERSION) { "Versão de esquema desconhecida: $schema (esperada $SCHEMA_VERSION)" }
+            require(schema in 1..SCHEMA_VERSION) { "Versão de esquema desconhecida: $schema (esperada $SCHEMA_VERSION)" }
             val tile = obj.prim("tile")?.contentOrNull?.let(TileKey::parse)
                 ?: throw IllegalArgumentException("Cache de radar com tile inválido")
             val fetchedAt = obj.prim("fetchedAtMs")?.longOrNull
@@ -214,12 +226,12 @@ data class RadarTileData(
             val arr = obj["cameras"] as? JsonArray ?: throw IllegalArgumentException("Cache de radar sem lista de câmeras")
             val cameras = arr.mapIndexed { i, el ->
                 try {
-                    readCamera(el as JsonObject)
+                    readCamera(el as JsonObject, schema)
                 } catch (e: Exception) {
                     throw IllegalArgumentException("Câmera $i inválida no cache: ${e.message}", e)
                 }
             }
-            return RadarTileData(tile, fetchedAt, cameras, attribution)
+            return RadarTileData(tile, fetchedAt, cameras, attribution, needsRefresh = schema == 1 || obj.prim("needsRefresh")?.contentOrNull == "true")
         }
 
         /** Junta as câmeras de vários tiles sem repetir o mesmo id (fica a do tile baixado mais recentemente). */
@@ -229,16 +241,35 @@ data class RadarTileData(
             return byId.values.sortedBy { it.id }
         }
 
-        private fun readCamera(o: JsonObject): RadarCamera {
-            val direction = o.prim("directionDeg")?.doubleOrNull
+        private fun readCamera(o: JsonObject, schema: Int): RadarCamera {
+            // v1 did not preserve source evidence or camera-facing vs traffic semantics.
+            val source = o.prim("source")?.contentOrNull ?: RadarCamera.SOURCE_OSM
+            val direction = o.prim("directionDeg")?.doubleOrNull?.takeIf { schema >= 2 }
+            val observations = if (schema == 1) {
+                listOf(RadarLimitObservation("Cache v1/$source", o.prim("maxSpeedKmh")?.contentOrNull, usable = false))
+            } else {
+                val array = o["limitObservations"] as? JsonArray ?: error("sem evidências do limite")
+                require(array.size <= 64)
+                array.map { el ->
+                    val item = el as? JsonObject ?: error("evidência inválida")
+                    RadarLimitObservation(
+                        item.prim("source")?.contentOrNull ?: error("sem fonte"),
+                        item.prim("raw")?.contentOrNull, item.prim("conditional")?.contentOrNull,
+                        item.prim("estimated")?.contentOrNull == "true", item.prim("usable")?.contentOrNull != "false",
+                    )
+                }
+            }
+            val limit = RadarSpeedLimit.resolve(observations)
+            if (schema >= 2) require(o.prim("maxSpeedKmh")?.intOrNull == limit.kmh) { "limite sem evidência consistente" }
             return RadarCamera(
                 id = o.prim("id")?.contentOrNull ?: error("sem id"),
                 point = GeoPoint(o.prim("lat")?.doubleOrNull ?: error("sem lat"), o.prim("lon")?.doubleOrNull ?: error("sem lon")),
                 kind = RadarKind.valueOf(o.prim("kind")?.contentOrNull ?: error("sem kind")),
-                maxSpeedKmh = o.prim("maxSpeedKmh")?.intOrNull,
+                speedLimit = limit,
                 directionDeg = direction,
-                directionKnown = o.prim("directionKnown")?.contentOrNull?.toBooleanStrictOrNull() ?: (direction != null),
-                source = o.prim("source")?.contentOrNull ?: RadarCamera.SOURCE_OSM,
+                directionKnown = schema >= 2 && (o.prim("directionKnown")?.contentOrNull?.toBooleanStrictOrNull() ?: (direction != null)),
+                source = source,
+                facingDirectionDeg = if (schema >= 2) o.prim("facingDirectionDeg")?.doubleOrNull else null,
             )
         }
 
@@ -275,7 +306,7 @@ class RadarUpdatePolicy(
 
     fun freshness(state: RadarTileState, nowMs: Long): TileFreshness {
         val data = state.data ?: return TileFreshness.MISSING
-        if (state.lastAttemptFailed) return TileFreshness.STALE
+        if (state.lastAttemptFailed || data.needsRefresh) return TileFreshness.STALE
         val age = nowMs - data.fetchedAtMs
         // Data no futuro além da tolerância = relógio suspeito → desatualizado.
         return if (age in -CLOCK_SKEW_TOLERANCE_MS..validityMs) TileFreshness.FRESH else TileFreshness.STALE

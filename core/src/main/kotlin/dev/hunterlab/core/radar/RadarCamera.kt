@@ -19,11 +19,20 @@ data class RadarCamera(
     val id: String,
     val point: GeoPoint,
     val kind: RadarKind,
-    val maxSpeedKmh: Int?,
+    val speedLimit: RadarSpeedLimit,
     val directionDeg: Double?,
     val directionKnown: Boolean = directionDeg != null,
     val source: String = SOURCE_OSM,
+    /** Orientation of the camera itself, not a proven traffic heading. */
+    val facingDirectionDeg: Double? = null,
 ) {
+    /** Compatibility constructor for documented explicit data/fixtures. */
+    constructor(
+        id: String, point: GeoPoint, kind: RadarKind, maxSpeedKmh: Int?, directionDeg: Double?,
+        directionKnown: Boolean = directionDeg != null, source: String = SOURCE_OSM,
+    ) : this(id, point, kind, RadarSpeedLimit.recorded(maxSpeedKmh, source), directionDeg, directionKnown, source)
+
+    val maxSpeedKmh: Int? get() = speedLimit.kmh
     init {
         require(id.isNotBlank()) { "Radar sem identificador" }
         require(maxSpeedKmh == null || maxSpeedKmh in 1..MAX_SPEED_KMH) { "Limite fora da faixa: $maxSpeedKmh" }
@@ -31,6 +40,7 @@ data class RadarCamera(
             "Direção fora de 0..360: $directionDeg"
         }
         require(!directionKnown || directionDeg != null) { "Direção marcada como conhecida, mas sem valor" }
+        require(facingDirectionDeg == null || facingDirectionDeg.isFinite() && facingDirectionDeg in 0.0..<360.0)
     }
 
     companion object {

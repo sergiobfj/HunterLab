@@ -45,7 +45,11 @@ class CaruaruRadarCacheTest {
         val noNetwork = HttpGet { _, _ -> error("Fresh disk cache must not call network") }
         val warm = prepare(RadarRepository(dir, noNetwork, direct), 100_001)
         assertEquals(0, warm.downloaded); assertEquals(CoverageStatus.COMPLETE, warm.coverage)
-        assertEquals(persisted.cameras, warm.tiles.single().cameras)
+        // The recorded urban response extends beyond this single requested tile.
+        val expected = persisted.cameras.filter { TileKey.of(it.point) == tile }.associateBy { it.id }
+        assertEquals(30, expected.size)
+        assertEquals(expected, warm.tiles.single().cameras.associateBy { it.id })
+        assertEquals(first.tiles.single().cameras, warm.tiles.single().cameras)
     }
 
     @Test fun `expired fourteen day disk cache survives offline refresh and is marked stale`() {
@@ -60,7 +64,11 @@ class CaruaruRadarCacheTest {
         assertEquals(1, requests); assertEquals(1, result.failed)
         assertEquals(CoverageStatus.STALE, result.coverage)
         assertEquals(original, file.readText())
-        assertEquals(cameras, result.tiles.single().cameras)
+        val retained = result.tiles.single().cameras
+        assertEquals(cameras.map { it.id }, retained.map { it.id })
+        assertEquals(cameras.map { it.point }, retained.map { it.point })
+        assertTrue(retained.all { it.maxSpeedKmh == null })
+        assertTrue(retained.flatMap { it.speedLimit.observations }.all { !it.usable })
     }
 
     @Test fun `corrupt disk cache and failed HTTP produce no usable radar data`() {

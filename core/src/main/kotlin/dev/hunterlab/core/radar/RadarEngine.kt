@@ -23,11 +23,14 @@ data class RouteRadar(
     val label: String,
     val simulated: Boolean = true,
     val directionConfirmed: Boolean = true,
+    val limitInfo: RadarSpeedLimit? = null,
+    val sourceLabel: String = "",
 ) {
     init {
         require(positionM >= 0) { "Posição negativa" }
         require(speedLimitKmh == null || speedLimitKmh > 0) { "Limite deve ser positivo" }
         require(!simulated || speedLimitKmh != null) { "Radar simulado precisa de limite" }
+        require(limitInfo == null || limitInfo.kmh == speedLimitKmh) { "Limite e evidência inconsistentes" }
     }
 
     val isSimulated: Boolean get() = simulated

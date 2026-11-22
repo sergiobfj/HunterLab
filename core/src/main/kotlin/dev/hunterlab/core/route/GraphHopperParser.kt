@@ -11,6 +11,7 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.doubleOrNull
 import kotlin.math.abs
 import kotlin.math.floor
 import kotlin.math.max
@@ -108,6 +109,7 @@ object GraphHopperParser {
                     durationS = timeMs / 1000.0,
                     providerId = PROVIDER_ID,
                     attribution = attribution,
+                    roadSpeedLimits = roadLimits(path, polyline),
                 ),
             )
         } catch (e: IllegalArgumentException) {
@@ -150,6 +152,26 @@ object GraphHopperParser {
      * `sign` do GraphHopper → manobra neutra. Sinais desconhecidos (a API avisa que pode criar novos) viram
      * [Maneuver.Straight]. `-6` ("sair da rotatória") ainda não é usado pela API.
      */
+    /** Optional details fail closed without invalidating an otherwise usable navigation route. */
+    private fun roadLimits(path: JsonObject, polyline: Polyline): List<RoadSpeedLimitSpan> = runCatching {
+        val details = path["details"] as? JsonObject ?: return@runCatching emptyList()
+        val rows = details["max_speed"] as? JsonArray ?: return@runCatching emptyList()
+        if (rows.size > 20_000) return@runCatching emptyList()
+        var endIndex = 0
+        rows.map { el ->
+            val row = el as? JsonArray ?: error("detail inválido")
+            require(row.size == 3)
+            val from = row[0].intValue() ?: error("índice inválido")
+            val to = row[1].intValue() ?: error("índice inválido")
+            require(from >= endIndex && from >= 0 && to > from && to < polyline.points.size)
+            endIndex = to
+            val raw = row[2] as? JsonPrimitive
+            val number = raw?.takeUnless { it.isString }?.doubleOrNull
+            val limit = number?.takeIf { it.isFinite() && it in 1.0..250.0 && it == it.toInt().toDouble() }?.toInt()
+            RoadSpeedLimitSpan(polyline.cumulative[from], polyline.cumulative[to], limit)
+        }
+    }.getOrDefault(emptyList())
+
     fun maneuverForSign(sign: Int, exitNumber: Int? = null): Maneuver = when (sign) {
         -98, -8, 8 -> Maneuver.UTurn
         -7 -> Maneuver.Keep(Side.LEFT)

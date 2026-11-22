@@ -142,7 +142,7 @@ class RadarTilesTest {
         )
         val original = RadarTileData(tile, now, cams)
         val json = original.serialize()
-        assertTrue("\"schema\":1" in json, json)
+        assertTrue("\"schema\":2" in json, json)
         assertTrue("© colaboradores do OpenStreetMap (ODbL)" in json, json)
         assertEquals(original, RadarTileData.deserialize(json))
         val empty = RadarTileData(tile, now, emptyList(), attribution = "Fonte \"teste\"\n")
@@ -152,9 +152,9 @@ class RadarTilesTest {
     @Test
     fun `versao desconhecida ou cache corrompido e rejeitado`() {
         val json = RadarTileData(tile, now, listOf(RadarTestGeo.camera(1, 0.0, 0.0))).serialize()
-        val e = assertThrows<IllegalArgumentException> { RadarTileData.deserialize(json.replace("\"schema\":1", "\"schema\":2")) }
+        val e = assertThrows<IllegalArgumentException> { RadarTileData.deserialize(json.replace("\"schema\":2", "\"schema\":999")) }
         assertTrue("desconhecida" in e.message!!, e.message)
-        assertThrows<IllegalArgumentException> { RadarTileData.deserialize(json.replace("\"schema\":1,", "")) }
+        assertThrows<IllegalArgumentException> { RadarTileData.deserialize(json.replace("\"schema\":2,", "")) }
         assertThrows<IllegalArgumentException> { RadarTileData.deserialize(json.replace("\"FIXED\"", "\"LASER\"")) }
         assertThrows<IllegalArgumentException> { RadarTileData.deserialize(json.dropLast(5)) }
         assertThrows<IllegalArgumentException> { RadarTileData.deserialize("[]") }

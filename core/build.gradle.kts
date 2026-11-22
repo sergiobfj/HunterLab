@@ -30,6 +30,8 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    inputs.file(rootProject.file("app/src/main/assets/radar/pardal-pe.csv"))
+    inputs.file(rootProject.file("app/src/main/assets/radar/provenance.json"))
     testLogging {
         events("failed")
         exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL

@@ -26,17 +26,18 @@ class CaruaruSnapshotValidationTest {
         assertEquals(37, urban.size); assertEquals(38, north.size); assertEquals(43, eastWest.size)
         val union = (urban + north + eastWest).distinctBy { it.id }
         assertEquals(44, union.size)
-        assertEquals(42, union.count { !it.directionKnown })
+        assertEquals(44, union.count { !it.directionKnown })
+        assertEquals(2, union.count { it.facingDirectionDeg != null })
         assertEquals(10, union.count { it.maxSpeedKmh == null })
         assertTrue(union.all { it.kind == RadarKind.FIXED && it.source == RadarCamera.SOURCE_OSM })
-        assertEquals(40, known.maxSpeedKmh); assertEquals(200.0, known.directionDeg)
+        assertEquals(40, known.maxSpeedKmh); assertEquals(200.0, known.facingDirectionDeg)
         assertTrue(union.all { it.id.startsWith("osm:node/") })
     }
 
     @Test fun `mapped camera emits one 700m detection and one 300m warning on a synthetic approach`() {
         val s = RouteRadarSession()
         s.setRoute(line(), listOf(known), CoverageStatus.COMPLETE)
-        assertTrue(s.matches.single().directionConfirmed)
+        assertFalse(s.matches.single().directionConfirmed)
         val events = (0..3_000 step 10).flatMap { s.update(it.toDouble()) }
         val detected = events.filterIsInstance<RadarEvent.Detected>().single()
         val alert = events.filterIsInstance<RadarEvent.AlertStarted>().single()
@@ -47,15 +48,17 @@ class CaruaruSnapshotValidationTest {
         assertEquals(RadarPhase.Clear, s.phase)
     }
 
-    @Test fun `known direction reverse parallel exit and duplicate cases use the same real camera`() {
+    @Test fun `hypothetical traffic heading reverse parallel exit and duplicate cases use a mapped position`() {
+        // Explicit synthetic traffic heading, not inferred from the OSM camera-facing tag.
+        val traffic = known.copy(directionDeg = 200.0, directionKnown = true)
         val m = RouteRadarMatcher(); val forward = line()
-        assertEquals(1, m.match(forward, listOf(known, known)).size)
-        assertTrue(m.match(Polyline(forward.points.reversed()), listOf(known)).isEmpty())
+        assertEquals(1, m.match(forward, listOf(traffic, traffic)).size)
+        assertTrue(m.match(Polyline(forward.points.reversed()), listOf(traffic)).isEmpty())
         val shift = at(100.0, 110.0)
         val parallel = Polyline(forward.points.map { GeoPoint(it.lat + shift.lat-known.point.lat, it.lon + shift.lon-known.point.lon) })
-        assertTrue(m.match(parallel, listOf(known)).isEmpty())
+        assertTrue(m.match(parallel, listOf(traffic)).isEmpty())
         val exit = Polyline(listOf(at(-1_500.0), at(-500.0), GeoPoint(at(-500.0).lat + shift.lat-known.point.lat, at(-500.0).lon + shift.lon-known.point.lon)))
-        assertTrue(m.match(exit, listOf(known)).isEmpty())
+        assertTrue(m.match(exit, listOf(traffic)).isEmpty())
         // A real unknown direction is not silently turned into a confirmed direction.
         val unknown = cameras("urban").first { !it.directionKnown }
         val translated = unknown.copy(point = known.point) // Explicit fixture relocation only.

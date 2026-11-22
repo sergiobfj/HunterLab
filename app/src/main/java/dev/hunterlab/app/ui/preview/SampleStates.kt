@@ -44,7 +44,7 @@ object SampleStates {
             pinAttempt = 1, canInterrupt = true, needsTerms = false,
         ),
     )
-    val radarAlert = navigating.copy(radar = RadarUi(true, "Dados de radar atualizados", alertText = "Radar 60 km/h a 280 m", alertDistanceM = 280))
+    val radarAlert = navigating.copy(radar = RadarUi(true, "Dados de radar atualizados", alertText = "Radar fixo a 280 m", alertDistanceM = 280, limitKmh = 60, limitStatus = "Limite cadastrado"))
     val settings = SettingsUi(
         apiKeyConfigured = true, apiKeyMasked = "••••••3f2a", version = "0.2.2",
         permissions = PermissionsUi(location = true, notifications = false, bluetooth = true),
@@ -73,6 +73,7 @@ object EmptyNavActions : NavActions {
     override fun setDayNight(mode: DayNightMode) = Unit
     override fun setBottomLine(mode: BottomLineMode) = Unit
     override fun setRadarEnabled(enabled: Boolean) = Unit
+    override fun setRadarVoiceEnabled(enabled: Boolean) = Unit
     override fun setRadarOnTripper(enabled: Boolean) = Unit
     override fun setRadarThresholds(searchM: Int, alertM: Int) = Unit
     override fun refreshPermissions() = Unit

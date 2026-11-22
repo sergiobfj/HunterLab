@@ -97,6 +97,7 @@ class NavigationController(context: Context, private val ble: BleController) : N
     private val display = TripperDisplayController(ble.lab)
 
     private var engine = NavigationEngine()
+    private val radarVoice = dev.hunterlab.core.radar.RadarVoice(dev.hunterlab.app.radar.AndroidRadarSpeech(app), SystemClock::elapsedRealtime)
     private var radar = newRadarSession()
     private var destination: DestinationUi? = null
     private var previewRoute: Route? = null
@@ -251,6 +252,7 @@ class NavigationController(context: Context, private val ble: BleController) : N
         ble.lab.setNavigationPriority(true)
         navigating = true
         navGen++
+        radarVoice.startSession(navGen.toLong(), simulated)
         arrivalScheduled = false
         engine = NavigationEngine()
         radar = newRadarSession()
@@ -273,6 +275,7 @@ class NavigationController(context: Context, private val ble: BleController) : N
     override fun stopNavigation() {
         if (!navigating && !tripperNavSessionActive()) return
         navigating = false
+        radarVoice.endSession()
         ble.lab.setNavigationPriority(false)
         simulator = null
         radarRepo.cancel()
@@ -309,6 +312,7 @@ class NavigationController(context: Context, private val ble: BleController) : N
 
     fun onServiceStopped() {
         serviceRunning = false
+        radarVoice.endSession()
         // Sem serviço foreground não podem continuar GPS, simulação ou rádio.
         stopAll()
         location.stop()
@@ -430,7 +434,11 @@ class NavigationController(context: Context, private val ble: BleController) : N
                 }
             }
         }
-        state.track?.let { if (route != null && prefs.radarEnabled) radar.update(it.progressM) }
+        radarVoice.configure(prefs.radarVoiceEnabled && prefs.radarEnabled,
+            navigating && gpsUi() == GpsUi.OK && state.status == EngineStatus.NAVIGATING)
+        state.track?.let { if (route != null && prefs.radarEnabled) {
+            radar.update(it.progressM).forEach(radarVoice::onEvent)
+        } }
         val radarPhase = if (prefs.radarEnabled) radar.phase else RadarPhase.Clear
         val update = display.update(engine.toSnapshot(), radarPhase, displaySettings(), LocalTime.now(), now)
         displayStatus = update.status
@@ -616,12 +624,19 @@ class NavigationController(context: Context, private val ble: BleController) : N
     override fun setRadarEnabled(enabled: Boolean) {
         prefs.radarEnabled = enabled
         if (!enabled) {
+            radarVoice.configure(false, false)
             radarRepo.cancel()
             radarRoute = null
             radar.end()
         }
         refreshDisplay()
     }
+    override fun setRadarVoiceEnabled(enabled: Boolean) {
+        prefs.radarVoiceEnabled = enabled
+        radarVoice.configure(enabled && prefs.radarEnabled, navigating && gpsUi() == GpsUi.OK)
+        publish()
+    }
+
     override fun setRadarOnTripper(enabled: Boolean) { prefs.radarOnTripper = enabled; refreshDisplay() }
 
     override fun setRadarThresholds(searchM: Int, alertM: Int) {
@@ -695,8 +710,10 @@ class NavigationController(context: Context, private val ble: BleController) : N
             arrivalText = track?.let { Format.arrival(it.remainingTimeS) },
             gps = gps,
             gpsAccuracyText = lastFix?.accuracyM?.let { "±${it.toInt()} m" },
+            roadLimitKmh = if (gps == GpsUi.OK && state.status == EngineStatus.NAVIGATING) track?.let { state.route?.roadSpeedLimitAt(it.progressM) } else null,
             tripper = tripperUi,
             radar = if (navigating) radarUi() else null,
+            voiceStatusText = if (prefs.radarVoiceEnabled && radarVoice.status == dev.hunterlab.core.radar.RadarVoiceStatus.UNAVAILABLE) "Voz indisponível. Configure uma voz pt-BR offline nas opções de texto para voz do Android." else null,
             message = navMessage(state.status, state.message),
             simulated = simulated,
             tripperPreview = lastPreview,
@@ -709,6 +726,7 @@ class NavigationController(context: Context, private val ble: BleController) : N
             bottomLine = prefs.bottomLine,
             radarEnabled = prefs.radarEnabled,
             radarOnTripper = prefs.radarOnTripper,
+            radarVoiceEnabled = prefs.radarVoiceEnabled,
             radarSearchM = prefs.radarSearchM,
             radarAlertM = prefs.radarAlertM,
             permissions = PermissionsUi(
@@ -761,12 +779,22 @@ class NavigationController(context: Context, private val ble: BleController) : N
 
     private fun radarUi(): RadarUi {
         if (!prefs.radarEnabled) return RadarUi(enabled = false, coverageText = "Alertas de radar desligados")
-        val (text, distance) = when (val p = radar.phase) {
-            is RadarPhase.Alert -> "Radar ${p.radar.speedLimitKmh?.let { "$it km/h " } ?: ""}a ${p.distanceM} m" to p.distanceM
-            is RadarPhase.Detected -> "Radar à frente a ${p.distanceM} m" to p.distanceM
-            else -> null to null
+        if (gpsUi() != GpsUi.OK) return RadarUi(enabled = true, coverageText = "Aguardando GPS preciso para alertar", sourceText = radarRepo.dataSourceLabel)
+        val p = radar.phase
+        val item = when (p) {
+            is RadarPhase.Alert -> p.radar to p.distanceM
+            is RadarPhase.Detected -> p.radar to p.distanceM
+            else -> null
         }
-        return RadarUi(enabled = true, coverageText = radar.statusText, alertText = text, alertDistanceM = distance)
+        val camera = item?.first
+        val info = camera?.limitInfo
+        return RadarUi(enabled = true, coverageText = radar.statusText,
+            alertText = item?.let { "${it.first.kind.label} a ${it.second} m" },
+            alertDistanceM = item?.second, kindText = camera?.kind?.label ?: "Radar",
+            limitKmh = info?.kmh, limitStatus = info?.status?.label ?: "Limite indisponível",
+            sourceText = listOfNotNull(camera?.sourceLabel?.takeIf { it.isNotBlank() }, radarRepo.dataSourceLabel).distinct().joinToString(" · "),
+            directionUnknown = camera?.directionConfirmed != true,
+            attribution = "© colaboradores do OpenStreetMap · Pardal / fontes oficiais (ODbL)")
     }
 
     private fun tripperUi(s: LinkSnapshot): TripperUi {

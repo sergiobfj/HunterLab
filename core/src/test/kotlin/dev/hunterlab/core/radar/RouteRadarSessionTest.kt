@@ -200,7 +200,7 @@ class RouteRadarSessionTest {
     @Test
     fun `camadas de tiles sao combinadas sem repetir radar`() {
         val t1 = RadarTileData(TileKey.of(RadarTestGeo.ORIGIN), 1_000L, listOf(camX))
-        val t2 = RadarTileData(TileKey.of(RadarTestGeo.ORIGIN), 2_000L, listOf(camX.copy(maxSpeedKmh = 50)))
+        val t2 = RadarTileData(TileKey.of(RadarTestGeo.ORIGIN), 2_000L, listOf(camX.copy(speedLimit = RadarSpeedLimit.recorded(50))))
         val s = RouteRadarSession()
         s.setRouteFromTiles(routeA, listOf(t1, t2), CoverageStatus.COMPLETE)
         assertEquals(50, s.matches.single().camera.maxSpeedKmh) // fica o tile mais recente

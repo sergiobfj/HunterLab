@@ -1,0 +1,23 @@
+Pardal: radares e limites de velocidade do Brasil
+Pacote: estado PE. Gerado em 2026-11-19 16:52:09 UTC.
+
+LICENÇA DOS DADOS: Open Database License (ODbL) 1.0
+https://opendatacommons.org/licenses/odbl/1-0/
+
+Base derivada do OpenStreetMap: © colaboradores do OpenStreetMap
+https://www.openstreetmap.org/copyright
+
+Ao usar ou redistribuir estes dados:
+- cite "© colaboradores do OpenStreetMap" e as fontes abaixo;
+- uma base derivada que você publicar precisa manter a ODbL 1.0.
+
+Fontes dos radares deste pacote: DER-PE, DNIT, INMETRO, OSM, PCR, SEINFRA-BA.
+Demais bases: limites, estruturas, lombadas, pedágios e pontos de atenção do OpenStreetMap;
+quilometragem das rodovias federais (SNV) e buracos (ICM) do DNIT; praças de pedágio e placas
+da ANTT; trechos de radar portátil, multas e acidentes da PRF; situação dos medidores do
+Inmetro; malha das UFs e endereços (CNEFE) do IBGE.
+
+Dados abertos de órgãos públicos (Lei 12.527/2011). Nenhum desses órgãos endossa este conjunto.
+Não é fonte oficial: a sinalização da via sempre prevalece.
+
+Tabela completa das fontes e colunas: https://github.com/murkiriel/pardal (README).

@@ -4,6 +4,8 @@ import android.content.Context
 import dev.hunterlab.core.geo.Polyline
 import dev.hunterlab.core.radar.CoverageStatus
 import dev.hunterlab.core.radar.OverpassParser
+import dev.hunterlab.core.radar.RadarFusion
+import dev.hunterlab.core.radar.RadarSpeedLimit
 import dev.hunterlab.core.radar.RadarTileData
 import dev.hunterlab.core.radar.RadarTileState
 import dev.hunterlab.core.radar.RadarUpdatePolicy
@@ -29,13 +31,16 @@ class RadarRepository internal constructor(
     private val http: HttpGet,
     private val io: Executor,
     private val policy: RadarUpdatePolicy = RadarUpdatePolicy(validityMs = VALIDITY_MS),
+    private val offlineSource: () -> OfflineRadarData = { OfflineRadarData.EMPTY },
 ) {
     constructor(context: Context, http: HttpGet, io: Executor) : this(
-        File(context.applicationContext.filesDir, "radar"), http, io,
+        File(context.applicationContext.filesDir, "radar"), http, io, offlineSource = PardalAssets.source(context),
     )
 
     private val states = ConcurrentHashMap<TileKey, RadarTileState>()
     private val generation = AtomicLong()
+    @Volatile var dataSourceLabel: String = "OpenStreetMap"
+        private set
 
     /** Interrompe a fila da rota. Um HTTP já em curso termina pelo timeout e ainda pode alimentar o cache. */
     fun cancel() { generation.incrementAndGet() }
@@ -47,6 +52,9 @@ class RadarRepository internal constructor(
         val request = generation.incrementAndGet()
         io.execute {
             if (generation.get() != request) return@execute
+            val offline = offlineSource()
+            if (generation.get() != request) return@execute
+            dataSourceLabel = if (offline.cameras.isNotEmpty()) "OpenStreetMap · ${offline.label}" else "OpenStreetMap"
             val cover = TileKey.coverRoute(route)
             cover.tiles.forEach { loadFromDisk(it) }
             var downloaded = 0
@@ -59,8 +67,31 @@ class RadarRepository internal constructor(
                 Thread.sleep(PAUSE_BETWEEN_REQUESTS_MS)
             }
             if (generation.get() != request) return@execute
-            val tiles = cover.tiles.mapNotNull { states[it]?.data }
-            done(RouteRadarData(tiles, policy.coverageOf(cover, states, nowMs()), downloaded, failed))
+            val now = nowMs()
+            var coverage = policy.coverageOf(cover, states, now)
+            val offlineStale = now - offline.dateMs !in 0..VALIDITY_MS
+            val allowedTiles = cover.tiles.toSet()
+            val osm = cover.tiles.flatMap { tile ->
+                val data = states[tile]?.data
+                val cameras = data?.cameras.orEmpty().filter { TileKey.of(it.point) in allowedTiles }
+                if (states[tile]?.let { policy.freshness(it, now) } == dev.hunterlab.core.radar.TileFreshness.STALE)
+                    cameras.map { camera -> camera.copy(speedLimit = RadarSpeedLimit.resolve(camera.speedLimit.observations.map { it.copy(usable = false) })) }
+                else cameras
+            }
+            val local = offline.cameras.filter { camera -> TileKey.of(camera.point) in allowedTiles }
+            val usableLocal = if (offlineStale) local.map { camera -> camera.copy(
+                speedLimit = RadarSpeedLimit.resolve(camera.speedLimit.observations.map { it.copy(usable = false) })) }
+                else local
+            // Reconcile before splitting into tiles: a border must not duplicate one device.
+            val combined = RadarFusion.merge(osm, usableLocal)
+            val tiles = cover.tiles.mapNotNull { tile ->
+                val data = states[tile]?.data
+                val cameras = combined.filter { TileKey.of(it.point) == tile }
+                if (data == null && cameras.isEmpty()) null else RadarTileData(tile, data?.fetchedAtMs ?: offline.dateMs, cameras)
+            }
+            if (tiles.isNotEmpty() && coverage == CoverageStatus.NONE) coverage = if (offlineStale) CoverageStatus.STALE else CoverageStatus.PARTIAL
+            if (offlineStale && tiles.any { t -> t.cameras.any { it.source.contains("Pardal/") } }) coverage = CoverageStatus.STALE
+            done(RouteRadarData(tiles, coverage, downloaded, failed))
         }
     }
 

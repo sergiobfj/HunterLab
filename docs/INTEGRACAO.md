@@ -94,3 +94,14 @@ Resultado local: 471 testes, Lint zero achados e build debug aprovado. Consultas
 44 IDs na união regional; GraphHopper com chave inválida retorna 401, chave válida não localizada.
 Sem dispositivo ADB/emulador disponível: Android em execução, busca por endereço no Geocoder, notificação e tela
 bloqueada permanecem pendentes. Sem BLE físico e sem identidade visual nova na main.
+
+
+## Limites de radar e voz — branch isolada, 22/11/2026
+
+`feat/mvp-radar-speed-alerts`, worktree `HunterLab-radar-alerts`, base main `85e14b3`.
+Não integrar automaticamente: prévias e validação Android aguardam revisão. Sem alteração de `protocol/`,
+adaptadores BLE, máquina de estados do link, proteção OTA, Playground, assinatura ou ícone.
+Modelo de evidências OSM/Pardal, cache v2 com migração conservadora, limites do trecho GraphHopper separados,
+voz pt-BR offline opcional e placa de limite no Android. Pesquisa e licença em [RADAR_SPEED_LIMITS.md](RADAR_SPEED_LIMITS.md).
+Prévias em `validation/caruaru/radar-previews/`. A main e as worktrees de marca permanecem preservadas.
+Dados reais públicos; fluxos TTS/GraphHopper válidos e execução no Samsung não foram comprovados nesta máquina.

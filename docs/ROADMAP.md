@@ -80,3 +80,9 @@ uma vez (o checklist de 5 itens continua no laboratório). Pendente de teste: re
 - [x] Reunir Playground, base Graphite Grey e pesquisa gráfica do Pod, preservando o código funcional da 0.3.1.
 - [ ] Escolher e aprovar nova marca entre cavalo, roadster e híbrida. Assets novos permanecem fora da main até aprovação.
 - [ ] Validar a 0.3.1 no Samsung e na Hunter estacionada seguindo o procedimento existente; sem testes físicos nesta consolidação.
+
+### Branch de limites e voz — 22/11/2026
+
+- Evidências OSM/Pardal PE, limite condicionado/conflitante sem número e fonte por radar.
+- GraphHopper `max_speed` separado do limite do equipamento; voz opcional sem comandos BLE novos.
+- Pendente: revisão das prévias, integração controlada, GraphHopper com chave válida e validação Android/TTS no Samsung.

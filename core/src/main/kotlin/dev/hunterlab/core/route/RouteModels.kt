@@ -45,6 +45,7 @@ data class Route(
     val durationS: Double,
     val providerId: String,
     val attribution: String,
+    val roadSpeedLimits: List<RoadSpeedLimitSpan> = emptyList(),
 ) {
     init {
         require(steps.isNotEmpty()) { "Rota sem passos" }
@@ -58,6 +59,10 @@ data class Route(
     }
 
     val destination: GeoPoint get() = polyline.points.last()
+
+    fun roadSpeedLimitAt(alongM: Double): Int? = roadSpeedLimits.firstOrNull {
+        alongM >= it.fromM && (alongM < it.toM || alongM == polyline.lengthM && alongM == it.toM)
+    }?.kmh
 
     companion object {
         const val ALONG_EPSILON_M = 0.5

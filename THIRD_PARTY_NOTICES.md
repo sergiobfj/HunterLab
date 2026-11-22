@@ -62,3 +62,18 @@ redistribuídos sob ODbL 1.0, com consultas, timestamps e hashes em `provenance.
 Essa licença se refere aos dados, sem alterar a situação da licença própria do código Kotlin.
 A pequena resposta de erro GraphHopper é identificada separadamente na proveniência; não contém chave válida.
 As prévias de interface usam dados sintéticos. Nenhuma imagem de referência de marca ou firmware proprietário foi incluído.
+
+
+### Base Pardal PE — limites e radares
+
+`app/src/main/assets/radar/pardal-pe.csv` contém somente `PE/radares.csv` da release
+[dados-2026-11-19](https://github.com/murkiriel/pardal/releases/tag/dados-2026-11-19).
+Dados: **© colaboradores do OpenStreetMap · Pardal · DER-PE · DNIT · INMETRO · OSM · PCR · SEINFRA-BA**,
+sob [Open Database License 1.0](https://opendatacommons.org/licenses/odbl/1-0/).
+O aviso original do pacote permanece em `app/src/main/assets/radar/LICENCA-DADOS.txt`, junto da proveniência e hashes.
+O CSV sem DRM, os recortes e os resultados de comparação em `docs/validation/caruaru/radar_speed_comparison.json`
+são disponibilizados sob a mesma ODbL. A transformação está implementada nos parsers/fusão deste repositório;
+não há licença proprietária restringindo acesso às bases derivadas. Caches ficam no armazenamento privado, sem segredos nos dados.
+Atribuições também aparecem em Configurações e Navegação. O código do gerador Pardal não foi copiado;
+a licença MIT do código desse projeto não substitui a ODbL dos dados nem define a licença própria do Hunter Lab.
+A data do pacote não comprova funcionamento físico, calibração vigente ou cobertura completa dos equipamentos.

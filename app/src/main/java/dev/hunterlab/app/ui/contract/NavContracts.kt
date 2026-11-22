@@ -92,6 +92,11 @@ data class RadarUi(
     /** Alerta ativo, ex.: "Radar 60 km/h a 280 m". Nulo sem alerta. */
     val alertText: String? = null,
     val alertDistanceM: Int? = null,
+    val kindText: String = "Radar",
+    val limitKmh: Int? = null,
+    val limitStatus: String = "Limite indisponível",
+    val sourceText: String = "OpenStreetMap",
+    val directionUnknown: Boolean = true,
     val attribution: String = "© colaboradores do OpenStreetMap (ODbL)",
     /** Aviso fixo de cobertura limitada. */
     val disclaimer: String = "Cobertura limitada: a ausência de alerta não significa ausência de fiscalização.",
@@ -117,6 +122,9 @@ data class NavUi(
     val arrivalText: String? = null,
     val gps: GpsUi = GpsUi.SEARCHING,
     val gpsAccuracyText: String? = null,
+    /** Limite do trecho, independente do equipamento de fiscalização. */
+    val roadLimitKmh: Int? = null,
+    val voiceStatusText: String? = null,
     val tripper: TripperUi = TripperUi(),
     val radar: RadarUi? = null,
     /** Mensagem curta de estado/erro (sem internet, recalculando…). */
@@ -156,6 +164,7 @@ data class SettingsUi(
     val bottomLine: BottomLineMode = BottomLineMode.TOTAL_DISTANCE,
     val radarEnabled: Boolean = true,
     val radarOnTripper: Boolean = true,
+    val radarVoiceEnabled: Boolean = false,
     val radarSearchM: Int = 700,
     val radarAlertM: Int = 300,
     val permissions: PermissionsUi = PermissionsUi(),
@@ -192,6 +201,7 @@ interface NavActions {
     fun setDayNight(mode: DayNightMode)
     fun setBottomLine(mode: BottomLineMode)
     fun setRadarEnabled(enabled: Boolean)
+    fun setRadarVoiceEnabled(enabled: Boolean)
     fun setRadarOnTripper(enabled: Boolean)
     fun setRadarThresholds(searchM: Int, alertM: Int)
     fun refreshPermissions()

@@ -67,6 +67,8 @@ fun SettingsScreen(state: SettingsUi, actions: NavActions, onAdvanced: (Advanced
         SectionTitle("Radares")
         DailySwitch("Alertas de radar", checked = state.radarEnabled, onChecked = actions::setRadarEnabled)
         if (state.radarEnabled) {
+            DailySwitch("Aviso por voz", checked = state.radarVoiceEnabled, onChecked = actions::setRadarVoiceEnabled)
+            SupportingText("Opcional. Usa voz pt-BR instalada, sem rede. Um aviso por radar na passagem; teste o volume antes de sair.")
             ThresholdControl("Buscar radares até", state.radarSearchM, 100, 3000) { search ->
                 actions.setRadarThresholds(search, state.radarAlertM.coerceAtMost(search))
             }
@@ -100,7 +102,7 @@ fun SettingsScreen(state: SettingsUi, actions: NavActions, onAdvanced: (Advanced
         Text("Hunter Lab · ${state.version.ifBlank { "Versão não informada" }}", style = MaterialTheme.typography.bodyMedium)
         SupportingText("Royal Enfield Hunter 350 · Tripper Pod")
         if (state.routingAttribution.isNotBlank()) SupportingText(state.routingAttribution)
-        SupportingText("Radares: © colaboradores do OpenStreetMap (ODbL)")
+        SupportingText("Radares: © colaboradores do OpenStreetMap · Pardal (ODbL). Fontes: DER-PE, DNIT, INMETRO, PCR, SEINFRA-BA. Consulte a documentação de dados.")
     }
 }
 

@@ -1,0 +1,36 @@
+{
+  "tag": "dados-2026-11-19",
+  "published": "2026-11-19T16:55:04Z",
+  "url": "https://github.com/murkiriel/pardal/releases/tag/dados-2026-11-19",
+  "assets": [
+    {
+      "name": "catalogo.json",
+      "size": 338276,
+      "digest": "sha256:8449bf33dd2c892089743f2d7fb9399fe7630c564dea300247de74f93e79f02c",
+      "browser_download_url": "https://github.com/murkiriel/pardal/releases/download/dados-2026-11-19/catalogo.json"
+    },
+    {
+      "name": "pardal-PE.zip",
+      "size": 1613754,
+      "digest": "sha256:194deed3a269978a74701930810177791caf6c35018412ff28b8d3d1c434e6da",
+      "browser_download_url": "https://github.com/murkiriel/pardal/releases/download/dados-2026-11-19/pardal-PE.zip"
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "size": 4765,
+      "digest": "sha256:28aa04d25db21b311ccb19cfce10e48092c4da40a8b282417c33cab8f27bf067",
+      "browser_download_url": "https://github.com/murkiriel/pardal/releases/download/dados-2026-11-19/SHA256SUMS.txt"
+    }
+  ],
+  "attribution": "© OpenStreetMap contributors; Pardal; DER-PE; DNIT; INMETRO; OSM; PCR; SEINFRA-BA",
+  "license": "ODbL 1.0",
+  "csv_sha256": "fa26bfedf7b2bebd19badf4289abff4cacf3d6e2bea9202738ed09c6de11c88b",
+  "raw_records": 512,
+  "active_records": 497,
+  "catalog_built_at": "2026-11-19T16:52:09Z",
+  "catalog_source_dates": {
+    "DER-PE": "2026-11-19",
+    "DNIT": "2026-11-19",
+    "SEINFRA-BA": "2026-11-19"
+  }
+}

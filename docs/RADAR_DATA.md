@@ -12,7 +12,7 @@ Fontes: [highway=speed_camera](https://wiki.openstreetmap.org/wiki/Tag:highway%3
 | `type=enforcement` (relação, status *approved*) | `enforcement=maxspeed` \| `average_speed` \| `traffic_signals` \| `check` \| `mindistance` \| … ; `maxspeed=*` só quando `enforcement=maxspeed` [F]. |
 | Papéis | `device` (nó/via/área: o equipamento); `from` (nó **na via** onde a fiscalização começa — na placa, se houver; início da média em `average_speed`); `to` (fim; opcional se `device` e `from` estão na mesma via, **obrigatório** se o equipamento está ao lado da via); `section` (via do trecho); `force` (opcional) [F]. Uma relação por equipamento/sentido [F]. |
 
-Implicações [I]: sentido = `from`→`to`/`device` (relação) ou `direction` (nó); sem nenhum dos dois, decidir por casamento com a rota e rumo do veículo. A wiki recomenda que navegadores perguntem na instalação se incluem radares, por países que proíbem avisos [F]; no Brasil, a Res. CONTRAN 798/2020 (alterada pela 804/2020) exige que o órgão divulgue a localização dos medidores fixos — fonte secundária ([notícia](https://agenciainfra.com/blog/?p=6391)); texto oficial e artigo não conferidos [N].
+Revisão de 22/11/2026: `direction` do nó não confirma o rumo do tráfego. Somente geometria curta e inequívoca `from`→`to` da relação é usada pelo importador para confirmar esse rumo; sem ela, o casamento com a rota preserva sentido desconhecido. A wiki recomenda que navegadores perguntem na instalação se incluem radares, por países que proíbem avisos [F]; no Brasil, a Res. CONTRAN 798/2020 (alterada pela 804/2020) exige que o órgão divulgue a localização dos medidores fixos — fonte secundária ([notícia](https://agenciainfra.com/blog/?p=6391)); texto oficial e artigo não conferidos [N].
 
 ## 2. Overpass API
 
@@ -92,3 +92,7 @@ Hoje: busca até 700 m e alerta visível a ≤ 300 m (`PROTOCOLO.md` §5). Tempo
 | 110 km/h | 23 s | 10 s |
 
 Comentário [I]: **cidade** — 700 m a 40–60 km/h cobre muitos cruzamentos e vias paralelas; sem casamento com a rota e o sentido, gera alertas falsos; 300 m (18–27 s) basta para reduzir (60→40 km/h a 3 m/s² + 1,5 s de reação ≈ 50 m). **Rodovia** — 300 m a 110 km/h são 10 s; reduzir 110→80 km/h a 3 m/s² com 1,5 s de reação consome ≈ 120 m, então ainda cabe, mas a pré-busca de 700 m (23 s) é útil. Alternativa a testar: limiar por tempo, ex. 1º aviso em `max(300 m, 25 s × v)` e 2º em `max(150 m, 10 s × v)`. Nenhum valor é universal: depende de GPS (~1 Hz, erro urbano), de onde o nó foi mapeado (na via × ao lado) e da sinalização R-19 local.
+
+## Limites e fonte complementar — revisão 22/11/2026
+
+A evolução em branch isolada está documentada em [RADAR_SPEED_LIMITS.md](RADAR_SPEED_LIMITS.md): evidências por fonte, conflitos, condições, dados Pardal PE, cache v2 e voz opcional. Não utiliza tolerância de fiscalização como limite legal.

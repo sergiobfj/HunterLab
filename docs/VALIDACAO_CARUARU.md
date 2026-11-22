@@ -38,7 +38,8 @@ Não incluem perfis de colaboradores, localização do telefone ou endereços pe
 ## Inventário retornado
 
 Todos os 44 são nós `highway=speed_camera` interpretados como FIXED pelo parser atual.
-Somente dois têm `direction=200`. Há 42 sem sentido definido e dez sem `maxspeed`.
+Somente dois têm `direction=200` e 42 não têm essa tag. Há dez sem `maxspeed`.
+**Revisão de semântica:** essa tag descreve a orientação da câmera, não confirma o rumo do tráfego. Todos os 44 permanecem sem sentido de fiscalização confirmado no importador revisado. Os testes de sentido oposto usam rumo sintético explicitamente identificado.
 O sentido desconhecido permanece desconhecido: o app pode alertar nos dois sentidos, com essa limitação indicada.
 Não foi identificado nenhum registro `average_speed` ou `traffic_signals` pelas relações consultadas.
 

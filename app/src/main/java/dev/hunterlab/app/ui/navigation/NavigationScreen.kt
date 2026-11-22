@@ -1,6 +1,7 @@
 package dev.hunterlab.app.ui.navigation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -60,7 +61,7 @@ fun NavigationScreen(
                     Text(current.instruction, style = MaterialTheme.typography.headlineMedium)
                     current.streetName?.let { Text(it, style = MaterialTheme.typography.titleMedium, color = HunterColors.TextSecondary) }
                 } ?: Text(state.message ?: state.phase.label, style = MaterialTheme.typography.headlineMedium)
-                state.radar?.alertText?.let { RadarAlert(it) }
+                state.radar?.takeIf { it.alertText != null }?.let { RadarAlert(it) }
                 state.next?.takeIf { state.showCurrentManeuver }?.let { next ->
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         IconGlyph(
@@ -83,8 +84,10 @@ fun NavigationScreen(
                 Pill(state.tripper.label, HunterColors.TextSecondary)
             }
             state.gpsAccuracyText?.let { SupportingText(it) }
+            state.voiceStatusText?.let { SupportingText(it) }
+            state.roadLimitKmh?.let { SupportingText("Trecho: $it km/h · GraphHopper / perfil car. Não é o limite do radar.") }
             state.radar?.let { radar ->
-                if (!navigationActive) radar.alertText?.let { RadarAlert(it) }
+                if (!navigationActive) radar.takeIf { it.alertText != null }?.let { RadarAlert(it) }
                 SupportingText(if (radar.enabled) radar.coverageText else "Alertas de radar desativados")
                 SupportingText(radar.disclaimer)
                 SupportingText(radar.attribution)
@@ -100,12 +103,41 @@ fun NavigationScreen(
     }
 }
 
+/** A mapped value, never a tolerance or an inferred adjacent-road limit. */
 @Composable
-private fun RadarAlert(text: String) {
-    Text(
-        text, style = MaterialTheme.typography.titleLarge, color = HunterColors.AmberSoft,
-        modifier = Modifier.fillMaxWidth().background(HunterColors.AmberContainer, RoundedCornerShape(12.dp)).padding(16.dp),
-    )
+fun RadarAlert(state: RadarUi, modifier: Modifier = Modifier) {
+    Column(modifier.fillMaxWidth().background(HunterColors.SurfaceHigh, RoundedCornerShape(14.dp)).padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            SpeedLimitSign(state.limitKmh)
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(state.kindText, style = MaterialTheme.typography.titleMedium, color = HunterColors.AmberSoft)
+                Text(state.alertDistanceM?.let { "$it m" } ?: "À frente", style = MaterialTheme.typography.headlineMedium)
+                Text(state.limitStatus, style = MaterialTheme.typography.bodyMedium, color = HunterColors.TextSecondary)
+            }
+        }
+        if (state.directionUnknown) SupportingText("Sentido de fiscalização não confirmado")
+        SupportingText(state.sourceText)
+    }
+}
+
+@Composable
+fun SpeedLimitSign(kmh: Int?, modifier: Modifier = Modifier) {
+    // Stable size at large font scales; surrounding labels remain scalable and may wrap.
+    val label = kmh?.let { "Limite cadastrado: $it quilômetros por hora" } ?: "Limite não confirmado"
+    Box(modifier.size(80.dp).semantics(mergeDescendants = true) { contentDescription = label }
+        .background(androidx.compose.ui.graphics.Color.White, androidx.compose.foundation.shape.CircleShape)
+        .then(if (kmh != null) Modifier.border(5.dp, androidx.compose.ui.graphics.Color(0xFFB63830), androidx.compose.foundation.shape.CircleShape)
+              else Modifier.border(2.dp, HunterColors.TextSecondary, androidx.compose.foundation.shape.CircleShape)),
+        contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(kmh?.toString() ?: "—", color = androidx.compose.ui.graphics.Color(0xFF101416),
+                style = MaterialTheme.typography.headlineLarge.copy(fontSize = (30f / androidx.compose.ui.platform.LocalDensity.current.fontScale.coerceAtLeast(1f)).sp, fontWeight = FontWeight.SemiBold),
+                maxLines = 1)
+            if (kmh != null) Text("km/h", color = androidx.compose.ui.graphics.Color(0xFF101416),
+                style = MaterialTheme.typography.labelSmall, maxLines = 1)
+        }
+    }
 }
 
 @Composable

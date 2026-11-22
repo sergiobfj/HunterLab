@@ -18,7 +18,7 @@ object OverpassQuery {
 
     /**
      * Nós `highway=speed_camera` e relações `type=enforcement` com `enforcement` ∈ [ENFORCEMENT_VALUES]
-     * (também em listas `a;b`), mais os membros com coordenadas (`out body; >; out skel qt;`).
+     * (também em listas `a;b`), mais os membros com coordenadas (`out body; >; out body qt;`).
      * bbox na ordem Overpass: sul, oeste, norte, leste. Não atravessa o antimeridiano.
      */
     fun forBox(south: Double, west: Double, north: Double, east: Double, timeoutS: Int = 25): String {
@@ -37,7 +37,7 @@ object OverpassQuery {
             append(");\n")
             append("out body;\n")
             append(">;\n")
-            append("out skel qt;\n")
+            append("out body qt;\n")
         }
     }
 
@@ -54,10 +54,9 @@ object OverpassQuery {
  * - `enforcement=average_speed` → [RadarKind.AVERAGE_SPEED] no membro `from` (início do trecho; senão `device`);
  * - `enforcement=traffic_signals` → [RadarKind.TRAFFIC_LIGHT] no membro `device` (ou `from`).
  *
- * Direção: `direction` da relação, senão do nó. `forward`/`backward`/ausente → tenta o rumo `from`→`to` da relação
- * quando os dois nós estão a [DERIVED_DIRECTION_MIN_M]..[DERIVED_DIRECTION_MAX_M] m (trecho curto ≈ reto);
- * senão fica desconhecida. O mesmo nó vindo como nó e como membro de relação vira **um** radar
- * (tipo: AVERAGE_SPEED > FIXED > TRAFFIC_LIGHT; maxspeed/direção: relação antes do nó).
+ * `direction` numérica é orientação da câmera, sem equivalência presumida ao fluxo fiscalizado.
+ * Somente uma geometria curta from→to inequívoca confirma rumo de tráfego; conflitos mantêm rumo desconhecido.
+ * Nó e relação conservam suas evidências de limite: divergência ou condição impede expor um número.
  */
 object OverpassParser {
     const val DERIVED_DIRECTION_MIN_M = 5.0
@@ -76,9 +75,10 @@ object OverpassParser {
     private data class Candidate(
         val nodeId: Long,
         val kind: RadarKind,
-        val maxSpeedKmh: Int?,
+        val limits: List<RadarLimitObservation>,
         val directionDeg: Double?,
         val fromRelation: Boolean,
+        val facingDeg: Double? = null,
     )
 
     fun parse(body: String): Result {
@@ -135,8 +135,10 @@ object OverpassParser {
             candidates += Candidate(
                 nodeId = id,
                 kind = RadarKind.FIXED,
-                maxSpeedKmh = speed(tags["maxspeed"], "nó $id", ::warn),
-                directionDeg = (direction as? OsmDirection.Degrees)?.deg,
+                limits = listOf(limit(tags, "OSM node/$id", ::warn)),
+                // OSM direction is camera-facing orientation, NOT a proven traffic heading.
+                directionDeg = null,
+                facingDeg = (direction as? OsmDirection.Degrees)?.deg,
                 fromRelation = false,
             )
         }
@@ -162,16 +164,12 @@ object OverpassParser {
                 relDirection
             }
             noteDirection(direction, "relação ${rel.id}", ::warn)
-            val deg = when (direction) {
-                is OsmDirection.Degrees -> direction.deg
-                OsmDirection.Both -> null
-                else -> derivedDirection(node("from"), node("to"), coords)
-            }
+            // Only relation geometry establishes a traffic direction in the OSM import.
+            val deg = if (direction == OsmDirection.Both) null else derivedDirection(node("from"), node("to"), coords)
             candidates += Candidate(
                 nodeId = pointId,
                 kind = kind,
-                maxSpeedKmh = speed(rel.tags["maxspeed"], "relação ${rel.id}", ::warn)
-                    ?: OsmTagValues.parseMaxSpeedKmh(pointTags["maxspeed"]),
+                limits = listOf(limit(pointTags, "OSM node/$pointId", ::warn), limit(rel.tags, "OSM relation/${rel.id}", ::warn)),
                 directionDeg = deg,
                 fromRelation = true,
             )
@@ -179,18 +177,29 @@ object OverpassParser {
 
         val cameras = candidates.groupBy { it.nodeId }.map { (nodeId, group) ->
             val ordered = group.sortedByDescending { it.fromRelation }
-            val deg = ordered.firstNotNullOfOrNull { it.directionDeg }
+            val deg = ordered.mapNotNull { it.directionDeg }.distinct().singleOrNull()
             RadarCamera(
                 id = RadarCamera.osmNodeId(nodeId),
                 point = coords.getValue(nodeId),
                 kind = group.maxBy { kindPriority(it.kind) }.kind,
-                maxSpeedKmh = ordered.firstNotNullOfOrNull { it.maxSpeedKmh },
+                speedLimit = RadarSpeedLimit.resolve(group.flatMap { it.limits }),
                 directionDeg = deg,
                 directionKnown = deg != null,
+                facingDirectionDeg = ordered.firstNotNullOfOrNull { it.facingDeg },
             )
         }.sortedBy { it.id.removePrefix("osm:node/").toLongOrNull() ?: Long.MAX_VALUE }
 
         return Result.Success(cameras, warnings)
+    }
+
+    private fun limit(tags: Map<String, String>, source: String, warn: (String) -> Unit): RadarLimitObservation {
+        speed(tags["maxspeed"], source, warn) // Preserve parser diagnostics for unsupported values.
+        // Directional/conditional variants cannot be reduced to one unconditional number here.
+        val unresolved = tags.filterKeys {
+            it.startsWith("maxspeed:") && (it.endsWith(":conditional") ||
+                it == "maxspeed:forward" || it == "maxspeed:backward" || it == "maxspeed:lanes")
+        }.entries.joinToString("; ") { "${it.key}=${it.value}" }.ifBlank { null }
+        return RadarLimitObservation(source, tags["maxspeed:motorcycle"] ?: tags["maxspeed"], unresolved)
     }
 
     private fun invalid(message: String) = Result.Failure(ErrorCode.INVALID_RESPONSE, message)

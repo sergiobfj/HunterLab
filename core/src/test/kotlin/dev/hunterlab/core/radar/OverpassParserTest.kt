@@ -93,18 +93,19 @@ class OverpassParserTest {
     }
 
     @Test
-    fun `direcao numerica, cardeal e relativa a via`() {
+    fun `orientacao da camera numerica e cardeal nao confirma o fluxo fiscalizado`() {
         val r = ok(fixture("overpass_values.json"))
-        assertEquals(90.0, r.byNode(3001).directionDeg)
-        assertEquals(45.0, r.byNode(3002).directionDeg) // NE
-        assertEquals(247.5, r.byNode(3004).directionDeg) // WSW
-        assertEquals(270.0, r.byNode(3006).directionDeg) // -90 normalizado
-        assertEquals(337.5, r.byNode(3010).directionDeg) // nnw
+        assertEquals(90.0, r.byNode(3001).facingDirectionDeg)
+        assertEquals(45.0, r.byNode(3002).facingDirectionDeg) // NE
+        assertEquals(247.5, r.byNode(3004).facingDirectionDeg) // WSW
+        assertEquals(270.0, r.byNode(3006).facingDirectionDeg) // -90 normalizado
+        assertEquals(337.5, r.byNode(3010).facingDirectionDeg) // nnw
         listOf(3003L, 3005L, 3007L).forEach { n ->
             // forward / backward / "abc": sentido desconhecido
             assertFalse(r.byNode(n).directionKnown, "nó $n")
             assertNull(r.byNode(n).directionDeg, "nó $n")
         }
+        r.cameras.forEach { assertFalse(it.directionKnown); assertNull(it.directionDeg) }
         assertTrue(r.warnings.any { "abc" in it })
 
         assertEquals(OsmDirection.WayRelative("forward"), OsmTagValues.parseDirection("Forward"))
@@ -131,8 +132,9 @@ class OverpassParserTest {
         val merged = r.byNode(4001)
         assertEquals(RadarKind.FIXED, merged.kind)
         assertEquals(60, merged.maxSpeedKmh) // da relação
-        assertEquals(180.0, merged.directionDeg) // do nó
-        assertTrue(merged.directionKnown)
+        assertEquals(180.0, merged.facingDirectionDeg) // orientação do nó
+        assertNull(merged.directionDeg)
+        assertFalse(merged.directionKnown)
 
         // Radar de velocidade que também fiscaliza sinal: continua "fixo", com o limite do nó.
         val both = r.byNode(4101)
@@ -161,7 +163,7 @@ class OverpassParserTest {
         assertTrue("node[\"highway\"=\"speed_camera\"](-10.600000,-48.400000,-10.400000,-48.200000);" in q, q)
         assertTrue("relation[\"type\"=\"enforcement\"]" in q, q)
         listOf("maxspeed", "average_speed", "traffic_signals").forEach { assertTrue(it in q, it) }
-        assertTrue(q.trimEnd().endsWith("out body;\n>;\nout skel qt;"), q)
+        assertTrue(q.trimEnd().endsWith("out body;\n>;\nout body qt;"), q)
         assertTrue("[timeout:60]" in OverpassQuery.forBox(0.0, 0.0, 0.2, 0.2, timeoutS = 60))
         assertEquals(q, TileKey.of(RadarTestGeo.ORIGIN).overpassQuery())
         assertThrows<IllegalArgumentException> { OverpassQuery.forBox(-10.4, -48.4, -10.6, -48.2) }

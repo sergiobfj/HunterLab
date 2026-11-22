@@ -22,6 +22,7 @@ class GraphHopperRouteProvider(
     private val timeoutMs: Int = 15_000,
     private val useHeading: Boolean = false,
     private val headingPenaltyS: Int = 120,
+    private val includeRoadSpeedLimits: Boolean = true,
 ) : RouteProvider {
 
     override val id: String = GraphHopperParser.PROVIDER_ID
@@ -34,10 +35,17 @@ class GraphHopperRouteProvider(
             return RouteResult.Failure(RouteFailureKind.NOT_CONFIGURED, "Chave da API do GraphHopper não configurada.")
         }
         val url = buildUrl(request, key)
-        val response = try {
+        var response = try {
             http.get(url, timeoutMs)
         } catch (e: Exception) {
             HttpResult.Failed(HttpFailureKind.NETWORK, e.javaClass.simpleName)
+        }
+        val initial = response
+        if (includeRoadSpeedLimits && initial is HttpResult.Ok && initial.code == 400 &&
+            initial.body.contains("max_speed", ignoreCase = true) && initial.body.contains("detail", ignoreCase = true)) {
+            // A server without this optional capability must still provide ordinary navigation.
+            response = try { http.get(buildUrl(request, key, false), timeoutMs) }
+            catch (_: Exception) { HttpResult.Failed(HttpFailureKind.NETWORK, "Falha no serviço de rotas") }
         }
         val result = when (response) {
             is HttpResult.Failed -> when (response.kind) {
@@ -60,12 +68,15 @@ class GraphHopperRouteProvider(
     }
 
     /** URL completa do pedido (contém a chave: só para a porta HTTP; para log use [redact]). */
-    fun buildUrl(request: RouteRequest, key: String): String = buildString {
+    fun buildUrl(request: RouteRequest, key: String): String = buildUrl(request, key, includeRoadSpeedLimits)
+
+    private fun buildUrl(request: RouteRequest, key: String, details: Boolean): String = buildString {
         append(baseUrl)
         append(if ('?' in baseUrl) '&' else '?')
         append("point=").append(coord(request.origin))
         append("&point=").append(coord(request.destination))
         append("&profile=car&locale=pt_BR&instructions=true&calc_points=true&points_encoded=true")
+        if (details) append("&details=max_speed")
         val heading = request.originHeadingDeg
         if (useHeading && heading != null) {
             val h = ((heading % 360.0 + 360.0) % 360.0).roundToInt() % 360

@@ -42,6 +42,10 @@ class AppPreferences(context: Context) {
         get() = sp.getBoolean(KEY_RADAR, true)
         set(value) = sp.edit { putBoolean(KEY_RADAR, value) }
 
+    var radarVoiceEnabled: Boolean
+        get() = sp.getBoolean("radar_voice_enabled", false)
+        set(value) = sp.edit { putBoolean("radar_voice_enabled", value) }
+
     var radarOnTripper: Boolean
         get() = sp.getBoolean(KEY_RADAR_TRIPPER, true)
         set(value) = sp.edit { putBoolean(KEY_RADAR_TRIPPER, value) }

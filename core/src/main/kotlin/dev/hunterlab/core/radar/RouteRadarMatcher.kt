@@ -41,6 +41,8 @@ data class RouteRadarMatch(
         label = label,
         simulated = false,
         directionConfirmed = directionConfirmed,
+        limitInfo = camera.speedLimit,
+        sourceLabel = camera.source,
     )
 }
 
