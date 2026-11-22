@@ -172,6 +172,12 @@ Fonte: `TripperBridge.java` da referência (comportamento validado na Meteor 350
 
 ### Respostas do Pod
 
+**Nota de segurança (22/11/2026).** Análise estática publicada por terceiro associa os opcodes no primeiro byte
+`02` e `04–0A` a atualização pela mesma característica de dados. Isso não foi testado na Hunter.
+`03` continua com o comportamento já validado de `PING_FW`; a interpretação alternativa como consulta de versão
+não muda seu uso nem acrescenta comandos. A lista branca é aplicada na fila e no adaptador, com validação de CRC;
+os mesmos valores em símbolos, distâncias e CRC não são opcodes. Ver [evidência, limites e regressões](BLE_OUTBOUND_SAFETY.md).
+
 Não há formato documentado. O Hunter Lab classifica apenas a estrutura (tamanho, CRC, tipo de comando se tiver a forma
 de um pacote conhecido). Descobrir o significado é objetivo dos testes físicos — e qualquer uso futuro como evidência
 de autenticação exigirá captura real e decisão explícita.

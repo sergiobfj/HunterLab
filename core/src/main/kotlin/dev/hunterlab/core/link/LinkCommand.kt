@@ -5,6 +5,7 @@ import dev.hunterlab.protocol.CompassDirection
 import dev.hunterlab.protocol.DayPeriod
 import dev.hunterlab.protocol.DecodedPacket
 import dev.hunterlab.protocol.NavigationFrame
+import dev.hunterlab.protocol.PacketParseResult
 import dev.hunterlab.protocol.PacketDecoder
 import dev.hunterlab.protocol.TripperCommands
 import dev.hunterlab.protocol.TripperIcons
@@ -104,6 +105,15 @@ object CommandWhitelist {
 
     /** Algum tipo permitido reconhece este pacote? (Rota iniciada, ligação, tela ociosa e bytes livres: não.) */
     fun isTransmittable(packet: TripperPacket): Boolean = CommandKind.entries.any { matches(it, packet) }
+
+    /** Última barreira do adaptador: quadro fixo, CRC válido e comando já permitido.
+     * O opcode é [0]; valores iguais em ícones, distâncias ou CRC não são opcodes.
+     * Não aceita quadros variáveis nem acrescenta comandos à lista branca.
+     */
+    fun isTransmittable(bytes: ByteArray): Boolean = when (val parsed = TripperPacket.parse(bytes)) {
+        is PacketParseResult.Valid -> isTransmittable(parsed.packet)
+        is PacketParseResult.Invalid -> false
+    }
 
     internal fun matches(command: LinkCommand): Boolean = matches(command.kind, command.packet)
 }

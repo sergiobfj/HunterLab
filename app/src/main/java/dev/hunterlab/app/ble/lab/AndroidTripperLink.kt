@@ -25,6 +25,7 @@ import dev.hunterlab.app.ble.BleDiagnostics
 import dev.hunterlab.app.ble.BlePermissions
 import dev.hunterlab.app.ble.GattSnapshots
 import dev.hunterlab.core.link.Cancellable
+import dev.hunterlab.core.link.CommandWhitelist
 import dev.hunterlab.core.link.ConnectOptions
 import dev.hunterlab.core.link.GattClientPort
 import dev.hunterlab.core.link.LinkEvents
@@ -241,16 +242,20 @@ class AndroidTripperLink(
             return WriteStart.Refused(-2)
         }
         if (bytes.size != 20) return WriteStart.Refused(-3)
+        // A característica UART também pode transportar atualização de firmware.
+        // Valida uma cópia: o mesmo quadro aprovado é usado nos dois caminhos Android.
+        val outbound = bytes.copyOf()
+        if (!CommandWhitelist.isTransmittable(outbound)) return WriteStart.Refused(-5)
         val type = if (withoutResponse) BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE else BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
         return try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                val code = g.writeCharacteristic(ch, bytes, type)
+                val code = g.writeCharacteristic(ch, outbound, type)
                 if (code == BluetoothStatusCodes.SUCCESS) WriteStart.Started else WriteStart.Refused(code)
             } else {
                 @Suppress("DEPRECATION")
                 run {
                     ch.writeType = type
-                    ch.value = bytes
+                    ch.value = outbound
                     if (g.writeCharacteristic(ch)) WriteStart.Started else WriteStart.Refused(0)
                 }
             }
