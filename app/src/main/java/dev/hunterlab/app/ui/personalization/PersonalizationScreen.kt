@@ -18,7 +18,7 @@ import dev.hunterlab.protocol.TripperIcons
 import java.time.LocalTime
 
 @Composable
-fun PersonalizationScreen(state: SettingsUi, actions: NavActions, modifier: Modifier = Modifier, preview: TripperPreview? = null) {
+fun PersonalizationScreen(state: SettingsUi, actions: NavActions, modifier: Modifier = Modifier, preview: TripperPreview? = null, onPlayground: () -> Unit = {}) {
     val example = preview ?: TripperPreview(
         kind = PreviewKind.NAVIGATION, night = false,
         largeIcon = TripperIcons.describe(TripperIcons.STRAIGHT), distanceText = "300 m",
@@ -36,6 +36,7 @@ fun PersonalizationScreen(state: SettingsUi, actions: NavActions, modifier: Modi
     }
     DailyScreen(modifier) {
         DailyHeading("Do seu jeito", "Ajuste o que aparece no Tripper.")
+        ActionRow("Tripper Playground", onPlayground, "Símbolos, prévias e testes estacionários", dev.hunterlab.app.ui.theme.HunterIcons.Playground)
         TripperDisplay(
             example.copy(
                 night = night, bottomText = bottom, bottomIsRadar = false,

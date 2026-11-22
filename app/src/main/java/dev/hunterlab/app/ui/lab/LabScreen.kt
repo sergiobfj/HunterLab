@@ -566,7 +566,7 @@ private fun ConfirmDialog(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun LabActiveStrip(s: LinkSnapshot, onInterrupt: () -> Unit) {
-    if (!s.active) return
+    if (!s.active || s.purpose != dev.hunterlab.core.link.SessionPurpose.LAB) return
     FlowRow(
         Modifier
             .fillMaxWidth()

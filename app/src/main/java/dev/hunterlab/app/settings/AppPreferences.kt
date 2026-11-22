@@ -20,6 +20,11 @@ class AppPreferences(context: Context) {
         get() = sp.getString(KEY_API, null)?.takeIf { it.isNotBlank() }
         set(value) = sp.edit { if (value.isNullOrBlank()) remove(KEY_API) else putString(KEY_API, value.trim()) }
 
+    /** Registro estruturado do Playground: somente IDs de catálogo, contadores e opções de observação. */
+    var playgroundHistory: String
+        get() = sp.getString("playground_history_v1", "[]") ?: "[]"
+        set(value) = sp.edit { putString("playground_history_v1", value) }
+
     /** Versão dos termos de uso do Tripper aceitos (checklist de 5 itens). */
     var termsAcceptedVersion: Int
         get() = sp.getInt(KEY_TERMS, 0)

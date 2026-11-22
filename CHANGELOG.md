@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.1 — Tripper Playground (aguarda validação física)
+
+- Catálogo com evidência separada por referência e Hunter, prévias e editor limitado de sequências simuladas.
+- Teste físico individual de bússola de 5–15 s pelo link existente, com consentimento por sessão e prioridade da navegação.
+- Histórico local estruturado, relatório sanitizado e nenhuma persistência de PIN ou endereço Bluetooth.
+- Base Graphite Grey compartilhada; pesquisa de tela ESP32-S3 independente, sem firmware novo ou compra.
+
 Mudanças relevantes do Hunter Lab. Versões no formato `X.Y.Z` (igual ao `versionName`).
 
 ## [0.3.0] — em preparação (não validada na moto)

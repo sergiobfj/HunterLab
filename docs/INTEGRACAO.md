@@ -53,3 +53,22 @@ telas de navegação na lista branca (só em sessão `NAVIGATION`). Revisar `doc
 ## Consolidação pelo integrador
 
 A entrega foi copiada com conferência de hashes para `HunterLab-mvp-030` / `feat/mvp-030`, preservando o original. A UI funcional da engenharia é a escolhida; não integrar automaticamente a UI alternativa. Decisões, ajustes e limites da evidência: [revisão da integração 0.3.0](INTEGRACAO_030.md).
+
+## Frente Graphite Grey — base visual compartilhada
+
+Branch `feat/ui-graphite-grey`, baseada na main `a5fad26`, worktree própria. Primeira entrega coesa: paleta grafite/verde-oliva solicitada, tokens de espaços e shapes 10/14/18 dp, tipografia, chips sem âmbar de seleção, botões primários e controles de segurança que se empilham com fonte ampliada. Cores de sinal possuem variantes de texto com contraste testado; o tom fraco é reservado a estados desabilitados/decorativos. Sem dynamic color por padrão.
+
+Validação da base: 422 testes (421 anteriores + contraste dos papéis usados), Lint debug sem achados, build debug aprovado. Não há validação em aparelho. Esta entrega é a base do design system, não a conclusão do polimento de todas as telas. A frente Playground 0.3.1 pode integrar este commit pronto; não deve copiar arquivos em edição nem refazer o tema.
+
+## Playground 0.3.1 — integração isolada
+
+Worktree `HunterLab-playground-031`, branch `feat/tripper-playground-031`, base main `a5fad26`. Integração normal da base visual pronta `4b7169b`, sem copiar arquivos em edição. Nenhum arquivo em `protocol/` ou adaptadores Android BLE foi alterado. O novo dono `PLAYGROUND` e a barreira de prioridade usam o link existente; o controlador de navegação só sinaliza início/fim dessa prioridade. Todos os demais símbolos/efeitos continuam simulados; só bússolas individuais são elegíveis no Playground físico.
+
+A main permanece na 0.3.0 até integração controlada. Procedimentos, inventário e fronteiras: `TRIPPER_PLAYGROUND.md`; pesquisa independente: `FUTURE_ROUND_DISPLAY.md`. Não considerar esta entrega validada na moto. O restante do polimento visual do aplicativo continua na frente Graphite Grey; não substituí-lo pelo Playground.
+
+
+## Consolidação 0.3.1 e marca pendente — 21/11/2026
+
+Worktree `HunterLab-consolidation-031`, branch `feat/mvp-031-consolidation`, criada de `306a3cf` após conferir main, worktrees e diffs. A base Graphite `4b7169b` já é ancestral do Playground. Integração da pesquisa pelo commit isolado `8d7841a`; não integrar `6c97737` nem aplicar o H em movimento, que não foi aprovado.
+
+Código funcional, protocolo, adaptadores BLE, permissões, assinatura, versão 0.3.1/code 6 e proteções do Playground preservados byte a byte da branch funcional. Marca nova em branch de arte separada, com três conceitos para aprovação. Documentação consolidada em `CONSOLIDACAO_031.md`.

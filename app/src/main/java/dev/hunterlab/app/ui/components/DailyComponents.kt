@@ -1,6 +1,10 @@
 package dev.hunterlab.app.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.ui.platform.LocalDensity
+import dev.hunterlab.app.ui.theme.HunterShapes
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -47,14 +51,22 @@ fun SectionTitle(title: String) {
 fun SupportingText(text: String, error: Boolean = false) {
     Text(
         text, style = MaterialTheme.typography.bodySmall,
-        color = if (error) HunterColors.Error else HunterColors.TextSecondary,
+        color = if (error) HunterColors.ErrorInk else HunterColors.TextSecondary,
         modifier = Modifier.semantics { if (error) liveRegion = LiveRegionMode.Polite },
     )
 }
 
 @Composable
 fun PrimaryAction(text: String, onClick: () -> Unit, enabled: Boolean = true, icon: ImageVector? = null) {
-    Button(onClick = onClick, enabled = enabled, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
+    val interaction = remember { MutableInteractionSource() }
+    val pressed by interaction.collectIsPressedAsState()
+    Button(onClick = onClick, enabled = enabled, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
+        shape = HunterShapes.Medium, interactionSource = interaction,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (pressed) HunterColors.PrimaryPressed else HunterColors.Primary,
+            contentColor = if (pressed) HunterColors.OnPrimaryPressed else HunterColors.OnPrimary,
+        ),
+    ) {
         icon?.let { Icon(it, contentDescription = null); Spacer(Modifier.width(10.dp)) }
         Text(text)
     }
@@ -92,23 +104,25 @@ fun DailySwitch(title: String, detail: String? = null, checked: Boolean, onCheck
 fun SessionSafetyActions(active: Boolean, canInterrupt: Boolean, actions: NavActions, modifier: Modifier = Modifier) {
     var confirmStop by remember(active) { mutableStateOf(false) }
     if (!active && !canInterrupt) return
-    Row(
-        modifier.fillMaxWidth().background(HunterColors.Background).padding(horizontal = 12.dp, vertical = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        if (canInterrupt) {
-            OutlinedButton(
-                onClick = actions::interruptTripper,
-                modifier = Modifier.weight(1f).heightIn(min = 48.dp),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = HunterColors.Error),
+    BoxWithConstraints(modifier.fillMaxWidth().background(HunterColors.Background)) {
+        val stacked = maxWidth < 360.dp || LocalDensity.current.fontScale > 1.2f
+        val stopRadio: @Composable (Modifier) -> Unit = { buttonModifier ->
+            OutlinedButton(onClick = actions::interruptTripper, modifier = buttonModifier.heightIn(min = 48.dp),
+                shape = HunterShapes.Small, colors = ButtonDefaults.outlinedButtonColors(contentColor = HunterColors.ErrorInk),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 12.dp),
             ) { Text("Interromper") }
         }
-        if (active) {
-            OutlinedButton(onClick = { confirmStop = true }, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) {
-                Icon(HunterIcons.Stop, null, Modifier.size(18.dp))
-                Spacer(Modifier.width(8.dp))
-                Text("Encerrar")
-            }
+        val stopJourney: @Composable (Modifier) -> Unit = { buttonModifier ->
+            OutlinedButton(onClick = { confirmStop = true }, modifier = buttonModifier.heightIn(min = 48.dp),
+                shape = HunterShapes.Small, contentPadding = PaddingValues(horizontal = 12.dp, vertical = 12.dp),
+            ) { Text("Encerrar navegação", color = HunterColors.TextPrimary) }
+        }
+        if (stacked) Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            if (canInterrupt) stopRadio(Modifier.fillMaxWidth())
+            if (active) stopJourney(Modifier.fillMaxWidth())
+        } else Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            if (canInterrupt) stopRadio(Modifier.weight(1f))
+            if (active) stopJourney(Modifier.weight(1.25f))
         }
     }
     if (confirmStop && active) {

@@ -2,7 +2,7 @@
 
 Aplicativo Android experimental e independente para explorar o **Tripper Pod original da Royal Enfield Hunter 350 2027**. Kotlin, Jetpack Compose e Bluetooth LE, com foco em uma experiência simples de navegação e no entendimento do protocolo.
 
-**MVP atual: 0.3.0 · Base validada fisicamente informada: 0.2.1.** Projeto não oficial, sem afiliação ou endosso da Royal Enfield, Eicher Motors, Waze ou Google. Faça testes com a moto parada e em local seguro.
+**Versão consolidada: 0.3.1 · base MVP: 0.3.0 · Base validada fisicamente informada: 0.2.1.** Projeto não oficial, sem afiliação ou endosso da Royal Enfield, Eicher Motors, Waze ou Google. Faça testes com a moto parada e em local seguro.
 
 ## Compatibilidade conhecida
 
@@ -27,7 +27,7 @@ O código também inclui busca BLE, inspeção GATT, laboratório com comandos c
 
 A transmissão existente exige autorização por sessão e ações manuais no Laboratório BLE. A autenticação depende de confirmação no display; uma escrita aceita pelo Android não confirma autenticação.
 
-## Em desenvolvimento — 0.3.0 (implementada, ainda não validada na moto)
+## Navegação e radares — incluídos na 0.3.1, aguardam validação física
 
 - Navegação real: destino por busca, coordenadas ou link `geo:`; rotas GraphHopper com a chave do próprio usuário;
   GPS com desvio e recálculo; telas de navegação no Tripper só em sessão de navegação autenticada.
@@ -37,7 +37,7 @@ A transmissão existente exige autorização por sessão e ações manuais no La
   primeiro plano. Detalhes em [MVP_ARCHITECTURE](docs/MVP_ARCHITECTURE.md); validação em
   [PHYSICAL_TEST_PLAN](docs/PHYSICAL_TEST_PLAN.md).
 
-Consulte o [roadmap](docs/ROADMAP.md). Não há capturas de tela públicas verificadas nesta entrega.
+Consulte o [roadmap](docs/ROADMAP.md) e as [prévias Android do Playground](docs/TRIPPER_PLAYGROUND.md). São renders, sem validação em aparelho.
 
 ## Arquitetura
 
@@ -88,6 +88,10 @@ A distribuição de release depende de uma chave estável aprovada pelo mantened
 
 Consulte a [auditoria de publicação](docs/AUDITORIA_PUBLICACAO.md) e os [testes físicos](docs/TESTES_FISICOS.md). Os roteiros antigos documentam etapas anteriores; não substituem o relato atual do mantenedor.
 
+## Tripper Playground 0.3.1
+
+A branch de funcionalidade acrescenta catálogo por evidência, prévias, sequências simuladas e testes individuais de bússola com prioridade absoluta da navegação. A validação física da 0.3.1 ainda está pendente. [Recursos, matriz e checklist](docs/TRIPPER_PLAYGROUND.md) · [Pesquisa de tela circular independente](docs/FUTURE_ROUND_DISPLAY.md).
+
 ## Documentação técnica
 
 - [Arquitetura](docs/ARQUITETURA.md)
@@ -106,3 +110,9 @@ Consulte a [auditoria de publicação](docs/AUDITORIA_PUBLICACAO.md) e os [teste
 O [WazeTripper, de jnsdias](https://github.com/jnsdias/wazetripper), fornece a referência pública do protocolo e vetores de teste, sob [Apache-2.0](https://github.com/jnsdias/wazetripper/blob/main/LICENSE). O código local se apresenta como implementação Kotlin independente. Não são incluídos APKs, recursos ou código proprietário do Waze ou da Royal Enfield.
 
 As dependências e as limitações da revisão de origem estão em [créditos de terceiros](THIRD_PARTY_NOTICES.md). Marcas e nomes de produtos pertencem aos respectivos titulares.
+
+## Consolidação e identidade
+
+A 0.3.1 reúne navegação GPS, radares, BLE, Playground e base Graphite Grey. O [relatório de consolidação](docs/CONSOLIDACAO_031.md) descreve a preservação funcional e a validação. A nova marca está em exploração e **aguarda aprovação**; o ícone anterior continua nesta versão.
+
+A [investigação gráfica do Tripper](docs/TRIPPER_GRAPHICS_RESEARCH.md) permanece passiva: não há evidência suficiente de suporte a GIFs, vídeo ou imagens arbitrárias no Pod original. FOTA não comprova upload gráfico de operação.

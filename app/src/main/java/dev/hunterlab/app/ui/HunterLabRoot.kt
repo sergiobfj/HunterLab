@@ -7,6 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -57,7 +58,8 @@ fun HunterLabRoot(ble: BleController, nav: NavBindings) {
     val settingsState by nav.settings.collectAsStateWithLifecycle()
     val devices: DevicesViewModel = viewModel { DevicesViewModel(ble) }
     val simulation: SimulationViewModel = viewModel()
-    val playground: PlaygroundViewModel = viewModel()
+    val appContext = LocalContext.current.applicationContext
+    val playground: PlaygroundViewModel = viewModel { PlaygroundViewModel(ble, nav, appContext) }
     val lab: LabViewModel = viewModel { LabViewModel(ble) }
     val labState by lab.link.collectAsStateWithLifecycle()
     val active = homeState.navigationActive || navState.hasActiveNavigation()
@@ -133,7 +135,7 @@ fun HunterLabRoot(ble: BleController, nav: NavBindings) {
                     navState, nav.actions, onHome = { destination = DailyDestination.HOME }, modifier = content,
                     navigationActive = active, showSafetyActions = false,
                 )
-                DailyDestination.PERSONALIZATION -> PersonalizationScreen(settingsState, nav.actions, content, navState.tripperPreview)
+                DailyDestination.PERSONALIZATION -> PersonalizationScreen(settingsState, nav.actions, content, navState.tripperPreview, onPlayground = { advanced = AdvancedDestination.PLAYGROUND })
                 DailyDestination.SETTINGS -> SettingsScreen(settingsState, nav.actions, onAdvanced = { advanced = it }, modifier = content)
             }
         }

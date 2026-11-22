@@ -39,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.hunterlab.app.ui.theme.HunterShapes
 import dev.hunterlab.app.ui.theme.HunterColors
 import dev.hunterlab.app.ui.theme.HunterIcons
 import dev.hunterlab.app.ui.theme.color
@@ -56,7 +57,7 @@ fun HunterCard(
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp),
+        shape = HunterShapes.Medium,
         color = HunterColors.Surface,
         border = BorderStroke(1.dp, HunterColors.Outline),
     ) {
@@ -78,8 +79,8 @@ fun HunterCard(
 }
 
 @Composable
-fun SectionLabel(text: String, color: Color = HunterColors.AmberSoft) {
-    Text(text.uppercase(), style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 1.4.sp), color = color)
+fun SectionLabel(text: String, color: Color = HunterColors.TextSecondary) {
+    Text(text, style = MaterialTheme.typography.titleSmall, color = color)
 }
 
 @Composable
@@ -131,10 +132,10 @@ fun SimulationBanner(text: String) {
 @Composable
 fun MessageCard(message: UserMessage, modifier: Modifier = Modifier, actions: (@Composable () -> Unit)? = null) {
     val color = when {
-        message.expected -> HunterColors.Info
-        message.severity == Severity.ERROR -> HunterColors.Error
+        message.expected -> HunterColors.InfoInk
+        message.severity == Severity.ERROR -> HunterColors.ErrorInk
         message.severity == Severity.WARNING -> HunterColors.Amber
-        else -> HunterColors.Info
+        else -> HunterColors.InfoInk
     }
     val icon = if (message.severity == Severity.INFO || message.expected) HunterIcons.Info else HunterIcons.Warning
     Row(
@@ -184,15 +185,15 @@ fun <T> ChoiceRow(
                     containerColor = HunterColors.SurfaceHigh,
                     labelColor = HunterColors.TextSecondary,
                     iconColor = HunterColors.TextSecondary,
-                    selectedContainerColor = HunterColors.AmberContainer,
-                    selectedLabelColor = HunterColors.AmberSoft,
-                    selectedLeadingIconColor = HunterColors.Amber,
+                    selectedContainerColor = HunterColors.PrimaryContainer,
+                    selectedLabelColor = HunterColors.OnPrimaryContainer,
+                    selectedLeadingIconColor = HunterColors.OnPrimaryContainer,
                 ),
                 border = FilterChipDefaults.filterChipBorder(
                     enabled = enabled(option),
                     selected = option == selected,
                     borderColor = HunterColors.Outline,
-                    selectedBorderColor = HunterColors.Amber.copy(alpha = 0.6f),
+                    selectedBorderColor = HunterColors.Primary.copy(alpha = 0.6f),
                 ),
             )
         }
@@ -215,7 +216,7 @@ fun LabeledSwitch(title: String, subtitle: String?, checked: Boolean, onChecked:
             onCheckedChange = onChecked,
             colors = SwitchDefaults.colors(
                 checkedThumbColor = HunterColors.Background,
-                checkedTrackColor = HunterColors.Amber,
+                checkedTrackColor = HunterColors.Primary,
                 uncheckedThumbColor = HunterColors.TextSecondary,
                 uncheckedTrackColor = HunterColors.SurfaceHighest,
                 uncheckedBorderColor = HunterColors.OutlineStrong,
@@ -236,7 +237,7 @@ fun KeyValue(key: String, value: String, valueColor: Color = HunterColors.TextPr
 @Composable
 fun BulletText(text: String, color: Color = HunterColors.TextSecondary) {
     Row {
-        Text("•", color = HunterColors.Amber, style = MaterialTheme.typography.bodySmall)
+        Text("•", color = HunterColors.TextSecondary, style = MaterialTheme.typography.bodySmall)
         Spacer(Modifier.width(8.dp))
         Text(text, color = color, style = MaterialTheme.typography.bodySmall)
     }
@@ -276,7 +277,7 @@ fun CollapsibleCard(
     var expanded by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(initiallyExpanded) }
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp),
+        shape = HunterShapes.Medium,
         color = HunterColors.Surface,
         border = BorderStroke(1.dp, HunterColors.Outline),
     ) {
@@ -284,7 +285,7 @@ fun CollapsibleCard(
             Row(
                 Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(18.dp))
+                    .clip(HunterShapes.Medium)
                     .clickable { expanded = !expanded }
                     .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically,

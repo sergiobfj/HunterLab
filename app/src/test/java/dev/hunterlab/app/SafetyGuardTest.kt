@@ -115,6 +115,7 @@ class SafetyGuardTest {
         val allowedOutsideUi = setOf(
             "core/src/main/kotlin/dev/hunterlab/core/link/TripperLink.kt",
             "core/src/main/kotlin/dev/hunterlab/core/display/TripperDisplayController.kt",
+            "core/src/main/kotlin/dev/hunterlab/core/playground/PlaygroundController.kt",
             navController,
         )
         val outside = filesMatching(calls).filterNot { isUi(it) } - allowedOutsideUi
