@@ -27,7 +27,7 @@ O código também inclui busca BLE, inspeção GATT, laboratório com comandos c
 
 A transmissão existente exige autorização por sessão e ações manuais no Laboratório BLE. A autenticação depende de confirmação no display; uma escrita aceita pelo Android não confirma autenticação.
 
-## Em desenvolvimento — 0.3.0 (implementada, ainda não validada na moto)
+## Navegação e radares — incluídos na 0.3.1, aguardam validação física
 
 - Navegação real: destino por busca, coordenadas ou link `geo:`; rotas GraphHopper com a chave do próprio usuário;
   GPS com desvio e recálculo; telas de navegação no Tripper só em sessão de navegação autenticada.
