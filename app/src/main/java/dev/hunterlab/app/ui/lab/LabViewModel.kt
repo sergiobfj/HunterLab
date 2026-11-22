@@ -44,6 +44,12 @@ class LabViewModel(private val ble: BleController) : ViewModel() {
     private val _feedback = MutableStateFlow<String?>(null)
     val feedback: StateFlow<String?> = _feedback.asStateFlow()
 
+    private fun owned(action: () -> CommandResult) {
+        if (link.value.active && link.value.purpose != dev.hunterlab.core.link.SessionPurpose.LAB) {
+            _feedback.value = "Outra ferramenta controla a sessão. Encerre-a na tela de origem."
+        } else handle(action())
+    }
+
     private fun handle(result: CommandResult) {
         _feedback.value = (result as? CommandResult.Rejected)?.reason
     }
@@ -52,30 +58,31 @@ class LabViewModel(private val ble: BleController) : ViewModel() {
         _feedback.value = null
     }
 
-    fun authorize(ack: TransmissionAck) = handle(ble.lab.authorizeTransmission(ack))
-    fun cancelPreAuthorization() = ble.lab.cancelPreAuthorization()
+    fun authorize(ack: TransmissionAck) = owned { ble.lab.authorizeTransmission(ack) }
+    fun cancelPreAuthorization() { if (!link.value.active || link.value.purpose == dev.hunterlab.core.link.SessionPurpose.LAB) ble.lab.cancelPreAuthorization() }
 
     fun connect(device: ScannedDevice) {
+        if (link.value.active) { _feedback.value = "Outra sessão BLE está em uso."; return }
         ble.prepareLab()
         val age = (System.currentTimeMillis() - device.lastSeenMs).coerceAtLeast(0)
         handle(ble.lab.connect(device.address, device.name, _options.value, lastAdvertisementAgeMs = age))
     }
 
-    fun startPairing() = handle(ble.lab.startPairing())
-    fun resume() = handle(ble.lab.resume())
-    fun submitPin(pin: String) = handle(ble.lab.submitPin(pin))
-    fun confirmAuthenticated() = handle(ble.lab.confirmAuthenticated())
-    fun reportPinRequired() = handle(ble.lab.reportPinRequired())
-    fun syncClock() = handle(ble.lab.syncClock())
+    fun startPairing() = owned { ble.lab.startPairing() }
+    fun resume() = owned { ble.lab.resume() }
+    fun submitPin(pin: String) = owned { ble.lab.submitPin(pin) }
+    fun confirmAuthenticated() = owned { ble.lab.confirmAuthenticated() }
+    fun reportPinRequired() = owned { ble.lab.reportPinRequired() }
+    fun syncClock() = owned { ble.lab.syncClock() }
     fun startCompass(direction: CompassDirection, period: DayPeriod, durationMs: Long) =
-        handle(ble.lab.startCompassTest(direction, period, durationMs))
+        owned { ble.lab.startCompassTest(direction, period, durationMs) }
 
-    fun stopCompass() = handle(ble.lab.stopCompassTest())
-    fun observe(o: CompassObservation) = handle(ble.lab.recordObservation(o))
-    fun observe(o: AfterTestObservation) = handle(ble.lab.recordObservation(o))
-    fun interrupt() = handle(ble.lab.interrupt())
-    fun disconnectNow() = handle(ble.lab.disconnectNow())
-    fun setInboundCapture(enabled: Boolean) = ble.lab.setInboundCapture(enabled)
+    fun stopCompass() = owned { ble.lab.stopCompassTest() }
+    fun observe(o: CompassObservation) = owned { ble.lab.recordObservation(o) }
+    fun observe(o: AfterTestObservation) = owned { ble.lab.recordObservation(o) }
+    fun interrupt() = owned { ble.lab.interrupt() }
+    fun disconnectNow() = owned { ble.lab.disconnectNow() }
+    fun setInboundCapture(enabled: Boolean) { if (!link.value.active || link.value.purpose == dev.hunterlab.core.link.SessionPurpose.LAB) ble.lab.setInboundCapture(enabled) }
 
     fun report(): String =
         "Aparelho: ${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL} · Android ${android.os.Build.VERSION.RELEASE} " +

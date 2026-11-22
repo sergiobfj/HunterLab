@@ -69,6 +69,6 @@ data class SymbolSequence(val name: String, val steps: List<SequenceStep>) {
 object HardwareExecutionPolicy {
     const val ALLOWED: Boolean = false
     const val REASON: String =
-        "Sequências de símbolos não são transmitidas: tocam apenas na prévia do app. Na 0.2.0, só o teste de " +
-            "bússola do Laboratório BLE transmite, com autorização. Sequências reais exigem validação física do handshake."
+        "Sequências de símbolos ficam apenas na prévia. A 0.3.1 permite somente bússolas individuais no " +
+            "Playground físico, com consentimento, autenticação e prioridade da navegação."
 }

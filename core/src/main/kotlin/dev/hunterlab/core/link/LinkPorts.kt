@@ -17,6 +17,7 @@ interface LinkScheduler {
 enum class SessionPurpose(val label: String) {
     LAB("Laboratório BLE"),
     NAVIGATION("Navegação"),
+    PLAYGROUND("Tripper Playground"),
 }
 
 enum class ServerMode(val label: String) {

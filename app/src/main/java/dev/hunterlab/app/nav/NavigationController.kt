@@ -248,6 +248,7 @@ class NavigationController(context: Context, private val ble: BleController) : N
             location.stop()
             locationRunning = false
         }
+        ble.lab.setNavigationPriority(true)
         navigating = true
         navGen++
         arrivalScheduled = false
@@ -272,6 +273,7 @@ class NavigationController(context: Context, private val ble: BleController) : N
     override fun stopNavigation() {
         if (!navigating && !tripperNavSessionActive()) return
         navigating = false
+        ble.lab.setNavigationPriority(false)
         simulator = null
         radarRepo.cancel()
         radarRoute = null
@@ -460,7 +462,7 @@ class NavigationController(context: Context, private val ble: BleController) : N
     override fun connectTripper() {
         val snap = ble.lab.snapshot.value
         if (snap.active) {
-            tripperMessage = if (snap.purpose == SessionPurpose.LAB) "O Laboratório BLE está em uso. Interrompa-o antes." else null
+            tripperMessage = if (snap.purpose != SessionPurpose.NAVIGATION) "O Laboratório BLE está em uso. Interrompa-o antes." else null
             publish()
             return
         }
@@ -774,7 +776,7 @@ class NavigationController(context: Context, private val ble: BleController) : N
         if (search != null) {
             return TripperUi(TripperUiStatus.CONNECTING, search, canInterrupt = true, needsTerms = needsTerms)
         }
-        if (s.active && s.purpose == SessionPurpose.LAB) {
+        if (s.active && s.purpose != SessionPurpose.NAVIGATION) {
             return TripperUi(TripperUiStatus.DISCONNECTED, "Laboratório BLE em uso", "Interrompa o laboratório para usar o Tripper na navegação.", needsTerms = needsTerms)
         }
         val base = when (s.state) {

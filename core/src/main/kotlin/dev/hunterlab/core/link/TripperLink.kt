@@ -124,6 +124,15 @@ class TripperLink(
         var resendTask: Cancellable? = null,
     )
 
+    /** Barreira síncrona: a navegação revoga a sessão experimental antes de assumir prioridade. */
+    var navigationHasPriority: Boolean = false
+        private set
+
+    fun setNavigationPriority(active: Boolean) {
+        navigationHasPriority = active
+        if (active && session?.options?.purpose == SessionPurpose.PLAYGROUND) interrupt("prioridade da navegação")
+    }
+
     // =========================================================================== comandos do usuário
 
     /** Libera transmissão real para a sessão atual, ou arma para a próxima conexão (expira). */
@@ -177,6 +186,7 @@ class TripperLink(
         options: ConnectOptions = ConnectOptions(),
         lastAdvertisementAgeMs: Long? = null,
     ): CommandResult {
+        if (options.purpose == SessionPurpose.PLAYGROUND && navigationHasPriority) return reject("A navegação tem prioridade sobre o Playground.")
         if (state != LinkState.DISCONNECTED) return reject("Já existe uma sessão (${state.label}). Interrompa antes.")
         require(address.isNotBlank()) { "Endereço vazio" }
         message = null
@@ -346,6 +356,7 @@ class TripperLink(
 
     /** Primeiro experimento de tela: bússola com direção fixa, reenviada a cada ~2 s, com duração limitada. */
     fun startCompassTest(direction: CompassDirection, period: DayPeriod, durationMs: Long = timing.compassDefaultMs): CommandResult {
+        if (session?.options?.purpose == SessionPurpose.PLAYGROUND && (navigationHasPriority || durationMs !in 5_000..15_000 || timing.screenResendMs != 2_000L)) return reject("Playground bloqueado pela prioridade ou duração.")
         val s = session ?: return reject("Sem sessão.")
         if (state != LinkState.AUTHENTICATED) return reject("O teste de bússola exige autenticação confirmada.")
         if (durationMs !in timing.compassMinMs..timing.compassMaxMs) {
@@ -659,6 +670,7 @@ class TripperLink(
 
     private fun enqueue(s: Session, command: LinkCommand): Boolean {
         if (session !== s) return false
+        if (s.options.purpose == SessionPurpose.PLAYGROUND && (navigationHasPriority || command.kind in setOf(CommandKind.NAVIGATION, CommandKind.RECALCULATING))) return false
         if (!s.authorized || !state.allowsWrites || !s.connected || !s.profileOk) {
             warn("Bloqueado: ${command.kind.label} fora de estado/autorização (${state.label}).")
             return false
@@ -684,6 +696,7 @@ class TripperLink(
     private fun pump(s: Session) {
         if (session !== s || queue.inFlight != null || queue.isEmpty() || s.pumpTask != null) return
         if (!s.authorized || !state.allowsWrites || !s.connected) return
+        if (s.options.purpose == SessionPurpose.PLAYGROUND && navigationHasPriority) return
         val now = scheduler.now()
         val earliest = maxOf(
             (s.discoveredAt ?: now) + timing.postDiscoveryDelayMs,
