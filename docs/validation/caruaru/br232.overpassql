@@ -1,0 +1,1 @@
+[out:json][timeout:25];(node["highway"="speed_camera"](-8.4,-36.2,-8.2,-35.78);relation["type"="enforcement"]["enforcement"~"(^|;)(maxspeed|average_speed|traffic_signals)(;|$)"](-8.4,-36.2,-8.2,-35.78););out body;>;out skel qt;

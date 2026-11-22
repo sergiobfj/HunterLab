@@ -1,0 +1,68 @@
+{
+  "captured_at": "2026-11-22",
+  "osm_license": "ODbL 1.0",
+  "osm_attribution": "© OpenStreetMap contributors",
+  "osm_copyright_url": "https://www.openstreetmap.org/copyright",
+  "snapshots": [
+    {
+      "queried_at": "2026-11-22T14:25:47.549761+00:00",
+      "status": 200,
+      "bytes": 5960,
+      "sha256": "7c21a1ba90fd64aa92ab552ddfb4e85804a4de41b75c65646bcd1068c83999a4",
+      "file": "urban.json",
+      "method": "GET",
+      "provider": "OpenStreetMap via Overpass",
+      "endpoint": "https://overpass-api.de/api/interpreter"
+    },
+    {
+      "queried_at": "2026-11-22T14:27:47.409867+00:00",
+      "received_at": "2026-11-22T14:28:22.204207+00:00",
+      "status": 200,
+      "bytes": 6093,
+      "sha256": "7a56086b29f80d620f4eb8c99f5491136e75e1c2b31ee17ce44dee52d2b5324d",
+      "bbox": [
+        -8.5,
+        -36.1,
+        -8.05,
+        -35.9
+      ],
+      "file": "br104.json",
+      "method": "GET",
+      "provider": "OpenStreetMap via Overpass",
+      "endpoint": "https://overpass-api.de/api/interpreter"
+    },
+    {
+      "queried_at": "2026-11-22T14:31:28.515381+00:00",
+      "received_at": "2026-11-22T14:31:57.786889+00:00",
+      "status": 200,
+      "bytes": 6802,
+      "sha256": "94dd41942b185bd33a55e1d5dcd51bc1e7382f6efd00b959af9de41a3da6266c",
+      "file": "br232.json",
+      "method": "POST",
+      "provider": "OpenStreetMap via Overpass",
+      "endpoint": "https://overpass-api.de/api/interpreter"
+    },
+    {
+      "queried_at": "2026-11-22T14:28:24.206817+00:00",
+      "received_at": "2026-11-22T14:28:48.819663+00:00",
+      "status": 200,
+      "bytes": 187888,
+      "sha256": "019aab5d20839560889517f4c3bdf14358656d06104fdb37a8060b1279dde141",
+      "bbox": null,
+      "file": "roads.json",
+      "method": "GET",
+      "provider": "OpenStreetMap via Overpass",
+      "endpoint": "https://overpass-api.de/api/interpreter"
+    },
+    {
+      "queried_at": "2026-11-22T14:25:17.438396+00:00",
+      "status": 401,
+      "bytes": 108,
+      "sha256": "ce49035f27e2ca9e0f9ef1970a68f40cb34973854530a7d4324df3d065decf5a",
+      "file": "graphhopper-invalid-key.json",
+      "method": "GET",
+      "provider": "GraphHopper",
+      "endpoint": "https://graphhopper.com/api/1/route"
+    }
+  ]
+}

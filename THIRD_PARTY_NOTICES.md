@@ -53,3 +53,12 @@ As rotas e os radares mantêm a atribuição ao OpenStreetMap. Os radares baixad
 ## Pesquisa 0.3.1
 
 Tachyon, Waveshare, Espressif e LVGL são referências documentais para uma plataforma futura. Nenhum código, biblioteca, firmware ou asset desses projetos foi adicionado ao aplicativo. O README Tachyon declara MIT, mas a revisão consultada não contém o arquivo LICENSE; reutilização de código fica pendente de esclarecimento. Não há dependência nova de produção na 0.3.1.
+
+
+### Snapshots públicos de validação — Caruaru
+
+Os arquivos OSM em `core/src/test/resources/validation/caruaru/` são dados de © colaboradores do OpenStreetMap,
+redistribuídos sob ODbL 1.0, com consultas, timestamps e hashes em `provenance.json` e `docs/VALIDACAO_CARUARU.md`.
+Essa licença se refere aos dados, sem alterar a situação da licença própria do código Kotlin.
+A pequena resposta de erro GraphHopper é identificada separadamente na proveniência; não contém chave válida.
+As prévias de interface usam dados sintéticos. Nenhuma imagem de referência de marca ou firmware proprietário foi incluído.
