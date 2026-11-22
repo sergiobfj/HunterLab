@@ -98,6 +98,20 @@ class SafetyGuardTest {
     }
 
     @Test
+    fun `os dois caminhos Android validam o quadro antes de tocar a caracteristica`() {
+        val source = sources.getValue(labAdapter)
+        val write = source.substringAfter("override fun writePacket(").substringBefore("override fun disconnect(")
+        val guard = write.indexOf("if (!CommandWhitelist.isTransmittable(outbound)) return WriteStart.Refused(-5)")
+        assertTrue("barreira final ausente", guard >= 0)
+        assertTrue(write.indexOf("val outbound = bytes.copyOf()") in 0 until guard)
+        val modern = write.indexOf("g.writeCharacteristic(ch, outbound, type)")
+        val legacy = write.indexOf("ch.value = outbound")
+        assertTrue("caminho API 33+ deve usar a cópia validada", modern > guard)
+        assertTrue("caminho API 31-32 deve usar a mesma cópia validada", legacy > guard)
+        assertTrue("bytes não validados não podem chegar ao rádio", !write.contains("ch.value = bytes") && !write.contains("writeCharacteristic(ch, bytes"))
+    }
+
+    @Test
     fun `a porta de escrita so e chamada pelo nucleo`() {
         assertEquals(
             setOf(

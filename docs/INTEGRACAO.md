@@ -72,3 +72,14 @@ A main permanece na 0.3.0 até integração controlada. Procedimentos, inventár
 Worktree `HunterLab-consolidation-031`, branch `feat/mvp-031-consolidation`, criada de `306a3cf` após conferir main, worktrees e diffs. A base Graphite `4b7169b` já é ancestral do Playground. Integração da pesquisa pelo commit isolado `8d7841a`; não integrar `6c97737` nem aplicar o H em movimento, que não foi aprovado.
 
 Código funcional, protocolo, adaptadores BLE, permissões, assinatura, versão 0.3.1/code 6 e proteções do Playground preservados byte a byte da branch funcional. Marca nova em branch de arte separada, com três conceitos para aprovação. Documentação consolidada em `CONSOLIDACAO_031.md`.
+
+
+## Proteção BLE consolidada — 22/11/2026
+
+Branch `feat/mvp-ble-ota-guard`: barreira de comprimento/CRC/lista branca no adaptador Android,
+mais igualdade byte a byte dos 16 quadros canônicos de bússola. Casos complementares do
+`FirmwareUpdateOpcodeGuardTest` de `4871e00` incorporados ao teste existente, sem integrar o commit inteiro,
+referências visuais ou ferramentas de `research/cavalo01`. Worktree do Claude preservada.
+Comparação, evidências e limites em [BLE_OUTBOUND_SAFETY.md](BLE_OUTBOUND_SAFETY.md).
+Validação local: 462 testes, Lint zero achados, build debug aprovado. Protocolo, builders e `03` preservados.
+Nenhuma conexão BLE ou validação física nesta consolidação. Identidade visual continua em branch separada para aprovação.

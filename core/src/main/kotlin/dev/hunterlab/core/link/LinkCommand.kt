@@ -5,6 +5,7 @@ import dev.hunterlab.protocol.CompassDirection
 import dev.hunterlab.protocol.DayPeriod
 import dev.hunterlab.protocol.DecodedPacket
 import dev.hunterlab.protocol.NavigationFrame
+import dev.hunterlab.protocol.PacketParseResult
 import dev.hunterlab.protocol.PacketDecoder
 import dev.hunterlab.protocol.TripperCommands
 import dev.hunterlab.protocol.TripperIcons
@@ -94,7 +95,10 @@ object CommandWhitelist {
             DecodedPacket.PingFirmware -> kind == CommandKind.PING
             is DecodedPacket.Pin -> kind == CommandKind.PIN && d.code.length in 1..TripperCommands.PIN_MAX_LENGTH
             is DecodedPacket.SetTime -> kind == CommandKind.SET_TIME
-            is DecodedPacket.Compass -> kind == CommandKind.COMPASS && d.direction != null
+            // A identificação da tela não basta: somente os 16 quadros do builder são permitidos.
+            is DecodedPacket.Compass -> kind == CommandKind.COMPASS && d.direction?.let { direction ->
+                packet == TripperCommands.compass(direction, if (d.night) DayPeriod.NIGHT else DayPeriod.DAY)
+            } == true
             // Tela de navegação documentada; "rota iniciada" (0x45, só provável) continua fora.
             is DecodedPacket.Navigation -> kind == CommandKind.NAVIGATION && d.icon != TripperIcons.ROUTE_STARTED && d.distance != null
             is DecodedPacket.Screen -> kind == CommandKind.RECALCULATING && d.icon == TripperIcons.RECALCULATING
@@ -104,6 +108,15 @@ object CommandWhitelist {
 
     /** Algum tipo permitido reconhece este pacote? (Rota iniciada, ligação, tela ociosa e bytes livres: não.) */
     fun isTransmittable(packet: TripperPacket): Boolean = CommandKind.entries.any { matches(it, packet) }
+
+    /** Última barreira do adaptador: quadro fixo, CRC válido e comando já permitido.
+     * O opcode é [0]; valores iguais em ícones, distâncias ou CRC não são opcodes.
+     * Não aceita quadros variáveis nem acrescenta comandos à lista branca.
+     */
+    fun isTransmittable(bytes: ByteArray): Boolean = when (val parsed = TripperPacket.parse(bytes)) {
+        is PacketParseResult.Valid -> isTransmittable(parsed.packet)
+        is PacketParseResult.Invalid -> false
+    }
 
     internal fun matches(command: LinkCommand): Boolean = matches(command.kind, command.packet)
 }

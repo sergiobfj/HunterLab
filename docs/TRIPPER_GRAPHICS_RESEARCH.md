@@ -2,6 +2,13 @@
 
 Data de consulta: **21/11/2026**. Escopo: Pod pequeno da Hunter/Meteor; nenhuma conexão com motocicleta, transmissão BLE, instalação, consulta a interface de atualização ou alteração de aplicativo oficial foi realizada nesta investigação.
 
+> **Adendo de 22/11/2026** — ver [TRIPPER_GRAPHICS_DEEP_DIVE.md](TRIPPER_GRAPHICS_DEEP_DIVE.md). Correções e evidências
+> novas: as fotos internas 5227608/5227630 ficaram acessíveis (mesmo arquivo; um único MCU NXP, candidato KW36A por
+> leitura parcial de terceiro — hipótese); o manual europeu do HNTR 350 declara o rádio "type JDCP"; a ANATEL homologou
+> JDCP e J1AB (09047-21-09215); análise estática de terceiro indica que a atualização de firmware usa a **mesma
+> característica** do protocolo, com opcodes `02` e `04`–`0A` (nunca enviar), e que `03` é consulta de versão. A
+> classificação para GIF/imagens próprias passa de "sem evidência suficiente" para **"contrariado pelas evidências"**.
+
 ## 1. Resumo executivo
 
 **Classificação para GIFs no Tripper original: sem evidência suficiente.** Com o protocolo de operação conhecido, imagens arbitrárias, GIFs e vídeo **não são funcionalidades disponíveis**. Não foi encontrado um caminho demonstrado puramente pelo aplicativo Android.
