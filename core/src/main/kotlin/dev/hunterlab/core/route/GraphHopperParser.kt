@@ -18,7 +18,7 @@ import kotlin.math.max
 
 /**
  * Leitura pura (sem rede) das respostas da Routing API do GraphHopper (`GET /api/1/route`).
- * Usa só `paths[0]`. Qualquer incoerência estrutural vira [RouteFailureKind.INVALID_RESPONSE] —
+ * [parse] preserva `paths[0]`; [parseAlternatives] valida cada caminho independentemente. Qualquer incoerência estrutural vira [RouteFailureKind.INVALID_RESPONSE] —
  * nunca uma exceção e nunca uma rota "meio certa".
  */
 object GraphHopperParser {
@@ -110,10 +110,30 @@ object GraphHopperParser {
                     providerId = PROVIDER_ID,
                     attribution = attribution,
                     roadSpeedLimits = roadLimits(path, polyline),
+                    roadNames = (path["description"] as? JsonArray)?.mapNotNull { it.text() }?.take(3).orEmpty(),
                 ),
             )
         } catch (e: IllegalArgumentException) {
             invalid("rota incoerente")
+        }
+    }
+
+    /** Up to three real API paths; malformed alternatives never reach the map or navigation. */
+    fun parseAlternatives(code: Int, body: String): RouteChoicesResult {
+        if (code !in 200..299) return RouteChoicesResult.Failure(parseError(code, body))
+        return try {
+            val root = Json.parseToJsonElement(body) as? JsonObject
+                ?: return RouteChoicesResult.Failure(invalid("raiz inválida"))
+            val paths = root["paths"] as? JsonArray
+                ?: return RouteChoicesResult.Failure(invalid("paths ausente"))
+            val routes = paths.take(3).mapNotNull { path ->
+                val single = JsonObject(root + ("paths" to JsonArray(listOf(path))))
+                (parse(single.toString()) as? RouteResult.Success)?.route?.takeIf { it.polyline.lengthM >= 1.0 }
+            }
+            if (routes.isEmpty()) RouteChoicesResult.Failure(invalid("nenhuma geometria válida"))
+            else RouteChoicesResult.Success(RouteChoices.distinct(routes))
+        } catch (_: Exception) {
+            RouteChoicesResult.Failure(invalid("JSON malformado"))
         }
     }
 

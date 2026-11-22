@@ -67,6 +67,38 @@ class GraphHopperRouteProvider(
         return if (result is RouteResult.Failure) result.copy(message = scrub(result.message, key)) else result
     }
 
+    /** Separate planning call; ordinary rerouting keeps using the existing single-route API. */
+    fun alternatives(request: RouteRequest): RouteChoicesResult {
+        val key = apiKey()?.trim().takeUnless { it.isNullOrEmpty() }
+            ?: return RouteChoicesResult.Failure(RouteResult.Failure(RouteFailureKind.NOT_CONFIGURED,
+                "Configure a chave GraphHopper para calcular rotas."))
+        fun fetch(details: Boolean): HttpResult = try {
+            http.get(buildAlternativesUrl(request, key, details), timeoutMs)
+        } catch (_: Exception) { HttpResult.Failed(HttpFailureKind.NETWORK, "Falha de rede") }
+        var response = fetch(includeRoadSpeedLimits)
+        if (includeRoadSpeedLimits && response is HttpResult.Ok && response.code == 400 &&
+            response.body.contains("max_speed", true) && response.body.contains("detail", true)) response = fetch(false)
+        if (response is HttpResult.Ok && response.code == 400 &&
+            response.body.contains("alternative", ignoreCase = true) &&
+            listOf("not supported", "not allowed", "unknown algorithm", "not available").any { response.body.contains(it, ignoreCase = true) }) {
+            // Only an explicit capability rejection permits a single-path fallback; key/quota failures do not.
+            return when (val single = route(request)) {
+                is RouteResult.Success -> RouteChoicesResult.Success(listOf(single.route), "Provedor sem alternativas disponíveis. Confira a rota única retornada.")
+                is RouteResult.Failure -> RouteChoicesResult.Failure(single)
+            }
+        }
+        return when (val r = response) {
+            is HttpResult.Ok -> GraphHopperParser.parseAlternatives(r.code, r.body)
+            is HttpResult.Failed -> RouteChoicesResult.Failure(RouteResult.Failure(
+                if (r.kind == HttpFailureKind.TIMEOUT) RouteFailureKind.TIMEOUT else RouteFailureKind.NETWORK,
+                if (r.kind == HttpFailureKind.TIMEOUT) "O cálculo demorou demais. Tente novamente." else "Sem conexão com o serviço de rotas."))
+        }
+    }
+
+    fun buildAlternativesUrl(request: RouteRequest, key: String, details: Boolean = includeRoadSpeedLimits): String =
+        buildUrl(request, key, details) + "&algorithm=alternative_route&alternative_route.max_paths=3" +
+            "&alternative_route.max_weight_factor=1.4&alternative_route.max_share_factor=0.6"
+
     /** URL completa do pedido (contém a chave: só para a porta HTTP; para log use [redact]). */
     fun buildUrl(request: RouteRequest, key: String): String = buildUrl(request, key, includeRoadSpeedLimits)
 

@@ -18,6 +18,7 @@ class HttpsClient(appVersion: String) : HttpGet {
     private val userAgent = "HunterLab/$appVersion (Android; navegação pessoal para Tripper)"
 
     override fun get(url: String, timeoutMs: Int): HttpResult {
+        if (Thread.currentThread().isInterrupted) return HttpResult.Failed(HttpFailureKind.NETWORK, "Consulta cancelada.")
         val parsed = try {
             URL(url)
         } catch (_: Exception) {
@@ -56,6 +57,7 @@ class HttpsClient(appVersion: String) : HttpGet {
         val out = java.io.ByteArrayOutputStream()
         val buffer = ByteArray(16 * 1024)
         while (true) {
+            if (Thread.currentThread().isInterrupted) throw IOException("Consulta cancelada")
             val n = input.read(buffer)
             if (n < 0) break
             out.write(buffer, 0, n)
@@ -66,7 +68,7 @@ class HttpsClient(appVersion: String) : HttpGet {
 
     companion object {
         /** Hosts permitidos. Qualquer outro é recusado antes de abrir conexão. */
-        val ALLOWED_HOSTS: Set<String> = setOf("graphhopper.com", "overpass-api.de")
+        val ALLOWED_HOSTS: Set<String> = setOf("graphhopper.com", "overpass-api.de", "api.maptiler.com")
         private const val MAX_BODY_BYTES = 8 * 1024 * 1024
     }
 }

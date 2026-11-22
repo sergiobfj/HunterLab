@@ -46,6 +46,7 @@ data class Route(
     val providerId: String,
     val attribution: String,
     val roadSpeedLimits: List<RoadSpeedLimitSpan> = emptyList(),
+    val roadNames: List<String> = emptyList(),
 ) {
     init {
         require(steps.isNotEmpty()) { "Rota sem passos" }
