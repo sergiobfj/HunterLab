@@ -2,7 +2,7 @@
 
 Aplicativo Android experimental e independente para explorar o **Tripper Pod original da Royal Enfield Hunter 350 2027**. Kotlin, Jetpack Compose e Bluetooth LE, com foco em uma experiência simples de navegação e no entendimento do protocolo.
 
-**Versão desta branch: 0.3.1 · base MVP: 0.3.0 · Base validada fisicamente informada: 0.2.1.** Projeto não oficial, sem afiliação ou endosso da Royal Enfield, Eicher Motors, Waze ou Google. Faça testes com a moto parada e em local seguro.
+**Versão consolidada: 0.3.1 · base MVP: 0.3.0 · Base validada fisicamente informada: 0.2.1.** Projeto não oficial, sem afiliação ou endosso da Royal Enfield, Eicher Motors, Waze ou Google. Faça testes com a moto parada e em local seguro.
 
 ## Compatibilidade conhecida
 
@@ -37,7 +37,7 @@ A transmissão existente exige autorização por sessão e ações manuais no La
   primeiro plano. Detalhes em [MVP_ARCHITECTURE](docs/MVP_ARCHITECTURE.md); validação em
   [PHYSICAL_TEST_PLAN](docs/PHYSICAL_TEST_PLAN.md).
 
-Consulte o [roadmap](docs/ROADMAP.md). Não há capturas de tela públicas verificadas nesta entrega.
+Consulte o [roadmap](docs/ROADMAP.md) e as [prévias Android do Playground](docs/TRIPPER_PLAYGROUND.md). São renders, sem validação em aparelho.
 
 ## Arquitetura
 
@@ -110,3 +110,9 @@ A branch de funcionalidade acrescenta catálogo por evidência, prévias, sequê
 O [WazeTripper, de jnsdias](https://github.com/jnsdias/wazetripper), fornece a referência pública do protocolo e vetores de teste, sob [Apache-2.0](https://github.com/jnsdias/wazetripper/blob/main/LICENSE). O código local se apresenta como implementação Kotlin independente. Não são incluídos APKs, recursos ou código proprietário do Waze ou da Royal Enfield.
 
 As dependências e as limitações da revisão de origem estão em [créditos de terceiros](THIRD_PARTY_NOTICES.md). Marcas e nomes de produtos pertencem aos respectivos titulares.
+
+## Consolidação e identidade
+
+A 0.3.1 reúne navegação GPS, radares, BLE, Playground e base Graphite Grey. O [relatório de consolidação](docs/CONSOLIDACAO_031.md) descreve a preservação funcional e a validação. A nova marca está em exploração e **aguarda aprovação**; o ícone anterior continua nesta versão.
+
+A [investigação gráfica do Tripper](docs/TRIPPER_GRAPHICS_RESEARCH.md) permanece passiva: não há evidência suficiente de suporte a GIFs, vídeo ou imagens arbitrárias no Pod original. FOTA não comprova upload gráfico de operação.

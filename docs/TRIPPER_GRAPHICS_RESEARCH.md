@@ -20,7 +20,7 @@ A evidência favorece telas e símbolos residentes selecionados por comandos. A 
 | Visteon JDCP / FCC NT8-JDCP | Registro de 20/05/2021, com manual Royal Enfield e relatórios de navegação Bluetooth [R2] |
 | JDCP com TFT 1,49 polegada e FOTA declarado | Relatórios de ensaio do fabricante/laboratório [R3/R4]. A descrição é fornecida pelo fabricante; ensaio de RF não demonstra execução de imagens |
 
-Referências locais: [PROTOCOLO.md](PROTOCOLO.md), [TESTES_FISICOS.md](TESTES_FISICOS.md), [PRIMEIRO_HANDSHAKE.md](PRIMEIRO_HANDSHAKE.md). O catálogo detalhado está em [TRIPPER_PLAYGROUND.md na branch 0.3.1](https://github.com/sergiobfj/HunterLab/blob/306a3cfbeb3cd504cec3291433de5e4c4143910c/docs/TRIPPER_PLAYGROUND.md); esse arquivo ainda não pertence à main/base desta branch.
+Referências locais: [PROTOCOLO.md](PROTOCOLO.md), [TESTES_FISICOS.md](TESTES_FISICOS.md), [PRIMEIRO_HANDSHAKE.md](PRIMEIRO_HANDSHAKE.md). O catálogo detalhado está em [TRIPPER_PLAYGROUND.md](TRIPPER_PLAYGROUND.md), integrado à base consolidada 0.3.1. A revisão de origem foi `306a3cf`.
 
 ## 3. Evidências coletadas e revisão do protocolo
 

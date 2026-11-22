@@ -65,3 +65,10 @@ Validação da base: 422 testes (421 anteriores + contraste dos papéis usados),
 Worktree `HunterLab-playground-031`, branch `feat/tripper-playground-031`, base main `a5fad26`. Integração normal da base visual pronta `4b7169b`, sem copiar arquivos em edição. Nenhum arquivo em `protocol/` ou adaptadores Android BLE foi alterado. O novo dono `PLAYGROUND` e a barreira de prioridade usam o link existente; o controlador de navegação só sinaliza início/fim dessa prioridade. Todos os demais símbolos/efeitos continuam simulados; só bússolas individuais são elegíveis no Playground físico.
 
 A main permanece na 0.3.0 até integração controlada. Procedimentos, inventário e fronteiras: `TRIPPER_PLAYGROUND.md`; pesquisa independente: `FUTURE_ROUND_DISPLAY.md`. Não considerar esta entrega validada na moto. O restante do polimento visual do aplicativo continua na frente Graphite Grey; não substituí-lo pelo Playground.
+
+
+## Consolidação 0.3.1 e marca pendente — 21/11/2026
+
+Worktree `HunterLab-consolidation-031`, branch `feat/mvp-031-consolidation`, criada de `306a3cf` após conferir main, worktrees e diffs. A base Graphite `4b7169b` já é ancestral do Playground. Integração da pesquisa pelo commit isolado `8d7841a`; não integrar `6c97737` nem aplicar o H em movimento, que não foi aprovado.
+
+Código funcional, protocolo, adaptadores BLE, permissões, assinatura, versão 0.3.1/code 6 e proteções do Playground preservados byte a byte da branch funcional. Marca nova em branch de arte separada, com três conceitos para aprovação. Documentação consolidada em `CONSOLIDACAO_031.md`.

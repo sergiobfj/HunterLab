@@ -73,3 +73,10 @@ uma vez (o checklist de 5 itens continua no laboratório). Pendente de teste: re
 - Sem testes instrumentados/UI (não há aparelho/emulador neste ambiente); a camada Android do laboratório só foi
   compilada e analisada pelo Lint — o comportamento real depende do teste físico.
 - CI Android ativa com testes, Lint, APK e checksum; release estável ainda depende da assinatura.
+
+
+## Consolidação 0.3.1 e identidade
+
+- [x] Reunir Playground, base Graphite Grey e pesquisa gráfica do Pod, preservando o código funcional da 0.3.1.
+- [ ] Escolher e aprovar nova marca entre cavalo, roadster e híbrida. Assets novos permanecem fora da main até aprovação.
+- [ ] Validar a 0.3.1 no Samsung e na Hunter estacionada seguindo o procedimento existente; sem testes físicos nesta consolidação.
