@@ -53,3 +53,12 @@ telas de navegação na lista branca (só em sessão `NAVIGATION`). Revisar `doc
 ## Consolidação pelo integrador
 
 A entrega foi copiada com conferência de hashes para `HunterLab-mvp-030` / `feat/mvp-030`, preservando o original. A UI funcional da engenharia é a escolhida; não integrar automaticamente a UI alternativa. Decisões, ajustes e limites da evidência: [revisão da integração 0.3.0](INTEGRACAO_030.md).
+
+
+## Identidade e pesquisa passiva — 21/11/2026
+
+Worktree isolada `HunterLab-identity-research`, branch `feat/hunter-identity-research`, base main `a5fad26`. Main, Graphite (`4b7169b`), Playground (`306a3cf`) e UI alternativa (`68d5bd6`) estavam limpos e foram preservados. CI main/Playground aprovadas no início. Sem merge automático.
+
+Entrega: monograma H original, foreground/fundo separados, monocromático, launcher normal/arredondado, splash existente e quatro prévias Compose/PNG. Recursos não conflitavam com as branches de UI/0.3.1 na comparação inicial. Tema Compose e lógica não editados. Workflow CI mantém o original, acrescentando somente o filtro desta branch; futura consolidação deve preservar também o filtro `feat/tripper-playground-*` da 0.3.1.
+
+Pesquisa em `TRIPPER_GRAPHICS_RESEARCH.md`: **sem evidência suficiente de GIF/imagem/vídeo no Pod**. Pista documental FOTA para o JDCP não equivale a API de bitmap; identidade da revisão 2027, chips e memória não confirmados. Fotos FCC indisponíveis às ferramentas. Nenhuma conexão física, transmissão, exploração de manutenção ou análise de firmware proprietário. Instruções e limites visuais em `brand/README.md`.

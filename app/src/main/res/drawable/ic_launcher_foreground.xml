@@ -1,23 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Aro do "pod" em âmbar com uma seta de manobra: identidade própria, sem marcas de terceiros. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp"
-    android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
-    <path
-        android:pathData="M54,30a24,24 0,1 1,0 48a24,24 0,1 1,0 -48z"
-        android:strokeWidth="3.5"
-        android:strokeColor="#FFE2A240"
-        android:fillColor="#00000000" />
-    <path
-        android:pathData="M48,67L48,55Q48,47 56,47L61,47"
-        android:strokeWidth="4.5"
-        android:strokeColor="#FFEDE8E0"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round"
-        android:fillColor="#00000000" />
-    <path
-        android:pathData="M60,40.5L68.5,47L60,53.5Z"
-        android:fillColor="#FFEDE8E0" />
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <path android:fillColor="#FFE8ECEE" android:pathData="M30,39 L40,30 L44,30 L44,51 L64,45 L64,30 L73,30 L78,34 L78,69 L68,78 L64,78 L64,58 L44,64 L44,78 L35,78 L30,74 Z" />
+    <path android:fillColor="#FFB7CF62" android:pathData="M64,30 L73,30 L78,34 L78,46 L64,50 Z" />
 </vector>

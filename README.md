@@ -1,5 +1,7 @@
 # Hunter Lab
 
+![Hunter Lab — H em movimento](docs/brand/hunter-lab.svg)
+
 Aplicativo Android experimental e independente para explorar o **Tripper Pod original da Royal Enfield Hunter 350 2027**. Kotlin, Jetpack Compose e Bluetooth LE, com foco em uma experiência simples de navegação e no entendimento do protocolo.
 
 **MVP atual: 0.3.0 · Base validada fisicamente informada: 0.2.1.** Projeto não oficial, sem afiliação ou endosso da Royal Enfield, Eicher Motors, Waze ou Google. Faça testes com a moto parada e em local seguro.
@@ -106,3 +108,7 @@ Consulte a [auditoria de publicação](docs/AUDITORIA_PUBLICACAO.md) e os [teste
 O [WazeTripper, de jnsdias](https://github.com/jnsdias/wazetripper), fornece a referência pública do protocolo e vetores de teste, sob [Apache-2.0](https://github.com/jnsdias/wazetripper/blob/main/LICENSE). O código local se apresenta como implementação Kotlin independente. Não são incluídos APKs, recursos ou código proprietário do Waze ou da Royal Enfield.
 
 As dependências e as limitações da revisão de origem estão em [créditos de terceiros](THIRD_PARTY_NOTICES.md). Marcas e nomes de produtos pertencem aos respectivos titulares.
+
+## Identidade e pesquisa do display
+
+[Nova marca e prévias Android](docs/brand/README.md) · [Investigação passiva sobre imagens, GIFs e vídeo no Tripper Pod](docs/TRIPPER_GRAPHICS_RESEARCH.md). A pesquisa não adiciona suporte a mídia nem altera a comunicação com a moto.

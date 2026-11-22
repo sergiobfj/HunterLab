@@ -61,4 +61,12 @@ uma vez (o checklist de 5 itens continua no laboratório). Pendente de teste: re
 - `connectGatt(Context, Boolean, Callback, Int)` obsoleta na API 37; a alternativa só existe na API 37+.
 - Sem testes instrumentados/UI (não há aparelho/emulador neste ambiente); a camada Android do laboratório só foi
   compilada e analisada pelo Lint — o comportamento real depende do teste físico.
-- Sem CI.
+- CI Android existente: testes, Lint, build e artefatos; distribuição estável depende da decisão de assinatura.
+
+
+## Identidade Hunter e capacidade gráfica do Pod
+
+- [x] Marca original H em movimento, vetores adaptativo/monocromático e prévias no design grafite/lima, em branch isolada.
+- [x] [Pesquisa passiva do Pod](TRIPPER_GRAPHICS_RESEARCH.md): comandos conhecidos, pista FOTA JDCP, distinção de Dash e limites de evidência.
+- [ ] Integrar os assets após conferência das frentes Graphite Grey/Playground; validar recorte do launcher e splash no Samsung sem iniciar sessão BLE.
+- [ ] Obter documentação pública legível dos componentes e confirmação documental da revisão 2027. GIFs/vídeos permanecem **sem suporte demonstrado**, sem intervenção em firmware/hardware.
